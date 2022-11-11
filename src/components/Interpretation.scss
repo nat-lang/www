@@ -2,6 +2,10 @@
   padding-left: 10px;
 
   &-header {
+
+  }
+
+  &-row {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -9,20 +13,6 @@
     &:hover {
       background: var(--hover-bg);
     }
-  }
-
-  &-row {
-    &:not(:first-child) {
-      padding-top: 10px;
-    }
-  }
-
-  &-body {
-    padding-top: 10px;
-  }
-
-  &-semantics {
-    padding-top: 10px;
   }
 
   &-form {

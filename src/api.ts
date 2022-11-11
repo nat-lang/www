@@ -1,80 +1,80 @@
 import axios from 'axios'
 import { toPascalCase } from 'utils/string';
 import {
-  Fragment, SyntaxTree, SemanticTree, Slug, Example, ID,
+  Fragment, SemanticTree, Slug, Example, ID,
   ConstituencyParse, ExampleEditValues, ConstituencyParseEditValues,
   ExampleCreateValues, Interpretation, InterpretationEditValues, InterpretationCreateValues } from './types'
 
-const catalogueClient = axios.create({
-  baseURL: 'http://localhost:8001/api/v1/',
+const wikiClient = axios.create({
+  baseURL: process.env.REACT_APP_WIKI_CLIENT_URL,
   headers: {
     Accept: 'application/json',
   },
 });
 
 const interpretationClient = axios.create({
-  baseURL: 'http://localhost:8080/',
+  baseURL: process.env.REACT_APP_INTERPRETATION_CLIENT_URL,
   headers: {
     Accept: 'application/json',
   },
 });
 
-const languageServerClient = axios.create({
-  baseURL: 'http://localhost:3003/',
+const languageClient = axios.create({
+  baseURL: process.env.REACT_APP_LANGUAGE_CLIENT_URL,
   headers: {
     Accept: 'application/json',
   },
 });
 
-const fetchFragment = (slug: Slug): Promise<Fragment> => catalogueClient
+const fetchFragment = (slug: Slug): Promise<Fragment> => wikiClient
   .get(`fragments/${slug}`)
   .then(({ data }) => data);
 
-const fetchInterpretations = (example_id: ID): Promise<Interpretation[]> => catalogueClient
+const fetchInterpretations = (example_id: ID): Promise<Interpretation[]> => wikiClient
   .get('interpretations/', {params: { example_id }})
   .then(({ data }) => data);
 
-const updateInterpretation = (interpretationId: ID, values: InterpretationEditValues): Promise<Interpretation> => catalogueClient
+const updateInterpretation = (interpretationId: ID, values: InterpretationEditValues): Promise<Interpretation> => wikiClient
   .patch(`interpretations/${interpretationId}/`, values)
   .then(({ data }) => data);
 
-const createInterpretation = (values: InterpretationCreateValues): Promise<Interpretation> => catalogueClient
+const createInterpretation = (values: InterpretationCreateValues): Promise<Interpretation> => wikiClient
   .post('interpretations/', values)
   .then(({ data }) => data);
 
-const deleteInterpretation = (interpretationId: ID): Promise<string | number> => catalogueClient
+const deleteInterpretation = (interpretationId: ID): Promise<string | number> => wikiClient
   .delete(`interpretations/${interpretationId}`)
   .then(({ status }) => status);
 
-const fetchExamples = (fragment_id: ID): Promise<Example[]> => catalogueClient
+const fetchExamples = (fragment_id: ID): Promise<Example[]> => wikiClient
   .get('examples/', {params: { fragment_id }})
   .then(({ data }) => data);
 
-const updateExample = (exampleId: ID, values: ExampleEditValues): Promise<Example> => catalogueClient
+const updateExample = (exampleId: ID, values: ExampleEditValues): Promise<Example> => wikiClient
   .patch(`examples/${exampleId}/`, values)
   .then(({ data }) => data);
 
-const createExample = (values: ExampleCreateValues): Promise<Example> => catalogueClient
+const createExample = (values: ExampleCreateValues): Promise<Example> => wikiClient
   .post('examples/', values)
   .then(({ data }) => data);
 
-const deleteExample = (exampleId: ID): Promise<string | number> => catalogueClient
+const deleteExample = (exampleId: ID): Promise<string | number> => wikiClient
   .delete(`examples/${exampleId}`)
   .then(({ status }) => status);
 
-const fetchConstituencyParses = (example_id: ID): Promise<ConstituencyParse[]> => catalogueClient
+const fetchConstituencyParses = (example_id: ID): Promise<ConstituencyParse[]> => wikiClient
   .get('constituency-parses/', {params: { example_id }})
   .then(({ data }) => data);
 
-const createConstituencyParse = (example_id: ID): Promise<ConstituencyParse> => catalogueClient
+const createConstituencyParse = (example_id: ID): Promise<ConstituencyParse> => wikiClient
   .post('constituency-parses/', { example_id })
   .then(({ data }) => data);
 
-const deleteConstituencyParse = (constituencyParseId: ID): Promise<string | number> => catalogueClient
+const deleteConstituencyParse = (constituencyParseId: ID): Promise<string | number> => wikiClient
   .delete(`constituency-parses/${constituencyParseId}`)
   .then(({ status }) => status);
 
-const updateConstituencyParse = (constituencyParseId: ID, values: ConstituencyParseEditValues): Promise<ConstituencyParse> => catalogueClient
+const updateConstituencyParse = (constituencyParseId: ID, values: ConstituencyParseEditValues): Promise<ConstituencyParse> => wikiClient
   .patch(`constituency-parses/${constituencyParseId}/`, values)
   .then(({ data }) => data);
 
@@ -82,11 +82,11 @@ const fetchSemanticTree = (fragment: Fragment, constituencyParse: string): Promi
   .post(`fragments/${toPascalCase(fragment.slug)}/`, { constituencyParse })
   .then(({ data: { semanticTree } }) => semanticTree);
 
-const fetchFragmentGrammar = (filename: string): Promise<string> => languageServerClient
+const fetchFragmentGrammar = (filename: string): Promise<string> => languageClient
   .get(filename)
   .then(({ data }) => data);
 
-const updateFragmentGrammar = (filename: string, content: string) => languageServerClient.post(filename, { content });
+const updateFragmentGrammar = (filename: string, content: string) => languageClient.post(filename, { content });
 
 export {
   fetchFragment,

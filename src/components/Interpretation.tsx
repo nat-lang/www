@@ -29,6 +29,8 @@ const Interpretation: React.FC<InterpretationProps> = ({ interpretation }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const { isLoading, loadWhile } = useLoadWhile();
 
+  console.log(semanticTree)
+
   const handleFormSubmit = (values: InterpretationEditValues) => loadWhile(
     () => fs.dispatchUpdateInterpretation(id, values)
   );
@@ -48,16 +50,16 @@ const Interpretation: React.FC<InterpretationProps> = ({ interpretation }) => {
 
   return (
     <div className="interpretation">
-      <div className="interpretation-header interpretation-row">
-        <InterpretationForm interpretation={interpretation} onSubmit={handleFormSubmit}/>
+      <div className="interpretation-row">
+        {/*<InterpretationForm interpretation={interpretation} onSubmit={handleFormSubmit}/> */}
+      </div>
 
+      <div className="interpretation-row">
+        {ccp && <InterpretationSyntax constituencyParse={ccp}/>}
         <Button mode="trans" onClick={handleInterpret}>interpret</Button>
       </div>
-
-      <div className="interpretation-body">
-        {ccp && <InterpretationSyntax constituencyParse={ccp}/>}
-        {semanticTree && <InterpretationSemantics semanticTree={semanticTree}/>}
-      </div>
+      
+      {semanticTree && <InterpretationSemantics semanticTree={semanticTree}/>}
     </div>
   );
 };

@@ -4,6 +4,7 @@ import "./App.scss";
 import { useStores } from "./hooks";
 import { observer } from "mobx-react-lite";
 import FragmentDetailRoute from "components/routes/FragmentDetailRoute";
+import IndexRoute from "components/routes/IndexRoute";
 
 const App: React.FC = () => {
   return (
@@ -11,7 +12,7 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/">
-            <Route index/>
+            <Route index element={<IndexRoute/>}/>
             <Route path=":fragmentSlug" element={<FragmentDetailRoute/>}/>
           </Route>
         </Routes>

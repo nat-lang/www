@@ -11,11 +11,9 @@ type HeaderProps = React.HTMLAttributes<HTMLDivElement> & {
 const Header: React.FC<HeaderProps> = ({ className = '', left, right, children: center, ...props }) => {
   return (
     <div className={classNames("header", className)} {...props}>
-
         <span className="header-left">{left}</span>
         <div className="header-center">{center}</div>
         <div className="header-right"><Hamburger/></div>
-
     </div>
   )
 };

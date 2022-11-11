@@ -94,6 +94,10 @@ export type Fragment = {
   examples: Example[]
 }
 
+export type IndexRouteParams = {
+  foo: string
+}
+
 export type FragmentDetailRouteParams = {
   fragmentSlug: Slug
 }

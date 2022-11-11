@@ -24,7 +24,7 @@ const getMonacoModel = (uri: string) => monaco.editor.getModel(
 
 const createMonacoModel = (uri: string, initialValue: string) => monaco.editor.createModel(
   initialValue,
-  "haskell",
+  "nat",
   monaco.Uri.parse(uri)
 );
 
@@ -53,7 +53,7 @@ const Editor: React.FC<EditorProps> = ({ content, uri, onSave }) => {
   return (
     <MonacoEditor
       width="100%"
-      language="haskell"
+      language="nat"
       editorWillMount={registerMonaco}
       options={{
         model: getOrCreateMonacoModel(uri, content),

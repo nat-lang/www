@@ -17,7 +17,7 @@ type SemanticTreeMap = {[key: ID]: CoordinatedSemanticTree}
 
 const { values } = Object;
 
-export const fragmentGrammarFilename = (fragment: Fragment) => `${toPascalCase(fragment.slug)}.hs`;
+export const fragmentGrammarFilename = (fragment: Fragment) => `${toPascalCase(fragment.slug)}.g`;
 export const fragmentGrammarURI = (fragment: Fragment) => `file:///app/fragments/${fragmentGrammarFilename(fragment)}`;
 
 const labelTmpl = (inner: number) => `(${inner})`;

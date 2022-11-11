@@ -19,6 +19,7 @@ export type TreeProps = {
 const groupTransformTmpl = (translateX: number = 0) => `translate(${translateX}, 40)`;
 
 const SemanticTree: React.FC<TreeProps> = ({ id, tree  }) => {
+  console.log(tree.height)
   const rootRef = useRef<HTMLDivElement>(null);
   const height = (tree.height + 1) * (SEM_NODE_HEIGHT + NODE_SEP_Y); 
   const [coordinatedRootNode, setCoordinatedRootNode] = useState<CoordinatedSemanticTreeNode | null>(null);

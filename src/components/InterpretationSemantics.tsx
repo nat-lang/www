@@ -10,7 +10,7 @@ type InterpretationSemanticsProps = {
   semanticTree: CoordinatedSemanticTree
 }
 const InterpretationSemantics: React.FC<InterpretationSemanticsProps> = ({ semanticTree }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const handleLogicalFormClick = useTwoClicks<HTMLDivElement>({
     onDoubleClick: () => {
       console.log('?')

@@ -9,9 +9,9 @@ import {
 import { listen } from "@codingame/monaco-jsonrpc";
 import normalizeUrl from "normalize-url";
 import { buildWorkerDefinition } from "monaco-editor-workers";
-import { languages } from "monaco-editor/esm/vs/editor/editor.api";
 
-const HASKELL_LANGUAGE_ID = "haskell";
+const NAT_LANG_ID = "nat";
+const NAT_LANG_EXT = ".nl";
 
 type Monaco = typeof import("monaco-editor/esm/vs/editor/editor.api");
 
@@ -24,10 +24,10 @@ function createLanguageClient(
   connection: MessageConnection
 ): MonacoLanguageClient {
   return new MonacoLanguageClient({
-    name: "Haskell Language Client",
+    name: "Nat Language Client",
     clientOptions: {
       // use a language id as a document selector
-      documentSelector: [HASKELL_LANGUAGE_ID],
+      documentSelector: [NAT_LANG_ID],
       // disable the default error handler
       errorHandler: {
         error: () => ErrorAction.Continue,
@@ -54,9 +54,9 @@ export const registerMonaco = (monaco: Monaco) => {
 
   // register Monaco languages
   monaco.languages.register({
-    id: HASKELL_LANGUAGE_ID,
-    extensions: [".hs"],
-    aliases: ["haskell"],
+    id: NAT_LANG_ID,
+    extensions: [NAT_LANG_EXT],
+    aliases: [NAT_LANG_ID],
     mimetypes: ["application/json"],
   });
 
