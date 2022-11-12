@@ -34,7 +34,7 @@ export type CoordinatedSyntaxTree = HierarchyNode<SyntaxTree>
 export type CoordinatedSemanticTree = HierarchyNode<SemanticTree>
 
 export type ExampleBase = {
-  fragment_id: ID
+  module_id: ID
   description: string
   content: string
   label: string
@@ -86,18 +86,30 @@ export type CoordinatedConstituencyParse = ConstituencyParse & {
   coordinated_syntax_tree: CoordinatedSyntaxTree
 }
 
-export type Fragment = {
+type ModuleBase = {
+  author?: Author
+  title: string
+  content: string
+}
+
+export type Module = ModuleBase & {
   id: ID
   slug: Slug
-  author: Author
-  title: string
-  examples: Example[]
+}
+
+export type TemporaryModule = ModuleBase & {
+  temp_id: UUID
 }
 
 export type IndexRouteParams = {
   foo: string
 }
 
-export type FragmentDetailRouteParams = {
-  fragmentSlug: Slug
+export type ModuleDetailRouteParams = {
+  moduleSlug: Slug
 }
+
+export type ModuleCreateRouteParams = {
+}
+
+export type ModuleCreateValues = TemporaryModule

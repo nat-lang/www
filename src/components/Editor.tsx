@@ -34,10 +34,10 @@ const getOrCreateMonacoModel = (uri: string, initialValue: string) =>
 type EditorProps = {
   content: string
   uri: string
-  onSave: (editorContents: string) => any
+  // onSave: (editorContents: string) => any
 }
 
-const Editor: React.FC<EditorProps> = ({ content, uri, onSave }) => {
+const Editor: React.FC<EditorProps> = ({ content, uri, /* onSave */ }) => {
   const saveKeyFilter = (e: KeyboardEvent) => e.key === "s" && e.metaKey;
 
   useKey(saveKeyFilter, (e: KeyboardEvent) => {
@@ -47,7 +47,7 @@ const Editor: React.FC<EditorProps> = ({ content, uri, onSave }) => {
 
     e.preventDefault();
 
-    onSave(model.getValue());
+    // onSave(model.getValue());
   });
 
   return (

@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ className = '', left, right, children: 
     <div className={classNames("header", className)} {...props}>
         <span className="header-left">{left}</span>
         <div className="header-center">{center}</div>
-        <div className="header-right"><Hamburger/></div>
+        <div className="header-right">{right}</div>
     </div>
   )
 };

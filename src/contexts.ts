@@ -1,6 +1,8 @@
 import { createContext } from 'react';
-import { FragmentStore } from 'stores/FragmentStore';
+import { ModuleStore } from 'stores/ModuleStore';
+import { TemporaryModuleStore } from 'stores/TemporaryModuleStore';
 
 export const storeContext = createContext({
-  fragmentStore: new FragmentStore()
+  temporaryModuleStore: new TemporaryModuleStore(),
+  moduleStore: new ModuleStore()
 })

@@ -13,7 +13,7 @@ import Route from "./Route";
 
 const IndexRoute: React.FC = () => {
   const params = useParams<IndexRouteParams>();
-  const { fragmentStore: fs } = useStores();
+  const { moduleStore: fs } = useStores();
   
   return (
     <Route className="index-route">

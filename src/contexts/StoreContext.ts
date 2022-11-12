@@ -1,6 +1,6 @@
 import { createContext } from 'react';
-import { FragmentStore } from 'stores/FragmentStore';
+import { ModuleStore } from 'stores/ModuleStore';
 
 export const StoreContext = createContext({
-  fragmentStore: new FragmentStore()
+  moduleStore: new ModuleStore()
 })

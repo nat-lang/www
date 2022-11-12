@@ -3,8 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.scss";
 import { useStores } from "./hooks";
 import { observer } from "mobx-react-lite";
-import FragmentDetailRoute from "components/routes/FragmentDetailRoute";
+import ModuleDetailRoute from "components/routes/ModuleDetailRoute";
 import IndexRoute from "components/routes/IndexRoute";
+import ModuleCreateRoute from "components/routes/ModuleCreateRoute";
 
 const App: React.FC = () => {
   return (
@@ -12,8 +13,8 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/">
-            <Route index element={<IndexRoute/>}/>
-            <Route path=":fragmentSlug" element={<FragmentDetailRoute/>}/>
+            <Route index element={<ModuleCreateRoute/>}/>
+            <Route path=":moduleSlug" element={<ModuleDetailRoute/>}/>
           </Route>
         </Routes>
       </BrowserRouter>
