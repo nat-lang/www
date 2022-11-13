@@ -9,11 +9,14 @@ import {
 import { listen } from "@codingame/monaco-jsonrpc";
 import normalizeUrl from "normalize-url";
 import { buildWorkerDefinition } from "monaco-editor-workers";
+import { toPascalCase } from "./string";
 
 const NAT_LANG_ID = "nat";
 const NAT_LANG_EXT = ".nl";
 
 type Monaco = typeof import("monaco-editor/esm/vs/editor/editor.api");
+
+export const fileUri = (base: string) => `${process.env.REACT_APP_MODULE_DIR}/${toPascalCase(base)}${NAT_LANG_EXT}`;
 
 function createUrl(hostname: string, port: number, path: string): string {
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
@@ -33,6 +36,7 @@ function createLanguageClient(
         error: () => ErrorAction.Continue,
         closed: () => CloseAction.DoNotRestart,
       },
+      diagnosticCollectionName: NAT_LANG_ID,
     },
     // create a language client connection from the JSON RPC connection on demand
     connectionProvider: {

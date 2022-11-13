@@ -5,10 +5,9 @@ import { fetchModule, fetchModuleFile, updateModuleFile,createModule } from 'api
 import { v4 as uuid } from 'uuid';
 import { toPascalCase } from 'utils/string';
 import { defaults } from 'lodash';
+import { fileUri } from 'utils/monaco';
 
 const { assign } = Object;
-
-export const tempModuleURI = (module: TemporaryModule) => `${toPascalCase(module.temp_id)}.nl`;
 
 export const temporaryModuleFactory = (): TemporaryModule => ({
   temp_id: uuid(),
@@ -24,7 +23,7 @@ export class TemporaryModuleStore {
   }
 
   get uri () {
-    return tempModuleURI(this.module);
+    return fileUri(this.module.temp_id);
   }
 
   updateModule = async (mod: Pick<TemporaryModule, "content"> & Partial<TemporaryModule>) => {

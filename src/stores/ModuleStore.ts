@@ -3,11 +3,9 @@ import { makeAutoObservable } from 'mobx';
 import { Module, Slug, TemporaryModule, ModuleCreateValues } from 'types';
 import { fetchModule, createModule, updateModuleFile, updateModule } from 'api';
 import { v4 as uuid } from 'uuid';
-import { toPascalCase } from 'utils/string';
+import { fileUri } from 'utils/monaco';
 
 const { assign } = Object;
-
-export const moduleURI = (module: Module) => `${toPascalCase(module.slug)}.nl`;
 
 export const temporaryModuleFactory = (): TemporaryModule => ({
   temp_id: uuid(),
@@ -23,7 +21,7 @@ export class ModuleStore {
   }
 
   get uri () {
-    return this.module ? moduleURI(this.module) : null;
+    return this.module ? fileUri(this.module.slug) : null;
   }
 
   fetchModule = async (moduleSlug: Slug) => {
