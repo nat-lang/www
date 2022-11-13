@@ -1,12 +1,11 @@
 
 import { makeAutoObservable } from 'mobx';
-import { ID, Author, Module, Slug, UUID, TemporaryModule } from 'types';
-import { fetchModule, fetchModuleGrammar, updateModuleGrammar,createModule } from 'api';
+import { Module, Slug, TemporaryModule, ModuleCreateValues } from 'types';
+import { fetchModule, createModule, updateModuleFile, updateModule } from 'api';
 import { v4 as uuid } from 'uuid';
 import { toPascalCase } from 'utils/string';
-import { defaults } from 'lodash';
 
-const { values } = Object;
+const { assign } = Object;
 
 export const moduleURI = (module: Module) => `${toPascalCase(module.slug)}.nl`;
 
@@ -27,7 +26,7 @@ export class ModuleStore {
     return this.module ? moduleURI(this.module) : null;
   }
 
-  dispatchFetchModule = async (moduleSlug: Slug) => {
+  fetchModule = async (moduleSlug: Slug) => {
     this.module = await fetchModule(moduleSlug);
 
     if (!this.module) throw new Error(`Module ${moduleSlug} not found!`);
@@ -35,9 +34,23 @@ export class ModuleStore {
     return this.module;
   }
 
-  dispatchCreateModule = async (tempModule: TemporaryModule) => {
-    this.module = await createModule(tempModule);
+  createModule = async (module: ModuleCreateValues) => {
+    this.module = await createModule(module);
     return this.module;
+  }
+
+  updateModule = async (mod: Partial<Module>) => {
+    if (!this.module) throw Error("Can't update a nonexistent module!");
+
+    this.module = await updateModule({slug: this.module.slug, ...mod});
+    return this.module;
+  }
+  
+  updateModuleFile = async (mod: Pick<Module, "content"> & Partial<Module>) => {
+    if (!this.uri || !this.module) throw Error("Can't update a nonexistent module!");
+  
+    await updateModuleFile(this.uri, mod.content);
+    this.module = assign(this.module, mod);
   }
 }
 

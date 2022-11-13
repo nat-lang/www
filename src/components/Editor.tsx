@@ -1,4 +1,4 @@
-import BaseMonacoEditor, { monaco } from "react-monaco-editor";
+import BaseMonacoEditor, { ChangeHandler, monaco } from "react-monaco-editor";
 import { useKey } from "react-use";
 import { registerMonaco } from "utils/monaco";
 
@@ -31,13 +31,14 @@ const createMonacoModel = (uri: string, initialValue: string) => monaco.editor.c
 const getOrCreateMonacoModel = (uri: string, initialValue: string) =>
   getMonacoModel(uri) ?? createMonacoModel(uri, initialValue);
 
-type EditorProps = {
+export type EditorProps = {
   content: string
   uri: string
-  // onSave: (editorContents: string) => any
+  onSave?: (value: string) => any
+  onChange?: (value: string) => any
 }
 
-const Editor: React.FC<EditorProps> = ({ content, uri, /* onSave */ }) => {
+const Editor: React.FC<EditorProps> = ({ content, uri, onSave, onChange }) => {
   const saveKeyFilter = (e: KeyboardEvent) => e.key === "s" && e.metaKey;
 
   useKey(saveKeyFilter, (e: KeyboardEvent) => {
@@ -47,8 +48,12 @@ const Editor: React.FC<EditorProps> = ({ content, uri, /* onSave */ }) => {
 
     e.preventDefault();
 
-    // onSave(model.getValue());
+    onSave && onSave(model.getValue());
   });
+
+  const onEditorChange: ChangeHandler = (value) => {
+    onChange && onChange (value);
+  }
 
   return (
     <MonacoEditor
@@ -62,7 +67,7 @@ const Editor: React.FC<EditorProps> = ({ content, uri, /* onSave */ }) => {
         },
         automaticLayout: true
       }}
-      // onChange={onEditorChange}
+      onChange={onEditorChange}
     />
   );
 };

@@ -3,7 +3,7 @@ import './Field.scss';
 import classNames from 'classnames';
 import { useFormContext } from 'react-hook-form';
 
-type FieldProps = React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
+export type FieldProps = React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
   name: string
   initialValue?: string
   initialWidth?: number

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {
-  Module, Slug, ModuleCreateValues } from './types'
+  Module, Slug, ModuleCreateValues, ID } from './types'
 
 const libClient = axios.create({
   baseURL: process.env.REACT_APP_WIKI_CLIENT_URL,
@@ -24,15 +24,21 @@ const createModule = (values: ModuleCreateValues): Promise<Module> => libClient
   .post('modules/', values)
   .then(({ data }) => data);
 
-const fetchModuleGrammar = (filename: string): Promise<string> => languageClient
+const updateModule = ({slug, ...values}: { slug: string } & Partial<Module>): Promise<Module> => libClient
+  .patch(`modules/${slug}`, values)
+  .then(({ data }) => data);
+
+const fetchModuleFile = (filename: string): Promise<string> => languageClient
   .get(filename)
   .then(({ data }) => data);
 
-const updateModuleGrammar = (filename: string, content: string) => languageClient.post(filename, { content });
+const updateModuleFile = (filename: string, content: string) => languageClient
+  .post(filename, { content });
 
 export {
   fetchModule,
   createModule,
-  fetchModuleGrammar,
-  updateModuleGrammar
+  updateModule,
+  fetchModuleFile,
+  updateModuleFile
 }

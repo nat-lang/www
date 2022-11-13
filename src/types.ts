@@ -106,10 +106,10 @@ export type IndexRouteParams = {
 }
 
 export type ModuleDetailRouteParams = {
-  moduleSlug: Slug
+  slug: Slug
 }
 
-export type ModuleCreateRouteParams = {
-}
+export type ModuleCreateRouteParams = {}
 
-export type ModuleCreateValues = TemporaryModule
+export type ModuleCreateValues = ModuleBase
+export type ModuleUpdateValues = Pick<ModuleBase, "title" | "content">

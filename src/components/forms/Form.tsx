@@ -30,7 +30,7 @@ const Form = <
         onClick={handleClick}
       >
         {children(methods)}
-        <input style={{ display: "none"}} type="submit"/>
+        <input style={{ display: "none" }} type="submit"/>
       </form>
     </FormProvider>
   );

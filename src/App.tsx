@@ -14,7 +14,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/">
             <Route index element={<ModuleCreateRoute/>}/>
-            <Route path=":moduleSlug" element={<ModuleDetailRoute/>}/>
+            <Route path=":slug" element={<ModuleDetailRoute/>}/>
           </Route>
         </Routes>
       </BrowserRouter>
