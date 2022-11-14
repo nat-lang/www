@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./ModuleCreateRoute.scss";
 import { useNavigate } from "react-router-dom";
 
-import { useStores } from "hooks";
+import { useModuleSchema, useStores } from "hooks";
 import { observer } from "mobx-react-lite";
 import * as yup from "yup";
 
-import { ModuleCreateValues } from "types";
+import { ModuleCreateValues, UUID } from "types";
 import Header from "components/layout/Header";
 import Page from "components/layout/Page";
 import Route from "./Route";
@@ -15,33 +15,35 @@ import Form from "components/forms/Form";
 import Field from "components/forms/Field";
 import Button from "components/Button";
 import EditorField from "components/forms/EditorField";
-import useYupResolver from "hooks/useYupResolver";
 import { debounce } from "lodash";
 
 
 const ModuleCreateRoute: React.FC = () => {
   const navigate = useNavigate();
   const { moduleStore: ms, temporaryModuleStore: tms } = useStores();
+  const moduleSchema = useModuleSchema();
 
-  const handleFormSubmit = async (values: ModuleCreateValues) => {
-    const module = await ms.createModule(values);
+  const handleFormSubmit = (id: UUID) => async (values: ModuleCreateValues) => {
+    const module = await ms.createModule({ temp_id: id, ...values});
     navigate(module.slug);
   };
 
-  const handleEditorChange = debounce((content: string) => tms.updateModule({ content }), 200);
+  const handleEditorChange = debounce((content: string) => tms.uri && tms.updateModule({ content }), 200);
+
+  useEffect(() => {
+    tms.initModule();
+  }, []);
 
   return (
     <Route className="module-create-route">
-      <Form<ModuleCreateValues>
-        onSubmit={ms.createModule}
+      {tms.module && tms.uri && <Form<ModuleCreateValues>
+        onSubmit={handleFormSubmit(tms.module.temp_id)}
         options={{
           defaultValues: {
             title: "",
             content: ""
           },
-          resolver: useYupResolver({
-            title: yup.string().min(1).required("name required"),
-          }),
+          resolver: moduleSchema
         }}
       >
         {({ handleSubmit }) => <>
@@ -50,14 +52,15 @@ const ModuleCreateRoute: React.FC = () => {
               <Header
                 left={<Field autoFocus name="title"/>}
                 right={
-                  <Button onClick={handleSubmit(handleFormSubmit)}>
-                  save
-                  </Button>
+                  tms.module && tms.uri &&
+                    <Button onClick={handleSubmit(handleFormSubmit(tms.module.temp_id))}>
+                    save
+                    </Button>
                 }
               />
             }
             panes={[
-              <div className="module-create-route-editor">
+              tms.module && tms.uri && <div className="module-create-route-editor">
                 <EditorField
                   name="content"
                   content={tms.module.content}
@@ -74,7 +77,7 @@ const ModuleCreateRoute: React.FC = () => {
           />
           </>
         }
-      </Form>
+      </Form>}
     </Route>
   );
 };

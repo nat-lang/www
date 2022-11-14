@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import "./ModuleDetailRoute.scss";
 import { useParams } from "react-router-dom";
 
-import { useStores } from "hooks";
+import { useModuleSchema, useStores } from "hooks";
 import { observer } from "mobx-react-lite";
 import * as yup from "yup";
 
@@ -21,14 +21,10 @@ import useYupResolver from "hooks/useYupResolver";
 const ModuleDetailRoute: React.FC = () => {
   const { slug } = useParams<ModuleDetailRouteParams>();
   const { moduleStore: ms } = useStores();
-  
+  const moduleSchema = useModuleSchema();
   const handleFormSubmit = (values: ModuleUpdateValues) => ms.updateModule(values);
 
   const handleEditorChange = debounce((content: string) => ms.updateModuleFile({ content }), 200);
-
-  const resolver = useYupResolver({
-    title: yup.string().min(1).required("name required"),
-  });
 
   useEffect(() => {
     if (slug) ms.fetchModule(slug);
@@ -43,7 +39,7 @@ const ModuleDetailRoute: React.FC = () => {
             title: ms.module.title,
             content: ms.module.content
           },
-          resolver
+          resolver: moduleSchema
         }}
       >
         {({ handleSubmit }) =>

@@ -51,6 +51,8 @@
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
     "lodash": "^4.17.21",
+    "mathjax-full": "^3.2.2",
+    "mathjax-react": "^2.0.1",
     "mini-css-extract-plugin": "^2.4.5",
     "mobx": "^6.5.0",
     "mobx-react-lite": "^3.3.0",

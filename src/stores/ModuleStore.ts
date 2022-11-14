@@ -1,9 +1,9 @@
 
 import { makeAutoObservable } from 'mobx';
 import { Module, Slug, TemporaryModule, ModuleCreateValues } from 'types';
-import { fetchModule, createModule, updateModuleFile, updateModule } from 'api';
+import { fetchModule, createModule, updateModuleFile, updateModule, deleteModuleFile } from 'api';
 import { v4 as uuid } from 'uuid';
-import { fileUri } from 'utils/monaco';
+import { baseUri, fullUri } from 'utils/monaco';
 
 const { assign } = Object;
 
@@ -20,8 +20,12 @@ export class ModuleStore {
     makeAutoObservable(this);
   }
 
+  get baseUri () {
+    return this.module ? baseUri(this.module.slug) : null;
+  }
+
   get uri () {
-    return this.module ? fileUri(this.module.slug) : null;
+    return this.module ? fullUri(this.module.slug) : null;
   }
 
   fetchModule = async (moduleSlug: Slug) => {
@@ -32,8 +36,10 @@ export class ModuleStore {
     return this.module;
   }
 
-  createModule = async (module: ModuleCreateValues) => {
+  createModule = async (module: TemporaryModule) => {
     this.module = await createModule(module);
+    updateModuleFile(this.baseUri as string, this.module.content);
+    deleteModuleFile(baseUri(module.temp_id));
     return this.module;
   }
 
@@ -45,9 +51,9 @@ export class ModuleStore {
   }
   
   updateModuleFile = async (mod: Pick<Module, "content"> & Partial<Module>) => {
-    if (!this.uri || !this.module) throw Error("Can't update a nonexistent module!");
+    if (!this.baseUri || !this.module) throw Error("Can't update a nonexistent module!");
   
-    await updateModuleFile(this.uri, mod.content);
+    await updateModuleFile(this.baseUri, mod.content);
     this.module = assign(this.module, mod);
   }
 }

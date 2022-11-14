@@ -35,10 +35,13 @@ const fetchModuleFile = (filename: string): Promise<string> => languageClient
 const updateModuleFile = (filename: string, content: string) => languageClient
   .post(filename, { content });
 
+const deleteModuleFile = languageClient.delete;
+
 export {
   fetchModule,
   createModule,
   updateModule,
   fetchModuleFile,
-  updateModuleFile
+  updateModuleFile,
+  deleteModuleFile,
 }

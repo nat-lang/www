@@ -16,7 +16,8 @@ const NAT_LANG_EXT = ".nl";
 
 type Monaco = typeof import("monaco-editor/esm/vs/editor/editor.api");
 
-export const fileUri = (base: string) => `${process.env.REACT_APP_MODULE_DIR}/${toPascalCase(base)}${NAT_LANG_EXT}`;
+export const baseUri = (name: string) => `${toPascalCase(name)}${NAT_LANG_EXT}`;
+export const fullUri = (name: string) => `${process.env.REACT_APP_MODULE_DIR}/${baseUri(name)}`;
 
 function createUrl(hostname: string, port: number, path: string): string {
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";

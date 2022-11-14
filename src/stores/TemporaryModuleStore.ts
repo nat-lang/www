@@ -5,7 +5,7 @@ import { fetchModule, fetchModuleFile, updateModuleFile,createModule } from 'api
 import { v4 as uuid } from 'uuid';
 import { toPascalCase } from 'utils/string';
 import { defaults } from 'lodash';
-import { fileUri } from 'utils/monaco';
+import { baseUri, fullUri } from 'utils/monaco';
 
 const { assign } = Object;
 
@@ -16,18 +16,30 @@ export const temporaryModuleFactory = (): TemporaryModule => ({
 })
 
 export class TemporaryModuleStore {
-  module: TemporaryModule = temporaryModuleFactory()
+  module: TemporaryModule | null = null
 
   constructor() {
     makeAutoObservable(this);
   }
 
+  get baseUri () {
+    return this.module ? baseUri(this.module.temp_id) : null;
+  }
+
   get uri () {
-    return fileUri(this.module.temp_id);
+    return this.module ? fullUri(this.module.temp_id) : null;
+  }
+
+  initModule () {
+    this.module = temporaryModuleFactory();
+
+    updateModuleFile(this.baseUri as string, this.module.content);
   }
 
   updateModule = async (mod: Pick<TemporaryModule, "content"> & Partial<TemporaryModule>) => {
-    await updateModuleFile(this.uri, mod.content);
+    if (!this.module || !this.baseUri) throw Error("Can't update a nonexistent temporary module!");
+
+    await updateModuleFile(this.baseUri, mod.content);
     this.module = assign(this.module, mod);
   }
 }
