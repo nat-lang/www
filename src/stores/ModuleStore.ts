@@ -3,7 +3,7 @@ import { makeAutoObservable } from 'mobx';
 import { Module, Slug, TemporaryModule, ModuleCreateValues } from 'types';
 import { fetchModule, createModule, updateModuleFile, updateModule, deleteModuleFile } from 'api';
 import { v4 as uuid } from 'uuid';
-import { baseUri, fullUri } from 'utils/monaco';
+import { baseUri, fullUri } from 'utils/language-client';
 
 const { assign } = Object;
 

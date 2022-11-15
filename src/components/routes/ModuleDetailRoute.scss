@@ -14,6 +14,14 @@ $examples-pane-gutter-right: 15px;
     }
   }
 
+  &-toolbar {
+    display: flex;
+
+    &-tool {
+      margin: 5px;
+    }
+  }
+
   &-new-example-control {
     padding-left: 0.5ch;
     padding-top: 10px;

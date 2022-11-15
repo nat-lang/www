@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 
 import { useModuleSchema, useStores } from "hooks";
 import { observer } from "mobx-react-lite";
-import * as yup from "yup";
 
 import { ModuleDetailRouteParams, ModuleUpdateValues } from "types";
 import Header from "components/layout/Header";
@@ -15,7 +14,6 @@ import EditorField from "components/forms/EditorField";
 import Button from "components/Button";
 import { debounce } from "lodash";
 import Form from "components/forms/Form";
-import useYupResolver from "hooks/useYupResolver";
 
 
 const ModuleDetailRoute: React.FC = () => {
@@ -25,6 +23,7 @@ const ModuleDetailRoute: React.FC = () => {
   const handleFormSubmit = (values: ModuleUpdateValues) => ms.updateModule(values);
 
   const handleEditorChange = debounce((content: string) => ms.updateModuleFile({ content }), 200);
+  const handleModuleExecute = () => {};
 
   useEffect(() => {
     if (slug) ms.fetchModule(slug);
@@ -47,7 +46,12 @@ const ModuleDetailRoute: React.FC = () => {
             header={
               <Header
                 left={ms.module?.title}
-                right={<Button onClick={handleSubmit(handleFormSubmit)}>save</Button>}
+                right={
+                  <div className="module-detail-route-toolbar">
+                    <Button className="module-detail-route-toolbar-tool" onClick={handleModuleExecute}>execute</Button>
+                    <Button className="module-detail-route-toolbar-tool" onClick={handleSubmit(handleFormSubmit)}>save</Button>
+                  </div>
+                }
               />
             }
             panes={[

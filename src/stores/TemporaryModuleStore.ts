@@ -5,7 +5,7 @@ import { fetchModule, fetchModuleFile, updateModuleFile,createModule } from 'api
 import { v4 as uuid } from 'uuid';
 import { toPascalCase } from 'utils/string';
 import { defaults } from 'lodash';
-import { baseUri, fullUri } from 'utils/monaco';
+import { baseUri, fullUri } from 'utils/language-client';
 
 const { assign } = Object;
 
