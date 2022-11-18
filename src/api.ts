@@ -1,16 +1,16 @@
 import axios from 'axios'
 import {
-  Module, Slug, ModuleCreateValues, ID } from './types'
+  Module, Slug, ModuleCreateValues } from './types'
 
 const libClient = axios.create({
-  baseURL: process.env.REACT_APP_WIKI_CLIENT_URL,
+  baseURL: process.env.REACT_APP_LIB_CLIENT_URL,
   headers: {
     Accept: 'application/json',
   },
 });
 
 const languageClient = axios.create({
-  baseURL: process.env.REACT_APP_LANGUAGE_CLIENT_URL,
+  baseURL: process.env.REACT_APP_LANG_CLIENT_URL,
   headers: {
     Accept: 'application/json',
   },
@@ -28,20 +28,20 @@ const updateModule = ({slug, ...values}: { slug: string } & Partial<Module>): Pr
   .patch(`modules/${slug}`, values)
   .then(({ data }) => data);
 
-const fetchModuleFile = (filename: string): Promise<string> => languageClient
+const fetchLanguageFile = (filename: string): Promise<string> => languageClient
   .get(filename)
   .then(({ data }) => data);
 
-const updateModuleFile = (filename: string, content: string) => languageClient
+const updateLanguageFile = (filename: string, content: string) => languageClient
   .post(filename, { content });
 
-const deleteModuleFile = languageClient.delete;
+const deleteLanguageFile = languageClient.delete;
 
 export {
   fetchModule,
   createModule,
   updateModule,
-  fetchModuleFile,
-  updateModuleFile,
-  deleteModuleFile,
+  fetchLanguageFile,
+  updateLanguageFile,
+  deleteLanguageFile,
 }

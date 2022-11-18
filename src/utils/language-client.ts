@@ -16,14 +16,16 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 
 import { buildWorkerDefinition } from 'monaco-editor-workers';
 
-import { MonacoLanguageClient, CloseAction, ErrorAction, MonacoServices, MessageTransports } from 'monaco-languageclient';
+import { MonacoLanguageClient, CloseAction, ErrorAction, MonacoServices, MessageTransports, ShowDocumentRequest } from 'monaco-languageclient';
 import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc';
 import normalizeUrl from 'normalize-url';
-import { StandaloneServices } from 'vscode/services';
-import getMessageServiceOverride from 'vscode/service-override/messages';
 import { toPascalCase } from './string';
+import { LanguageStore } from 'stores/LanguageStore';
+import { ModuleStore } from 'stores/ModuleStore';
 
 type Monaco = typeof import("monaco-editor/esm/vs/editor/editor.api");
+
+let client: MonacoLanguageClient | null;
 
 const NAT_LANG_ID = "nat";
 const NAT_LANG_EXT = ".nl";
@@ -63,23 +65,30 @@ function createLanguageClient(
         closed: () => ({ action: CloseAction.DoNotRestart })
       },
       diagnosticCollectionName: NAT_LANG_ID,
-      middleware: {
-        executeCommand: () => ({
-          commands: ['json.documentUpper']
-        }),
-      }
     },
     // create a language client connection from the JSON RPC connection on demand
     connectionProvider: {
       get: () => {
         return Promise.resolve(transports);
       }
-  }
+    }
   });
 }
 
-const registerLanguageClient = (monaco: Monaco) => {
+const registerLanguageClient = (
+  monaco: Monaco,
+  cb?: (client: MonacoLanguageClient) => void
+) => {
   buildWorkerDefinition('dist', new URL('', window.location.href).href, false);
+
+  monaco.languages.register({
+    id: NAT_LANG_ID,
+    extensions: [NAT_LANG_EXT],
+    aliases: [NAT_LANG_ID],
+    mimetypes: ["application/json"],
+  });
+
+  console.log(monaco.editor)
 
   MonacoServices.install();
 
@@ -90,9 +99,11 @@ const registerLanguageClient = (monaco: Monaco) => {
     const socket = toSocket(webSocket);
     const reader = new WebSocketMessageReader(socket);
     const writer = new WebSocketMessageWriter(socket);
-    const languageClient = createLanguageClient({ reader, writer });
-    languageClient.start();
-    reader.onClose(() => languageClient.stop());
+    client = createLanguageClient({ reader, writer });
+    client.start();
+    reader.onClose(() => client?.stop());
+
+    cb && cb(client);
   };
 }
 

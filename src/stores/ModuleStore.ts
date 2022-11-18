@@ -1,7 +1,7 @@
 
 import { makeAutoObservable } from 'mobx';
 import { Module, Slug, TemporaryModule, ModuleCreateValues } from 'types';
-import { fetchModule, createModule, updateModuleFile, updateModule, deleteModuleFile } from 'api';
+import * as api from 'api';
 import { v4 as uuid } from 'uuid';
 import { baseUri, fullUri } from 'utils/language-client';
 
@@ -15,6 +15,7 @@ export const temporaryModuleFactory = (): TemporaryModule => ({
 
 export class ModuleStore {
   module: Module | null = null
+  outputUri: string | undefined
 
   constructor() {
     makeAutoObservable(this);
@@ -28,8 +29,12 @@ export class ModuleStore {
     return this.module ? fullUri(this.module.slug) : null;
   }
 
+  setOutputUri (base: string) {
+    this.outputUri = `${process.env.REACT_APP_LANG_CLIENT_URL}/static/${base}`;
+  }
+
   fetchModule = async (moduleSlug: Slug) => {
-    this.module = await fetchModule(moduleSlug);
+    this.module = await api.fetchModule(moduleSlug);
 
     if (!this.module) throw new Error(`Module ${moduleSlug} not found!`);
 
@@ -37,23 +42,24 @@ export class ModuleStore {
   }
 
   createModule = async (module: TemporaryModule) => {
-    this.module = await createModule(module);
-    updateModuleFile(this.baseUri as string, this.module.content);
-    deleteModuleFile(baseUri(module.temp_id));
+    this.module = await api.createModule(module);
+    // create a new file on disk for the module and delete its temporary ancestor
+    api.updateLanguageFile(this.baseUri as string, this.module.content);
+    api.deleteLanguageFile(baseUri(module.temp_id));
     return this.module;
   }
 
-  updateModule = async (mod: Partial<Module>) => {
+  updateModule = async (values: Partial<Module>) => {
     if (!this.module) throw Error("Can't update a nonexistent module!");
 
-    this.module = await updateModule({slug: this.module.slug, ...mod});
+    this.module = await api.updateModule({slug: this.module.slug, ...values});
     return this.module;
   }
   
   updateModuleFile = async (mod: Pick<Module, "content"> & Partial<Module>) => {
     if (!this.baseUri || !this.module) throw Error("Can't update a nonexistent module!");
   
-    await updateModuleFile(this.baseUri, mod.content);
+    await api.updateLanguageFile(this.baseUri, mod.content);
     this.module = assign(this.module, mod);
   }
 }

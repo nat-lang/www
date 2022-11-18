@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 
 import { useModuleSchema, useStores } from "hooks";
 import { observer } from "mobx-react-lite";
+import { Document as PDF, Page as PDFPage } from 'react-pdf/dist/esm/entry.webpack5';
 
 import { ModuleDetailRouteParams, ModuleUpdateValues } from "types";
 import Header from "components/layout/Header";
@@ -14,21 +15,22 @@ import EditorField from "components/forms/EditorField";
 import Button from "components/Button";
 import { debounce } from "lodash";
 import Form from "components/forms/Form";
+import { ShowDocumentRequest } from "monaco-languageclient";
 
 
 const ModuleDetailRoute: React.FC = () => {
   const { slug } = useParams<ModuleDetailRouteParams>();
   const { moduleStore: ms } = useStores();
   const moduleSchema = useModuleSchema();
-  const handleFormSubmit = (values: ModuleUpdateValues) => ms.updateModule(values);
 
   const handleEditorChange = debounce((content: string) => ms.updateModuleFile({ content }), 200);
-  const handleModuleExecute = () => {};
+  const handleModuleEvaluate = () => {};
 
   useEffect(() => {
     if (slug) ms.fetchModule(slug);
   }, [slug, ms]);
 
+  console.log('rendering...');
   return (
     <Route className="module-detail-route">
       {ms.module && <Form<ModuleUpdateValues>
@@ -48,8 +50,8 @@ const ModuleDetailRoute: React.FC = () => {
                 left={ms.module?.title}
                 right={
                   <div className="module-detail-route-toolbar">
-                    <Button className="module-detail-route-toolbar-tool" onClick={handleModuleExecute}>execute</Button>
-                    <Button className="module-detail-route-toolbar-tool" onClick={handleSubmit(handleFormSubmit)}>save</Button>
+                    <Button className="module-detail-route-toolbar-tool" onClick={handleModuleEvaluate}>evaluate</Button>
+                    <Button className="module-detail-route-toolbar-tool" onClick={handleSubmit(ms.updateModule)}>save</Button>
                   </div>
                 }
               />
@@ -61,10 +63,21 @@ const ModuleDetailRoute: React.FC = () => {
                   content={ms.module.content}
                   uri={ms.uri}
                   onChange={handleEditorChange}
+                  onLangClientRegister={(client) => {
+                    client.onRequest(ShowDocumentRequest.method, ({ uri }) => {
+                      const bits = uri.split("/"),
+                            base = bits[bits.length - 1]
+                      ms.setOutputUri(base);
+                      return { success: true };
+                    });                
+                  }}
                 />
               </div>,
               <YScrollable>
                 <div className="module-detail-route-output">
+                  <PDF file={ms.outputUri} onLoadError={(err) => console.log('ERR! ', err)} onSourceError={(err) => console.log('ERR! ', err)}>
+                    <PDFPage pageNumber={1} />
+                  </PDF>
                 </div>
               </YScrollable>
             ]}

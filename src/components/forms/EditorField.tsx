@@ -2,9 +2,9 @@ import Field, { FieldProps } from "./Field";
 import Editor, { EditorProps} from "components/Editor";
 import { useFormContext } from "react-hook-form";
 
-type EditorFieldProps = Pick<FieldProps, "name"> & Pick<EditorProps, "content" | "uri" | "onChange">
+type EditorFieldProps = Pick<FieldProps, "name"> & Pick<EditorProps, "content" | "uri" | "onChange" | "onLangClientRegister">
 
-const EditorField: React.FC<EditorFieldProps> = ({ content, uri, name, onChange }) => {
+const EditorField: React.FC<EditorFieldProps> = ({ content, uri, name, onChange, ...props }) => {
   const { setValue } = useFormContext();
 
   const handleChange = (value: string) => {
@@ -17,6 +17,7 @@ const EditorField: React.FC<EditorFieldProps> = ({ content, uri, name, onChange 
       content={content}
       uri={uri}
       onChange={handleChange}
+      {...props}
     />
   );
 };
