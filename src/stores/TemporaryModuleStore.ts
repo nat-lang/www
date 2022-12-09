@@ -1,10 +1,8 @@
 
 import { makeAutoObservable } from 'mobx';
-import { ID, Author, Module, Slug, UUID, TemporaryModule } from 'types';
-import { fetchModule, fetchLanguageFile, updateLanguageFile,createModule } from 'api';
+import { TemporaryModule } from 'types';
+import { updateLanguageFile } from 'api';
 import { v4 as uuid } from 'uuid';
-import { toPascalCase } from 'utils/string';
-import { defaults } from 'lodash';
 import { baseUri, fullUri } from 'utils/language-client';
 
 const { assign } = Object;

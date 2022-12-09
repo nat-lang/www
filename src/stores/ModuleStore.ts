@@ -1,6 +1,5 @@
-
 import { makeAutoObservable } from 'mobx';
-import { Module, Slug, TemporaryModule, ModuleCreateValues } from 'types';
+import { Module, Slug, TemporaryModule } from 'types';
 import * as api from 'api';
 import { v4 as uuid } from 'uuid';
 import { baseUri, fullUri } from 'utils/language-client';
@@ -63,4 +62,3 @@ export class ModuleStore {
     this.module = assign(this.module, mod);
   }
 }
-

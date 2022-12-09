@@ -1,4 +1,3 @@
-import { useStores } from "hooks";
 import { MonacoLanguageClient } from "monaco-languageclient/.";
 import BaseMonacoEditor, { ChangeHandler } from "react-monaco-editor";
 import { useKey } from "react-use";
@@ -15,7 +14,6 @@ export type EditorProps = {
 
 const Editor: React.FC<EditorProps> = ({ content, uri, onSave, onChange, onLangClientRegister }) => {
   const saveKeyFilter = (e: KeyboardEvent) => e.key === "s" && e.metaKey;
-  const {languageStore} = useStores();
 
   useKey(saveKeyFilter, (e: KeyboardEvent) => {
     const model = getMonacoModel(uri);

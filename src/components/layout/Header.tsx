@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import "./Header.scss";
 import React from 'react';
-import Hamburger from '../Hamburger';
 
 type HeaderProps = React.HTMLAttributes<HTMLDivElement> & {
   left?: React.ReactNode

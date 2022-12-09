@@ -1,5 +1,5 @@
-import Field, { FieldProps } from "./Field";
-import Editor, { EditorProps} from "components/Editor";
+import { FieldProps } from "./Field";
+import Editor, { EditorProps } from "components/Editor";
 import { useFormContext } from "react-hook-form";
 
 type EditorFieldProps = Pick<FieldProps, "name"> & Pick<EditorProps, "content" | "uri" | "onChange" | "onLangClientRegister">

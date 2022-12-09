@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import styles from "./Button.scss";
-import React, { useState } from 'react';
+import React from 'react';
 import ClipLoader from "react-spinners/ClipLoader";
 import useLoadWhile from 'hooks/useLoadWhile';
 

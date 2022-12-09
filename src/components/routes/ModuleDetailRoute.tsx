@@ -66,7 +66,8 @@ const ModuleDetailRoute: React.FC = () => {
                   onLangClientRegister={(client) => {
                     client.onRequest(ShowDocumentRequest.method, ({ uri }) => {
                       const bits = uri.split("/"),
-                            base = bits[bits.length - 1]
+                            base = bits[bits.length - 1];
+                      console.log('setting output uri...', base);
                       ms.setOutputUri(base);
                       return { success: true };
                     });                

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 import { useModuleSchema, useStores } from "hooks";
 import { observer } from "mobx-react-lite";
-import * as yup from "yup";
 
 import { ModuleCreateValues, UUID } from "types";
 import Header from "components/layout/Header";
@@ -16,7 +15,6 @@ import Field from "components/forms/Field";
 import Button from "components/Button";
 import EditorField from "components/forms/EditorField";
 import { debounce } from "lodash";
-
 
 const ModuleCreateRoute: React.FC = () => {
   const navigate = useNavigate();
@@ -32,6 +30,7 @@ const ModuleCreateRoute: React.FC = () => {
 
   useEffect(() => {
     tms.initModule();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
