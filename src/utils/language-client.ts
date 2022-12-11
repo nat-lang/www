@@ -44,7 +44,7 @@ const getOrCreateMonacoModel = (uri: string, initialValue: string) =>
 const baseUri = (name: string) => `${toPascalCase(name)}${NAT_LANG_EXT}`;
 const fullUri = (name: string) => `${process.env.REACT_APP_MODULE_DIR}/${baseUri(name)}`;
 
-function createUrl(hostname: string, port: number, path: string): string {
+function createWsUrl(hostname: string, port: string, path: string): string {
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
   return normalizeUrl(`${protocol}://${hostname}:${port}${path}`);
 }
@@ -89,9 +89,11 @@ const registerLanguageClient = (
   console.log(monaco.editor)
 
   MonacoServices.install();
+  if (!process.env.REACT_APP_LANG_CLIENT_URL) return;
 
-  const url = createUrl("localhost", 3003, "/");
-  const webSocket = new WebSocket(url);
+  const url = new URL(process.env.REACT_APP_LANG_CLIENT_URL);
+  const wsUrl = createWsUrl(url.hostname, url.port, url.pathname);
+  const webSocket = new WebSocket(wsUrl);
 
   webSocket.onopen = () => {
     const socket = toSocket(webSocket);

@@ -63,6 +63,7 @@
     "monaco-editor-workers": "0.34.2",
     "monaco-languageclient": "4.0.1",
     "normalize-url": "^7.0.3",
+    "path-browserify": "^1.0.1",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",
@@ -105,7 +106,7 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
+    "build": "NODE_ENV=production node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom"
   },
   "eslintConfig": {
