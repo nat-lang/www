@@ -26,7 +26,10 @@ const ModuleCreateRoute: React.FC = () => {
     navigate(module.slug);
   };
 
-  const handleEditorChange = debounce((content: string) => tms.uri && tms.updateModule({ content }), 200);
+  const handleEditorChange = debounce(
+    (content: string) => tms.uri && tms.updateModule({ content }),
+    200
+  );
 
   useEffect(() => {
     tms.initModule();
@@ -59,19 +62,20 @@ const ModuleCreateRoute: React.FC = () => {
               />
             }
             panes={[
-              tms.module && tms.uri && <div className="module-create-route-editor">
-                <EditorField
-                  name="content"
-                  content={tms.module.content}
-                  uri={tms.uri}
-                  onChange={handleEditorChange}
-                />
-              </div>,
-              <YScrollable>
-                <div className="module-create-route-output">
+              tms.module && tms.uri &&
+                <div className="module-create-route-editor">
+                  <EditorField
+                    name="content"
+                    content={tms.module.content}
+                    uri={tms.uri}
+                    onChange={handleEditorChange}
+                  />
+                </div>,
+                <YScrollable>
+                  <div className="module-create-route-output">
 
-                </div>
-              </YScrollable>
+                  </div>
+                </YScrollable>
             ]}
           />
           </>

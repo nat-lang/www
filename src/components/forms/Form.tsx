@@ -4,7 +4,7 @@ import { FieldValues, FormProvider, SubmitHandler, useForm, UseFormProps, UseFor
 
 export type FormDblClickHandler<V extends FieldValues> = (e: React.MouseEvent<HTMLFormElement, MouseEvent> , ctx: UseFormReturn<V, any>) => void
 
-type FormProps<TFormValues> = {
+type FormProps<TFormValues extends FieldValues> = {
   onSubmit: SubmitHandler<TFormValues>;
   children: (methods: UseFormReturn<TFormValues>) => React.ReactNode;
   options: UseFormProps<TFormValues>;

@@ -23,14 +23,15 @@ const ModuleDetailRoute: React.FC = () => {
   const { moduleStore: ms } = useStores();
   const moduleSchema = useModuleSchema();
 
-  const handleEditorChange = debounce((content: string) => ms.updateModuleFile({ content }), 200);
+  const handleEditorChange = debounce((content: string) => {
+    ms.updateModuleFile({ content });
+  }, 200);
   const handleModuleEvaluate = () => {};
 
   useEffect(() => {
     if (slug) ms.fetchModule(slug);
   }, [slug, ms]);
 
-  console.log('rendering...');
   return (
     <Route className="module-detail-route">
       {ms.module && <Form<ModuleUpdateValues>
@@ -59,6 +60,7 @@ const ModuleDetailRoute: React.FC = () => {
             panes={[
               ms.module && ms.uri && <div className="module-detail-route-editor">
                 <EditorField
+                  key={ms.uri}
                   name="content"
                   content={ms.module.content}
                   uri={ms.uri}
@@ -76,7 +78,11 @@ const ModuleDetailRoute: React.FC = () => {
               </div>,
               <YScrollable>
                 <div className="module-detail-route-output">
-                  <PDF file={ms.outputUri} onLoadError={(err) => console.log('ERR! ', err)} onSourceError={(err) => console.log('ERR! ', err)}>
+                  <PDF
+                    file={ms.outputUri}
+                    onLoadError={(err) => console.log('ERR! ', err)}
+                    onSourceError={(err) => console.log('ERR! ', err)
+                  }>
                     <PDFPage pageNumber={1} />
                   </PDF>
                 </div>

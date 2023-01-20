@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { storeContext } from './contexts';
+import { storeContext } from '../contexts';
 
 import useYupResolver from "hooks/useYupResolver";
 import * as yup from "yup";

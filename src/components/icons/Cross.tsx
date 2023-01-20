@@ -9,7 +9,6 @@ const Cross: React.FC<Props> = ({ height = 15, width = 15, ...props }) => (
     viewBox="0 0 265.1 326.15"
     {...props}
   >
-
   <g
       id="layer1"
       transform="translate(-225.26 -413.57)"

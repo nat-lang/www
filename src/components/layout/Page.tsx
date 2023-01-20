@@ -1,6 +1,8 @@
 import React from 'react';
 import "./Page.scss";
 import { SplitPane } from "react-collapse-pane";
+import Nav from './Nav';
+import YScrollable from 'components/YScrollable';
 
 type PageProps = {
   header: React.ReactNode
@@ -14,6 +16,7 @@ const Page: React.FC<PageProps> = ({ header, panes }) => {
       <div className="page-body">
         <SplitPane
           split="vertical"
+          initialSizes={[1.5,6,4]}
           resizerOptions={{
             css: {
               width: '1px',
@@ -25,7 +28,12 @@ const Page: React.FC<PageProps> = ({ header, panes }) => {
             },
             grabberSize: '1rem',
           }}>
-          {panes.map((pane, idx) => <>{pane}</>)}
+          {[
+            <YScrollable key={0}>
+              <Nav/>
+            </YScrollable>,
+            ...panes.map((pane, idx) => <div key={idx + 1}>{pane}</div>)
+          ]}
         </SplitPane>
       </div>
     </div>

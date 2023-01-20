@@ -1,6 +1,5 @@
-import "./Fieldset.scss"
-import { useFormContext } from "react-hook-form"
-import Field from "./Field";
+import "./Fieldset.scss";
+import { useFormContext } from "react-hook-form";
 
 type FieldsetProps = {}
 

@@ -14,6 +14,7 @@ export const temporaryModuleFactory = (): TemporaryModule => ({
 
 export class ModuleStore {
   module: Module | null = null
+  moduleList: Module[] = []
   outputUri: string | undefined
 
   constructor() {
@@ -40,6 +41,10 @@ export class ModuleStore {
     return this.module;
   }
 
+  fetchModules = async () => {
+    this.moduleList = await api.listModules();
+  }
+
   createModule = async (module: TemporaryModule) => {
     this.module = await api.createModule(module);
     // create a new file on disk for the module and delete its temporary ancestor
@@ -50,6 +55,8 @@ export class ModuleStore {
 
   updateModule = async (values: Partial<Module>) => {
     if (!this.module) throw Error("Can't update a nonexistent module!");
+
+    console.log('->', values)
 
     this.module = await api.updateModule({slug: this.module.slug, ...values});
     return this.module;

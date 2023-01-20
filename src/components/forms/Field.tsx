@@ -36,9 +36,7 @@ const Field: React.FC<FieldProps> = ({
   };
 
   return (
-    <div
-      className={classNames('field', className, { 'field--invalid': !!error })}
-    >
+    <div className={classNames('field', className, { 'field--invalid': !!error })}>
       <input
         style={{
           width: matchTextWidth ? `${textWidth}ch` : undefined,

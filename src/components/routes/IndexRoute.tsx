@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./IndexRoute.scss";
 import { useParams } from "react-router-dom";
 

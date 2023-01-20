@@ -1,6 +1,7 @@
-import axios from 'axios'
+import axios from 'axios';
 import {
-  Module, Slug, ModuleCreateValues } from './types'
+  Module, Slug, ModuleCreateValues
+} from './types';
 
 const libClient = axios.create({
   baseURL: process.env.REACT_APP_LIB_CLIENT_URL,
@@ -18,6 +19,10 @@ const languageClient = axios.create({
 
 const fetchModule = (slug: Slug): Promise<Module> => libClient
   .get(`modules/${slug}`)
+  .then(({ data }) => data);
+
+const listModules = (): Promise<Module[]> => libClient
+  .get('modules')
   .then(({ data }) => data);
 
 const createModule = (values: ModuleCreateValues): Promise<Module> => libClient
@@ -41,6 +46,7 @@ export {
   fetchModule,
   createModule,
   updateModule,
+  listModules,
   fetchLanguageFile,
   updateLanguageFile,
   deleteLanguageFile,
