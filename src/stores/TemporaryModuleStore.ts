@@ -1,44 +1,31 @@
 
 import { makeAutoObservable } from 'mobx';
-import { TemporaryModule } from 'types';
-import { updateLanguageFile } from 'api';
+import { TemporaryModule, UUID } from 'types';
 import { v4 as uuid } from 'uuid';
-import { baseUri, fullUri } from 'utils/language-client';
+import { ModuleRecordStore, TemporaryModuleRecord } from 'interfaces/Module';
 
-const { assign } = Object;
-
-export const temporaryModuleFactory = (): TemporaryModule => ({
-  temp_id: uuid(),
-  title: "",
+const tempModuleFactory = (mod: Partial<TemporaryModule> = {}) => ({
+  ...mod,
+  id: uuid(),
+  title: "untitled",
   content: ""
-})
+});
 
-export class TemporaryModuleStore {
-  module: TemporaryModule | null = null
-
+export class TemporaryModuleStore extends ModuleRecordStore<UUID, TemporaryModule> {
   constructor() {
+    super();
     makeAutoObservable(this);
   }
 
-  get baseUri () {
-    return this.module ? baseUri(this.module.temp_id) : null;
-  }
+  recordFactory(mod: TemporaryModule) {
+    return new TemporaryModuleRecord(mod);
+   }
 
-  get uri () {
-    return this.module ? fullUri(this.module.temp_id) : null;
-  }
+  initCurrent (values: Partial<TemporaryModule> = {}) {
+    const mod = tempModuleFactory(values),
+          rec = this.setCurrent(mod.id, mod);
 
-  initModule () {
-    this.module = temporaryModuleFactory();
-
-    updateLanguageFile(this.baseUri as string, this.module.content);
-  }
-
-  updateModule = async (mod: Pick<TemporaryModule, "content"> & Partial<TemporaryModule>) => {
-    if (!this.module || !this.baseUri) throw Error("Can't update a nonexistent temporary module!");
-
-    await updateLanguageFile(this.baseUri, mod.content);
-    this.module = assign(this.module, mod);
+    this.updateCurrentModLangFile(rec.module);
   }
 }
 

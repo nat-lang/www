@@ -98,14 +98,14 @@ export type Module = ModuleBase & {
 }
 
 export type TemporaryModule = ModuleBase & {
-  temp_id: UUID
+  id: UUID
 }
 
 export type IndexRouteParams = {
   foo: string
 }
 
-export type ModuleDetailRouteParams = {
+export type ModuleUpdateRouteParams = {
   slug: Slug
 }
 
@@ -113,3 +113,7 @@ export type ModuleCreateRouteParams = {}
 
 export type ModuleCreateValues = ModuleBase
 export type ModuleUpdateValues = Pick<ModuleBase, "title" | "content">
+
+export type DocReadRouteParams = {
+  slug: Slug
+}

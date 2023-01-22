@@ -17,12 +17,11 @@ export function Row({
   children,
 }: RowRendererProps<NavItemData>) {
   const navigate = useNavigate();
+  const toggle = () => node.isOpen ? node.close() : node.open();
+
   const handleClick = () => {
-    if (node.data.slug) {
-      navigate(`/${node.data.slug}`);
-    } else {
-      node.isOpen ? node.close() : node.open();
-    }
+    if (node.data.slug) navigate(`/${node.data.slug}`);
+    else toggle();
   };
 
   return (

@@ -37,7 +37,7 @@ const fetchLanguageFile = (filename: string): Promise<string> => languageClient
   .get(filename)
   .then(({ data }) => data);
 
-const updateLanguageFile = (filename: string, content: string) => languageClient
+const createOrUpdateLanguageFile = (filename: string, content: string) => languageClient
   .post(filename, { content });
 
 const deleteLanguageFile = languageClient.delete;
@@ -48,6 +48,6 @@ export {
   updateModule,
   listModules,
   fetchLanguageFile,
-  updateLanguageFile,
+  createOrUpdateLanguageFile,
   deleteLanguageFile,
 }

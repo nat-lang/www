@@ -1,71 +1,61 @@
 import { makeAutoObservable } from 'mobx';
-import { Module, Slug, TemporaryModule } from 'types';
+import { ID, Module, Slug } from 'types';
 import * as api from 'api';
-import { v4 as uuid } from 'uuid';
-import { baseUri, fullUri } from 'utils/language-client';
+import { ModuleRecordStore, ModuleRecord, TemporaryModuleRecord } from 'interfaces/Module';
 
-const { assign } = Object;
-
-export const temporaryModuleFactory = (): TemporaryModule => ({
-  temp_id: uuid(),
-  title: "",
-  content: ""
-})
-
-export class ModuleStore {
-  module: Module | null = null
-  moduleList: Module[] = []
-  outputUri: string | undefined
-
+export class ModuleStore extends ModuleRecordStore<ID, Module> {
   constructor() {
+    super();
     makeAutoObservable(this);
   }
 
-  get baseUri () {
-    return this.module ? baseUri(this.module.slug) : null;
+  recordFactory(mod: Module) {
+   return new ModuleRecord(mod);
   }
 
-  get uri () {
-    return this.module ? fullUri(this.module.slug) : null;
+  modID(mod: Module): ID {
+    return mod.id;
   }
 
-  setOutputUri (base: string) {
-    this.outputUri = `${process.env.REACT_APP_LANG_CLIENT_URL}/static/${base}`;
-  }
+  fetchModule = async (slug: Slug) => {
+    const mod = await api.fetchModule(slug);
 
-  fetchModule = async (moduleSlug: Slug) => {
-    this.module = await api.fetchModule(moduleSlug);
-
-    if (!this.module) throw new Error(`Module ${moduleSlug} not found!`);
-
-    return this.module;
+    this.setCurrent(mod.id, mod);
   }
 
   fetchModules = async () => {
-    this.moduleList = await api.listModules();
+    const modules = await api.listModules();
+    this.modules = Object.fromEntries(
+      modules.map((m => [m.id, new ModuleRecord(m)]))
+    );
   }
 
-  createModule = async (module: TemporaryModule) => {
-    this.module = await api.createModule(module);
-    // create a new file on disk for the module and delete its temporary ancestor
-    api.updateLanguageFile(this.baseUri as string, this.module.content);
-    api.deleteLanguageFile(baseUri(module.temp_id));
-    return this.module;
+  /**
+   * Turn a temporary (e.g. client side) module record into a permanent
+   * (e.g. server side) record, create its language file, and delete the
+   * language file for the temp rec.
+   * @param tempRec The temporary record to persist.
+   */
+  createModule = async (tempRec: TemporaryModuleRecord) => {
+    const mod = await api.createModule(tempRec.module);
+    const rec = this.setCurrent(mod.id, mod);
+
+    api.createOrUpdateLanguageFile(rec.baseUri, rec.module.content);
+    api.deleteLanguageFile(tempRec.baseUri);
+
+    return rec;
   }
 
-  updateModule = async (values: Partial<Module>) => {
-    if (!this.module) throw Error("Can't update a nonexistent module!");
+  /**
+   * Update fields on the current module and send the whole object
+   * to the library server.
+   * @param values Values to persist to the library server.
+   */
+  updateCurrent = async (values: Partial<Module>) => {
+    if (!this.currentID) throw Error("Can't update a nonexistent module!");
 
-    console.log('->', values)
+    const rec = this.updateRecModule(this.currentID, values);
 
-    this.module = await api.updateModule({slug: this.module.slug, ...values});
-    return this.module;
-  }
-  
-  updateModuleFile = async (mod: Pick<Module, "content"> & Partial<Module>) => {
-    if (!this.baseUri || !this.module) throw Error("Can't update a nonexistent module!");
-  
-    await api.updateLanguageFile(this.baseUri, mod.content);
-    this.module = assign(this.module, mod);
+    api.updateModule(rec.module);
   }
 }

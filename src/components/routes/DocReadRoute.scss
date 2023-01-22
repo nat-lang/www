@@ -1,0 +1,20 @@
+$output-pane-gutter-left: 10px;
+$output-pane-gutter-right: 15px;
+
+.doc-read-route {
+  &-output {
+    padding-right: $output-pane-gutter-right;
+    padding-left: $output-pane-gutter-left;
+
+    &::-webkit-scrollbar { 
+      display: none; // safari and chrome
+    }
+  }
+  &-toolbar {
+    display: flex;
+
+    &-tool {
+      margin: 5px;
+    }
+  }
+}
