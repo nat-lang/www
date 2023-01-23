@@ -1,6 +1,6 @@
 import ChevronDown from "components/icons/ChevronDown";
 import ChevronRight from "components/icons/ChevronRight";
-import { NodeRendererProps } from "react-arborist";
+import { NodeApi, NodeRendererProps } from "react-arborist";
 import { ID, Slug } from "types";
 import "./NavItem.scss";
 
@@ -11,15 +11,21 @@ export type NavItemData = {
   children?: NavItemData[]
 };
 
+const NavIcon = <T,>({ node }: {node: NodeApi<T>}) => {
+  const { children } = node;
+  return children && children.length > 0
+    ? node.isOpen
+      ? <ChevronDown/>
+      : <ChevronRight/>
+    : node.level === 0
+      ? <div className="nav-item-icon-filler"/>
+      : <></>
+};
+
 const NavItem = <T extends NavItemData >({ node, style, dragHandle }: NodeRendererProps<T>) => {
   return (
     <div style={style} ref={dragHandle} className="nav-item" >
-      {node.level === 0
-        ? node.isOpen
-          ? <ChevronDown/>
-          : <ChevronRight/>
-        : ''
-      }
+      <NavIcon node={node}/>
       {node.data.name}
     </div>
   );

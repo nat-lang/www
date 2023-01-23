@@ -14,11 +14,12 @@ import Field from "components/forms/Field";
 import Button from "components/Button";
 import ModuleEditor from "components/ModuleEditor";
 import ModuleOutput from "components/ModuleOutput";
+import { useForm } from "react-hook-form";
 
 const ModuleCreateRoute: React.FC = () => {
   const navigate = useNavigate();
   const { moduleStore: ms, temporaryModuleStore: tms } = useStores();
-  const moduleSchema = useModuleSchema();
+  const formCtx = useForm<ModuleCreateValues>({ resolver: useModuleSchema() });
 
   const handleFormSubmit = async (values: ModuleCreateValues) => {
     const oldRec = tms.setCurrentRecModule(values),
@@ -28,39 +29,32 @@ const ModuleCreateRoute: React.FC = () => {
   };
 
   useEffect(() => {
-    tms.initCurrent();
-  }, [tms]);
+    const { module } = tms.initCurrent();
+    formCtx.reset(module);
+  }, [tms, formCtx]);
 
   return (
     <Route className="module-create-route">
-      {tms.current && <Form<ModuleCreateValues>
-        onSubmit={handleFormSubmit}
-        options={{
-          defaultValues: tms.current.module,
-          resolver: moduleSchema
-        }}
-      >
-        {({ handleSubmit }) =>
-          <Page
-            header={
-              <Header
-                left={<Field autoFocus name="title"/>}
-                right={
-                  tms.current && <Button onClick={handleSubmit(handleFormSubmit)}>
-                  save
-                  </Button>
-                }
-              />
-            }
-            panes={[
-              <ModuleEditor store={tms}/>,
-              <YScrollable>
-                <ModuleOutput store={tms}/>
-              </YScrollable>,
-            ]}
-          />
-        }
-      </Form>}
+      <Form onSubmit={handleFormSubmit} ctx={formCtx}>
+        <Page
+          header={
+            <Header
+              left={<Field autoFocus name="title"/>}
+              right={
+                tms.current && <Button onClick={formCtx.handleSubmit(handleFormSubmit)}>
+                save
+                </Button>
+              }
+            />
+          }
+          panes={[
+            <ModuleEditor store={tms}/>,
+            <YScrollable>
+              <ModuleOutput store={tms}/>
+            </YScrollable>,
+          ]}
+        />
+      </Form>
     </Route>
   );
 };

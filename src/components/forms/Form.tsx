@@ -1,35 +1,34 @@
 import classNames from "classnames";
 import useTwoClicks from "hooks/useTwoClicks";
-import { FieldValues, FormProvider, SubmitHandler, useForm, UseFormProps, UseFormReturn } from "react-hook-form";
+import { FieldValues, FormProvider, SubmitHandler, UseFormReturn } from "react-hook-form";
 
 export type FormDblClickHandler<V extends FieldValues> = (e: React.MouseEvent<HTMLFormElement, MouseEvent> , ctx: UseFormReturn<V, any>) => void
 
 type FormProps<TFormValues extends FieldValues> = {
   onSubmit: SubmitHandler<TFormValues>;
-  children: (methods: UseFormReturn<TFormValues>) => React.ReactNode;
-  options: UseFormProps<TFormValues>;
+  children: React.ReactNode;
   className?: string
   onClick?: React.MouseEventHandler<HTMLFormElement>
   onDblClick?: FormDblClickHandler<TFormValues>
+  ctx: UseFormReturn<TFormValues>
 };
 
 const Form = <
   TFormValues extends Record<string, any>
->({ onSubmit, children, options, className, onClick, onDblClick }: FormProps<TFormValues>) => {
-  const methods = useForm<TFormValues>(options);
+>({ onSubmit, children, className, onClick, onDblClick, ctx }: FormProps<TFormValues>) => {
   const handleClick = useTwoClicks({
     onSingleClick: onClick,
-    onDoubleClick: (e) => onDblClick && onDblClick(e, methods)
+    onDoubleClick: (e) => onDblClick && onDblClick(e, ctx)
   });
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...ctx}>
       <form
-        onSubmit={methods.handleSubmit(onSubmit)}
+        onSubmit={ctx.handleSubmit(onSubmit)}
         className={classNames(className)}
         onClick={handleClick}
       >
-        {children(methods)}
+        {children}
         <input style={{ display: "none" }} type="submit"/>
       </form>
     </FormProvider>

@@ -21,6 +21,7 @@ export class TemporaryModuleStore extends ModuleRecordStore<UUID, TemporaryModul
           rec = this.setCurrent(mod.id, mod);
 
     this.updateCurrentModLangFile(rec.module);
+    return rec;
   }
 }
 

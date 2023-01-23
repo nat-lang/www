@@ -50,7 +50,7 @@ const Nav: React.FC<NavProps> = ({ className = '', children: center, ...props })
       <Tree<NavItemData>
         renderRow={Row}
         data={[
-          { id: 1, name: "Home", slug: "home" },
+          { id: 1, name: "Home", slug: "/" },
           {
             id: 2,
             name: "Documentation",

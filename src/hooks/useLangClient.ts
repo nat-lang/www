@@ -8,9 +8,10 @@ export const useLangClient = <K extends ID | UUID, MT extends ModuleType>(store:
     client.onRequest(ShowDocumentRequest.method, ({ uri }) => {
       const bits = uri.split("/"),
             base = bits[bits.length - 1];
-      console.log('setting output uri...', base);
+
       store.setCurrentOutputUri(base);
       store.incrCurrentOutputVersion();
+
       return { success: true };
     });
   };

@@ -14,62 +14,64 @@ import Form from "components/forms/Form";
 import ModuleEditor from "components/ModuleEditor";
 import YScrollable from "components/YScrollable";
 import ModuleOutput from "components/ModuleOutput";
+import { useForm } from "react-hook-form";
 
 
 const ModuleUpdateRoute: React.FC = () => {
   const { slug } = useParams<ModuleUpdateRouteParams>();
-  const { moduleStore: ms, temporaryModuleStore: tms } = useStores();
-
-  const moduleSchema = useModuleSchema();
   const navigate = useNavigate();
-
+  const { moduleStore: ms, temporaryModuleStore: tms } = useStores();
+  const formCtx = useForm<ModuleUpdateValues>({ resolver: useModuleSchema() });
   const handleModuleEvaluate = () => {};
-  const handleFormSubmit = (v: ModuleUpdateValues) => ms.updateCurrent(v);
+  const handleFormSubmit = ms.updateCurrent;
+  const handleNew = () => navigate('/lib');
 
   useEffect(() => {
-    if (slug) ms.fetchModule(slug).catch(() => {
+    if (slug) ms.fetchModule(slug).then(({ module: { title, content } }) => {
+      formCtx.reset({ title, content });
+    }).catch(() => {
       tms.initCurrent({ title: slug });
       navigate('/lib');
     });
-  }, [slug, ms]);
-
-  console.log('current -> ', JSON.stringify(ms.current?.module));
+  }, [slug, ms, navigate, tms, formCtx]);
 
   return (
     <Route className="module-update-route">
-      {ms.current && <Form<ModuleUpdateValues>
-        onSubmit={handleFormSubmit}
-        options={{
-          defaultValues: {
-            title: ms.current.module.title,
-            content:  ms.current.module.content
-          },
-          resolver: moduleSchema
-        }}
-      >
-        {({ handleSubmit }) =>
-          <Page
-            header={
-              <Header
-                left={ms.current?.module.title}
-                right={
-                  <div className="module-update-route-toolbar">
-                    <Button className="module-update-route-toolbar-tool" onClick={handleModuleEvaluate}>evaluate</Button>
-                    <Button className="module-update-route-toolbar-tool" onClick={handleSubmit(handleFormSubmit)}>save</Button>
-                  </div>
-                }
-              />
+      <Page
+        header={
+          <Header
+            left={ms.current?.module.title}
+            right={
+              <div className="module-update-route-toolbar">
+                <Button
+                  className="module-update-route-toolbar-tool"
+                  onClick={handleModuleEvaluate}
+                >
+                  evaluate
+                </Button>
+                <Button
+                  isLoading={formCtx.formState.isSubmitting}
+                  className="module-update-route-toolbar-tool"
+                  onClick={formCtx.handleSubmit(handleFormSubmit)}
+                >
+                  save
+                </Button>
+                <Button className="module-update-route-toolbar-tool" onClick={handleNew}>
+                  new
+                </Button>
+              </div>
             }
-            panes={[
-              <ModuleEditor store={ms}/>,
-              <YScrollable>
-                <ModuleOutput store={ms}/>
-              </YScrollable>,
-            ]}
           />
         }
-      </Form>
-    }
+        panes={[
+          <Form onSubmit={handleFormSubmit} ctx={formCtx}>
+            <ModuleEditor store={ms}/>
+          </Form>,
+          <YScrollable>
+            <ModuleOutput store={ms}/>
+          </YScrollable>,
+        ]}
+      />
     </Route>
   );
 };

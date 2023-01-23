@@ -86,9 +86,8 @@ const registerLanguageClient = (
     mimetypes: ["application/json"],
   });
 
-  console.log(monaco.editor)
-
   MonacoServices.install();
+
   if (!process.env.REACT_APP_LANG_CLIENT_URL) return;
 
   const url = new URL(process.env.REACT_APP_LANG_CLIENT_URL);

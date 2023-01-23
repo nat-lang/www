@@ -9,7 +9,7 @@ type ModuleEditorParams<K extends ID | UUID, MT extends ModuleType> = {
   store: ModuleRecordStore<K, MT>
 }
 
-const ModuleEditor = <K extends ID | UUID, MT extends ModuleType>({
+export const ModuleEditor = <K extends ID | UUID, MT extends ModuleType>({
   store
 }: ModuleEditorParams<K, MT>) => {
   const { handleLangClientRegister } = useLangClient(store);
@@ -21,10 +21,10 @@ const ModuleEditor = <K extends ID | UUID, MT extends ModuleType>({
   return (
     <div className="module-editor">
       {store.current && <EditorField
-        key={store.current.uri}
+        key={store.current.uri()}
         name="content"
         content={store.current.module.content}
-        uri={store.current.uri}
+        uri={store.current.uri()}
         onChange={handleEditorChange}
         onLangClientRegister={handleLangClientRegister}
       />}

@@ -10,9 +10,7 @@ export class ModuleStore extends ModuleRecordStore<ID, Module> {
   fetchModule = async (slug: Slug) => {
     const mod = await api.fetchModule(slug);
 
-    console.log('setting current...', mod)
-
-    this.setCurrent(mod.id, mod);
+    return this.setCurrent(mod.id, mod);
   }
 
   fetchModules = async () => {
@@ -34,8 +32,8 @@ export class ModuleStore extends ModuleRecordStore<ID, Module> {
     const mod = await api.createModule(tempRec.module);
     const rec = this.setCurrent(mod.id, mod);
 
-    api.createOrUpdateLanguageFile(rec.baseUri, rec.module.content);
-    api.deleteLanguageFile(tempRec.baseUri);
+    await api.createOrUpdateLanguageFile(rec.baseUri(), rec.module.content);
+    await api.deleteLanguageFile(tempRec.baseUri());
 
     return rec;
   }
@@ -48,9 +46,8 @@ export class ModuleStore extends ModuleRecordStore<ID, Module> {
   updateCurrent = async (values: Partial<Module>) => {
     if (!this.currentID) throw Error("Can't update a nonexistent module!");
 
-    console.log('CUR ID ', this.currentID)
     const rec = this.updateRecModule(this.currentID, values);
 
-    api.updateModule(rec.module);
+    return api.updateModule(rec.module);
   }
 }

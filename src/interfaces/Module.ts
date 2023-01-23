@@ -1,4 +1,4 @@
-import { computed, makeObservable, observable, set } from "mobx";
+import { computed, makeObservable, observable } from "mobx";
 import { ID, Module, TemporaryModule, UUID } from "types";
 import * as api from 'api';
 import { baseUri, fullUri } from "utils/language-client";
@@ -28,24 +28,24 @@ export abstract class BaseModuleRecord<T extends ModuleType> {
     this.outputUri = oUri;
   }
 
-  abstract get baseUri (): string
-  abstract get uri (): string
+  abstract baseUri (): string
+  abstract uri (): string
 }
 
 export class ModuleRecord extends BaseModuleRecord<Module> {
-  get baseUri () {
+  baseUri = () => {
     return baseUri(this.module.slug);
   }
-  get uri () {
+  uri = () => {
     return fullUri(this.module.slug);
   }
 }
 
 export class TemporaryModuleRecord extends BaseModuleRecord<TemporaryModule> {
-  get baseUri () {
+  baseUri = () => {
     return baseUri(this.module.id);
   }
-  get uri () {
+  uri = () => {
     return fullUri(this.module.id);
   }
 }
@@ -63,8 +63,8 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
   constructor () {
     makeObservable(this, {
       currentID: observable,
-      modules: observable,
       current: computed,
+      modules: observable,
       moduleList: computed,
     });
   }
@@ -105,12 +105,6 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
 
     return this.updateRecModule(this.currentID, values);
   }
-  
-  updateRec = (id: K, values: Partial<BaseModuleRecord<MT>>) => {
-    const rec = this.getRec(id);
-    set(this.modules, id, {...rec, ...values});
-    return rec;
-  }
 
   updateRecModule = (id: K, values: Partial<MT>) => {
     const rec = this.getRec(id);
@@ -119,6 +113,14 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
       ...rec,
       module: {...rec.module, ...values},
     });
+  }
+
+  updateRec = (id: K, values: Partial<BaseModuleRecord<MT>>) => {
+    const rec = this.getRec(id);
+
+    this.modules[id] = {...rec, ...values};
+
+    return this.modules[id];
   }
 
   setCurrentOutputUri = (base: string) => {
@@ -152,9 +154,13 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
   updateCurrentModLangFile = async (values: Pick<MT, 'content'>) => {
     if (!this.currentID) throw new NoCurrentModuleError();
 
-    // @ts-ignore
-    const rec = this.updateRecModule(this.currentID, values);
+    
+    const rec = this.updateRecModule(
+      this.currentID,
+      // unclear why this assertion is necessary
+      values as Partial<MT>
+    );
 
-    api.createOrUpdateLanguageFile(rec.baseUri, rec.module.content);
+    api.createOrUpdateLanguageFile(rec.baseUri(), rec.module.content);
   }
 }
