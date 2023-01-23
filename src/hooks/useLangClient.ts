@@ -1,5 +1,5 @@
 import { ModuleRecordStore, ModuleType } from "interfaces/Module";
-import { MonacoLanguageClient, ShowDocumentRequest } from "monaco-languageclient/.";
+import { MonacoLanguageClient, ShowDocumentRequest } from "monaco-languageclient";
 import { ID, UUID } from "types";
 
 export const useLangClient = <K extends ID | UUID, MT extends ModuleType>(store: ModuleRecordStore<K, MT>) => {

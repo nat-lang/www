@@ -26,7 +26,7 @@ const Editor: React.FC<EditorProps> = ({ content, uri, onSave, onChange, onLangC
   });
 
   const onEditorChange: ChangeHandler = (value) => {
-    onChange && onChange (value);
+    onChange && onChange(value);
   }
 
   return (

@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 
 import { useStores } from "hooks";
 import { observer } from "mobx-react-lite";
-import { Document as PDF, Page as PDFPage } from 'react-pdf/dist/esm/entry.webpack5';
 
 import { DocReadRouteParams } from "types";
 import Header from "components/layout/Header";
@@ -24,7 +23,7 @@ const DocReadRoute: React.FC = () => {
     if (slug) {
       ms.fetchModule(slug).then(
         () => {
-          ms.setOutputUri(`${slug}.pdf`);
+          ms.setCurrentOutputUri(`${slug}.pdf`);
         }
       )
     }
@@ -35,7 +34,7 @@ const DocReadRoute: React.FC = () => {
       <Page
         header={
           <Header
-            left={ms.module?.title}
+            
             right={
               <div className="doc-read-route-toolbar">
                 <Button className="doc-read-route-toolbar-tool" onClick={handleDocEdit}>edit</Button>
@@ -45,17 +44,8 @@ const DocReadRoute: React.FC = () => {
         }
         panes={[
           <YScrollable>
-            <div className="doc-read-route-output">
-              <PDF
-                file={ms.outputUri}
-                key={ms.version}
-                onLoadError={(err) => console.log('ERR! ', err)}
-                onSourceError={(err) => console.log('ERR! ', err)
-              }>
-                <PDFPage pageNumber={1} />
-              </PDF>
-            </div>
-          </YScrollable>
+            
+          </YScrollable>,
         ]}
       />
     </Route>

@@ -9,11 +9,11 @@ import { ModuleUpdateRouteParams, ModuleUpdateValues } from "types";
 import Header from "components/layout/Header";
 import Page from "components/layout/Page";
 import Route from "./Route";
-import YScrollable from "components/YScrollable";
 import Button from "components/Button";
 import Form from "components/forms/Form";
-import { ModuleEditor } from "components/ModuleEditor";
-import { ModuleOutput } from "components/ModuleOutput";
+import ModuleEditor from "components/ModuleEditor";
+import YScrollable from "components/YScrollable";
+import ModuleOutput from "components/ModuleOutput";
 
 
 const ModuleUpdateRoute: React.FC = () => {
@@ -24,6 +24,7 @@ const ModuleUpdateRoute: React.FC = () => {
   const navigate = useNavigate();
 
   const handleModuleEvaluate = () => {};
+  const handleFormSubmit = (v: ModuleUpdateValues) => ms.updateCurrent(v);
 
   useEffect(() => {
     if (slug) ms.fetchModule(slug).catch(() => {
@@ -32,14 +33,16 @@ const ModuleUpdateRoute: React.FC = () => {
     });
   }, [slug, ms]);
 
+  console.log('current -> ', JSON.stringify(ms.current?.module));
+
   return (
     <Route className="module-update-route">
       {ms.current && <Form<ModuleUpdateValues>
-        onSubmit={ms.updateCurrent}
+        onSubmit={handleFormSubmit}
         options={{
           defaultValues: {
             title: ms.current.module.title,
-            content: ms.current.module.content
+            content:  ms.current.module.content
           },
           resolver: moduleSchema
         }}
@@ -52,7 +55,7 @@ const ModuleUpdateRoute: React.FC = () => {
                 right={
                   <div className="module-update-route-toolbar">
                     <Button className="module-update-route-toolbar-tool" onClick={handleModuleEvaluate}>evaluate</Button>
-                    <Button className="module-update-route-toolbar-tool" onClick={handleSubmit(ms.updateCurrent)}>save</Button>
+                    <Button className="module-update-route-toolbar-tool" onClick={handleSubmit(handleFormSubmit)}>save</Button>
                   </div>
                 }
               />

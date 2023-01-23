@@ -6,16 +6,18 @@ import { RowRendererProps, Tree } from 'react-arborist';
 import { observer } from 'mobx-react-lite';
 import NavItem, { NavItemData } from './NavItem';
 import { useNavigate } from 'react-router-dom';
+import { docRoutes } from 'routes';
+import { capitalize } from 'lodash';
 
 type NavProps = React.HTMLAttributes<HTMLDivElement> & {
 }
 
-export function Row({
+const Row = ({
   node,
   attrs,
   innerRef,
   children,
-}: RowRendererProps<NavItemData>) {
+}: RowRendererProps<NavItemData>) => {
   const navigate = useNavigate();
   const toggle = () => node.isOpen ? node.close() : node.open();
 
@@ -52,21 +54,21 @@ const Nav: React.FC<NavProps> = ({ className = '', children: center, ...props })
           {
             id: 2,
             name: "Documentation",
-            children: [
-              {id: 2.1, name: "Intro"},
-              {id: 2.2, name: "Expressions"},
-              {id: 2.3, name: "Type System"},
-              {id: 2.4, name: "Modules"},
-              {id: 2.5, name: "Applications"}
-            ]
+            children: docRoutes.map(
+              (path, idx) => ({
+                id: parseFloat(`2.${idx + 1}`),
+                name: capitalize(path),
+                slug: `docs/${path}`
+              })
+            )
           },
           {
             name: "Library",
             id: 3,
-            children: ms.moduleList.map(({ slug, title, id }) => ({
-              name: title,
-              slug,
-              id
+            children: ms.moduleList.map(({ module: { slug, title, id } }) => ({
+              id,
+              name: `${title}(${id})`,
+              slug: `lib/${slug}`,
             }))
           }
         ]}

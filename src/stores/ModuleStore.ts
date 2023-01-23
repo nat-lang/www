@@ -1,30 +1,23 @@
-import { makeAutoObservable } from 'mobx';
 import { ID, Module, Slug } from 'types';
 import * as api from 'api';
-import { ModuleRecordStore, ModuleRecord, TemporaryModuleRecord } from 'interfaces/Module';
+import { ModuleRecord, ModuleRecordStore, TemporaryModuleRecord } from 'interfaces/Module';
 
 export class ModuleStore extends ModuleRecordStore<ID, Module> {
-  constructor() {
-    super();
-    makeAutoObservable(this);
-  }
-
   recordFactory(mod: Module) {
-   return new ModuleRecord(mod);
-  }
-
-  modID(mod: Module): ID {
-    return mod.id;
+    return new ModuleRecord(mod);
   }
 
   fetchModule = async (slug: Slug) => {
     const mod = await api.fetchModule(slug);
+
+    console.log('setting current...', mod)
 
     this.setCurrent(mod.id, mod);
   }
 
   fetchModules = async () => {
     const modules = await api.listModules();
+
     this.modules = Object.fromEntries(
       modules.map((m => [m.id, new ModuleRecord(m)]))
     );
@@ -35,6 +28,7 @@ export class ModuleStore extends ModuleRecordStore<ID, Module> {
    * (e.g. server side) record, create its language file, and delete the
    * language file for the temp rec.
    * @param tempRec The temporary record to persist.
+   * @returns ModuleRecord
    */
   createModule = async (tempRec: TemporaryModuleRecord) => {
     const mod = await api.createModule(tempRec.module);
@@ -54,6 +48,7 @@ export class ModuleStore extends ModuleRecordStore<ID, Module> {
   updateCurrent = async (values: Partial<Module>) => {
     if (!this.currentID) throw Error("Can't update a nonexistent module!");
 
+    console.log('CUR ID ', this.currentID)
     const rec = this.updateRecModule(this.currentID, values);
 
     api.updateModule(rec.module);

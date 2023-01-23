@@ -12,8 +12,8 @@ import YScrollable from "components/YScrollable";
 import Form from "components/forms/Form";
 import Field from "components/forms/Field";
 import Button from "components/Button";
-import { ModuleEditor } from "components/ModuleEditor";
-import { ModuleOutput } from "components/ModuleOutput";
+import ModuleEditor from "components/ModuleEditor";
+import ModuleOutput from "components/ModuleOutput";
 
 const ModuleCreateRoute: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +40,8 @@ const ModuleCreateRoute: React.FC = () => {
           resolver: moduleSchema
         }}
       >
-        {({ handleSubmit }) => <Page
+        {({ handleSubmit }) =>
+          <Page
             header={
               <Header
                 left={<Field autoFocus name="title"/>}

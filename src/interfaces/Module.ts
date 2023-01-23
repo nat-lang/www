@@ -1,15 +1,15 @@
-import { set } from "mobx";
+import { computed, makeObservable, observable, set } from "mobx";
 import { ID, Module, TemporaryModule, UUID } from "types";
 import * as api from 'api';
 import { baseUri, fullUri } from "utils/language-client";
 
-class ModuleRecordAccessError extends Error {
+export class ModuleRecordAccessError extends Error {
   constructor(id: ID | UUID) {
     super(`No record for module with id: ${id}`);
   }
 }
 
-class NoCurrentModuleError extends ModuleRecordAccessError {
+export class NoCurrentModuleError extends ModuleRecordAccessError {
   constructor() {
     super(`No current module!`);
   }
@@ -50,7 +50,7 @@ export class TemporaryModuleRecord extends BaseModuleRecord<TemporaryModule> {
   }
 }
 
-type ModuleRecordMap<K extends number | string, MT extends ModuleType> = {[key in K]: BaseModuleRecord<MT>};
+export type ModuleRecordMap<K extends number | string, MT extends ModuleType> = {[key in K]: BaseModuleRecord<MT>};
 
 export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleType> {
   // The id of the focused module
@@ -60,19 +60,32 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
 
   abstract recordFactory (mod: MT): BaseModuleRecord<MT>
 
+  constructor () {
+    makeObservable(this, {
+      currentID: observable,
+      modules: observable,
+      current: computed,
+      moduleList: computed,
+    });
+  }
+
   get current () {
     if (!this.currentID) return undefined;
-
+  
     return this.modules[this.currentID];
   }
 
-  setCurrent (id: K, mod: MT) {
-    const rec = this.setRec(mod);
+  get moduleList (): BaseModuleRecord<MT>[] {
+    return Object.values(this.modules);
+  }
+
+  setCurrent = (id: K, mod: MT) => {
+    const rec = this.setRec(id, mod);
     this.currentID = id;
     return rec;
   }
 
-  getRec (id: K) {
+  getRec = (id: K) => {
     const rec = this.modules[id];
 
     if (!rec) throw new ModuleRecordAccessError(id);
@@ -80,25 +93,26 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
     return rec;
   }
 
-  setRec (mod: MT) {
+  setRec = (id: K, mod: MT) => {
     const rec = this.recordFactory(mod);
-    set(this.modules, mod.id, rec);
+
+    this.modules[id] = rec;
     return rec;
   }
 
-  setCurrentRecModule (values: Partial<MT>) {
+  setCurrentRecModule = (values: Partial<MT>) => {
     if (!this.currentID) throw new NoCurrentModuleError();
 
     return this.updateRecModule(this.currentID, values);
   }
   
-  updateRec(id: K, values: Partial<BaseModuleRecord<MT>>) {
+  updateRec = (id: K, values: Partial<BaseModuleRecord<MT>>) => {
     const rec = this.getRec(id);
     set(this.modules, id, {...rec, ...values});
     return rec;
   }
 
-  updateRecModule (id: K, values: Partial<MT>) {
+  updateRecModule = (id: K, values: Partial<MT>) => {
     const rec = this.getRec(id);
 
     return this.updateRec(id, {
@@ -107,23 +121,23 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
     });
   }
 
-  setCurrentOutputUri (base: string) {
+  setCurrentOutputUri = (base: string) => {
     if (!this.currentID) throw new NoCurrentModuleError();
     this.setOutputUri(this.currentID, base);
   }
 
-  incrCurrentOutputVersion () {
+  incrCurrentOutputVersion = () => {
     if (!this.currentID) throw new NoCurrentModuleError();
     this.incrOutputVersion(this.currentID);
   }
 
-  setOutputUri (id: K, base: string) {
+  setOutputUri = (id: K, base: string) => {
     this.updateRec(id, {
       outputUri: `${process.env.REACT_APP_LANG_CLIENT_URL}/static/${base}`,
     });
   }
 
-  incrOutputVersion (id: K) {
+  incrOutputVersion = (id: K) => {
     const rec = this.getRec(id);
     const version = rec.version + 1;
 
@@ -135,10 +149,11 @@ export abstract class ModuleRecordStore<K extends ID | UUID, MT extends ModuleTy
    * language server.
    * @param values
    */
-  updateCurrentModLangFile = async (content: Pick<MT, 'content'>) => {
+  updateCurrentModLangFile = async (values: Pick<MT, 'content'>) => {
     if (!this.currentID) throw new NoCurrentModuleError();
 
-    const rec = this.updateRecModule(this.currentID, { content });
+    // @ts-ignore
+    const rec = this.updateRecModule(this.currentID, values);
 
     api.createOrUpdateLanguageFile(rec.baseUri, rec.module.content);
   }

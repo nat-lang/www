@@ -1,5 +1,4 @@
 
-import { makeAutoObservable } from 'mobx';
 import { TemporaryModule, UUID } from 'types';
 import { v4 as uuid } from 'uuid';
 import { ModuleRecordStore, TemporaryModuleRecord } from 'interfaces/Module';
@@ -12,10 +11,6 @@ const tempModuleFactory = (mod: Partial<TemporaryModule> = {}) => ({
 });
 
 export class TemporaryModuleStore extends ModuleRecordStore<UUID, TemporaryModule> {
-  constructor() {
-    super();
-    makeAutoObservable(this);
-  }
 
   recordFactory(mod: TemporaryModule) {
     return new TemporaryModuleRecord(mod);
