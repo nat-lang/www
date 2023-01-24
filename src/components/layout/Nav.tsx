@@ -43,7 +43,7 @@ const Nav: React.FC<NavProps> = ({ className = '', children: center, ...props })
 
   useEffect(() => {
     ms.fetchModules();
-  }, []);
+  }, [ms]);
 
   return (
     <div className={classNames("nav", className)} {...props}>
