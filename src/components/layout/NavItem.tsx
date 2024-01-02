@@ -1,14 +1,13 @@
 import ChevronDown from "components/icons/ChevronDown";
 import ChevronRight from "components/icons/ChevronRight";
 import { NodeApi, NodeRendererProps } from "react-arborist";
-import { ID, Slug } from "types";
 import "./NavItem.scss";
 
 export type NavItemData = {
-  id: ID;
+  id: number | string;
   name: string;
-  slug?: Slug
-  children?: NavItemData[]
+  slug?: string;
+  children?: NavItemData[];
 };
 
 const NavIcon = <T,>({ node }: {node: NodeApi<T>}) => {

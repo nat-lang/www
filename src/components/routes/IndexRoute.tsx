@@ -12,7 +12,7 @@ const IndexRoute: React.FC = () => {
   return (
     <Route className="index-route">
       <Page
-        header={<Header left={"Natlang Online"}/>}
+        header={<Header left={"NatLang Online"}/>}
         panes={[
         ]}
       />

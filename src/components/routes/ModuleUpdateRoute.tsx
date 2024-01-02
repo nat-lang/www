@@ -20,27 +20,26 @@ import { useForm } from "react-hook-form";
 const ModuleUpdateRoute: React.FC = () => {
   const { slug } = useParams<ModuleUpdateRouteParams>();
   const navigate = useNavigate();
-  const { moduleStore: ms, temporaryModuleStore: tms } = useStores();
+  const { moduleStore: ms } = useStores();
   const formCtx = useForm<ModuleUpdateValues>({ resolver: useModuleSchema() });
   const handleModuleEvaluate = () => {};
-  const handleFormSubmit = ms.updateCurrent;
+  const handleFormSubmit = ({ content }: { content: string }) => ms.updateCurrentModule(content);
   const handleNew = () => navigate('/lib');
 
   useEffect(() => {
-    if (slug) ms.fetchModule(slug).then(({ module: { title, content } }) => {
+    if (!slug) return;
+
+    ms.fetchModule(slug).then(({ title, content }) => {
       formCtx.reset({ title, content });
-    }).catch(() => {
-      tms.initCurrent({ title: slug });
-      navigate('/lib');
-    });
-  }, [slug, ms, navigate, tms, formCtx]);
+    })
+  }, [slug, ms, navigate, formCtx]);
 
   return (
     <Route className="module-update-route">
       <Page
         header={
           <Header
-            left={ms.current?.module.title}
+            left={ms.current?.title}
             right={
               <div className="module-update-route-toolbar">
                 <Button

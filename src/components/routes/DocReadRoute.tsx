@@ -23,7 +23,7 @@ const DocReadRoute: React.FC = () => {
     if (slug) {
       ms.fetchModule(slug).then(
         () => {
-          ms.setCurrentOutputUri(`${slug}.pdf`);
+          // ms.setCurrentOutputUri(`${slug}.pdf`);
         }
       )
     }

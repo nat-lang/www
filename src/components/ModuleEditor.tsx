@@ -1,30 +1,30 @@
 import { useLangClient } from "hooks/useLangClient"
-import { ModuleRecordStore, ModuleType } from "interfaces/Module"
 import { debounce } from "lodash"
 import { observer } from "mobx-react-lite"
-import { ID, UUID } from "types"
 import EditorField from "./forms/EditorField"
+import { ModuleStore } from "stores/ModuleStore"
+import { fullUri } from "utils/language-client"
 
-type ModuleEditorParams<K extends ID | UUID, MT extends ModuleType> = {
-  store: ModuleRecordStore<K, MT>
+type ModuleEditorParams= {
+  store: ModuleStore
 }
 
-export const ModuleEditor = <K extends ID | UUID, MT extends ModuleType>({
+export const ModuleEditor = ({
   store
-}: ModuleEditorParams<K, MT>) => {
+}: ModuleEditorParams) => {
   const { handleLangClientRegister } = useLangClient(store);
 
   const handleEditorChange = debounce((content: string) => {
-    store.updateCurrentModLangFile({ content });
+    store.updateCurrentModule(content);
   }, 200);
 
   return (
     <div className="module-editor">
       {store.current && <EditorField
-        key={store.current.uri()}
+        key={fullUri(store.current.id)}
         name="content"
-        content={store.current.module.content}
-        uri={store.current.uri()}
+        content={store.current.content}
+        uri={fullUri(store.current.id)}
         onChange={handleEditorChange}
         onLangClientRegister={handleLangClientRegister}
       />}

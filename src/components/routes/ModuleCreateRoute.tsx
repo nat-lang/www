@@ -18,20 +18,21 @@ import { useForm } from "react-hook-form";
 
 const ModuleCreateRoute: React.FC = () => {
   const navigate = useNavigate();
-  const { moduleStore: ms, temporaryModuleStore: tms } = useStores();
+  const { moduleStore: ms } = useStores();
   const formCtx = useForm<ModuleCreateValues>({ resolver: useModuleSchema() });
 
   const handleFormSubmit = async (values: ModuleCreateValues) => {
-    const oldRec = tms.setCurrentRecModule(values),
-          newRec = await ms.createModule(oldRec);
+    const module = await ms.createModule(values);
 
-    navigate(newRec.module.slug);
+    navigate(module.slug);
   };
 
   useEffect(() => {
-    const { module } = tms.initCurrent();
-    formCtx.reset(module);
-  }, [tms, formCtx]);
+    (async () => {
+      const module = await ms.new();
+      formCtx.reset(module);
+    })();
+  }, [ms, formCtx]);
 
   return (
     <Route className="module-create-route">
@@ -41,16 +42,17 @@ const ModuleCreateRoute: React.FC = () => {
             <Header
               left={<Field autoFocus name="title"/>}
               right={
-                tms.current && <Button onClick={formCtx.handleSubmit(handleFormSubmit)}>
-                save
-                </Button>
+                ms.current && <>
+                <Button onClick={() => ms.interpretModule(ms.currentID!)}>run</Button>
+                <Button onClick={formCtx.handleSubmit(handleFormSubmit)}>save</Button>
+                </>
               }
             />
           }
           panes={[
-            <ModuleEditor store={tms}/>,
+            <ModuleEditor store={ms}/>,
             <YScrollable>
-              <ModuleOutput store={tms}/>
+              <ModuleOutput store={ms}/>
             </YScrollable>,
           ]}
         />

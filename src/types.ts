@@ -1,13 +1,11 @@
-import { HierarchyNode } from "d3-hierarchy"
+import { HierarchyNode } from "d3-hierarchy";
 
 export type toEnumType<EnumType> = EnumType[keyof EnumType]
 
-export type ID = number
-export type UUID = string
-export type Slug = string
+export type UUID = string;
 
 export type Author = {
-  id: ID
+  id: UUID
   full_name: string
 }
 
@@ -34,13 +32,13 @@ export type CoordinatedSyntaxTree = HierarchyNode<SyntaxTree>
 export type CoordinatedSemanticTree = HierarchyNode<SemanticTree>
 
 export type ExampleBase = {
-  module_id: ID
+  module_id: UUID
   description: string
   content: string
   label: string
 }
 
-export type Example = ExampleBase & { id: ID }
+export type Example = ExampleBase & { id: UUID }
 export type TemporaryExample = ExampleBase & {
   temp_id: UUID
 }
@@ -49,13 +47,13 @@ export type ExampleEditValues = Pick<ExampleBase, 'label' | 'content'>
 export type ExampleCreateValues = ExampleBase
 
 export type InterpretationBase = {
-  example_id: ID
+  example_id: UUID
   content: string
   paraphrase: string
 }
 
 export type Interpretation = InterpretationBase & {
-  id: ID
+  id: UUID
   constituency_parse?: ConstituencyParse
 }
 
@@ -67,8 +65,8 @@ export type InterpretationEditValues = Pick<InterpretationBase, 'content'>
 export type InterpretationCreateValues = InterpretationBase
 
 export type ConstituencyParse = {
-  id: ID
-  interpretation_id: ID
+  id: UUID
+  interpretation_id: UUID
   parse_string: string
   syntax_tree: SyntaxTree
 }
@@ -86,19 +84,12 @@ export type CoordinatedConstituencyParse = ConstituencyParse & {
   coordinated_syntax_tree: CoordinatedSyntaxTree
 }
 
-type ModuleBase = {
+export type Module = {
+  id: UUID
+  slug: string
   author?: Author
   title: string
   content: string
-}
-
-export type Module = ModuleBase & {
-  id: ID
-  slug: Slug
-}
-
-export type TemporaryModule = ModuleBase & {
-  id: UUID
 }
 
 export type IndexRouteParams = {
@@ -106,14 +97,14 @@ export type IndexRouteParams = {
 }
 
 export type ModuleUpdateRouteParams = {
-  slug: Slug
+  slug: string
 }
 
 export type ModuleCreateRouteParams = {}
 
-export type ModuleCreateValues = ModuleBase
-export type ModuleUpdateValues = Pick<ModuleBase, "title" | "content">
+export type ModuleCreateValues = Omit<Module, "slug">;
+export type ModuleUpdateValues = Pick<Module, "title" | "content">
 
 export type DocReadRouteParams = {
-  slug: Slug
+  slug: string
 }

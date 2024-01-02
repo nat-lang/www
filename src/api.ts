@@ -1,53 +1,44 @@
 import axios from 'axios';
 import {
-  Module, Slug, ModuleCreateValues
+  Module, ModuleCreateValues
 } from './types';
 
-const libClient = axios.create({
-  baseURL: process.env.REACT_APP_LIB_CLIENT_URL,
+const nls = axios.create({
+  baseURL: process.env.REACT_APP_NLS_URL,
   headers: {
     Accept: 'application/json',
   },
 });
 
-const languageClient = axios.create({
-  baseURL: process.env.REACT_APP_LANG_CLIENT_URL,
-  headers: {
-    Accept: 'application/json',
-  },
-});
+const interpretModule = (slug: string): Promise<Module> => nls
+  .post(`interpret/${slug}`)
+  .then(({ data }) => data);
 
-const fetchModule = (slug: Slug): Promise<Module> => libClient
+const fetchModule = (slug: string): Promise<Module> => nls
   .get(`modules/${slug}`)
   .then(({ data }) => data);
 
-const listModules = (): Promise<Module[]> => libClient
+const listModules = (): Promise<Module[]> => nls
   .get('modules')
   .then(({ data }) => data);
 
-const createModule = (values: ModuleCreateValues): Promise<Module> => libClient
-  .post('modules/', values)
+const createModule = (values: ModuleCreateValues): Promise<Module> => nls
+  .post('modules', values)
   .then(({ data }) => data);
 
-const updateModule = ({slug, ...values}: { slug: string } & Partial<Module>): Promise<Module> => libClient
-  .patch(`modules/${slug}`, values)
+const writeModule = ({ id, content }: { id: string, content: string }): Promise<void> => nls
+  .post(`modules/${id}`, { content })
   .then(({ data }) => data);
 
-const fetchLanguageFile = (filename: string): Promise<string> => languageClient
-  .get(filename)
+const deleteModule = (filename: string): Promise<string> => nls
+  .delete(`modules/${filename}`)
   .then(({ data }) => data);
-
-const createOrUpdateLanguageFile = (filename: string, content: string) => languageClient
-  .post(filename, { content });
-
-const deleteLanguageFile = languageClient.delete;
 
 export {
+  interpretModule,
   fetchModule,
   createModule,
-  updateModule,
+  writeModule,
   listModules,
-  fetchLanguageFile,
-  createOrUpdateLanguageFile,
-  deleteLanguageFile,
+  deleteModule,
 }

@@ -1,4 +1,11 @@
 .nav {
   padding-top: 10px;
   padding-left: 10px;
+  white-space: nowrap;
+}
+
+.nav div div {
+  // this can change if it turns out arborist
+  // exposes its styling more transparently
+  overflow: unset !important;
 }

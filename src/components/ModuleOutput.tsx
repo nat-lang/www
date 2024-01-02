@@ -1,21 +1,20 @@
-import { ModuleRecordStore, ModuleType } from "interfaces/Module";
-import { ID, UUID } from "types";
 import { Document as PDF, Page as PDFPage } from 'react-pdf/dist/esm/entry.webpack5';
 import { observer } from "mobx-react-lite";
+import { ModuleStore } from "stores/ModuleStore";
+import { fullUri } from 'utils/language-client';
 
-type ModuleOutputParams<K extends ID | UUID, MT extends ModuleType> = {
-  store: ModuleRecordStore<K, MT>
+type ModuleOutputParams = {
+  store: ModuleStore;
 }
 
-const ModuleOutput = <K extends ID | UUID, MT extends ModuleType>({
+const ModuleOutput = ({
   store
-}: ModuleOutputParams<K, MT>) => {
+}: ModuleOutputParams) => {
 
   return (
     <div className="module-output">
       {store.current && <PDF
-        file={store.current.outputUri}
-        key={store.current.version}
+        file={fullUri(store.current.id)}
         onLoadError={(err) => console.log('PDF load err! ', err)}
         onSourceError={(err) => console.log('PDF source err! ', err)
       }>

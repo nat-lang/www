@@ -6,7 +6,7 @@ import { RowRendererProps, Tree } from 'react-arborist';
 import { observer } from 'mobx-react-lite';
 import NavItem, { NavItemData } from './NavItem';
 import { useNavigate } from 'react-router-dom';
-import { docRoutes } from 'routes';
+import { docRoutes, exampleRoutes } from 'routes';
 import { capitalize } from 'lodash';
 
 type NavProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -45,32 +45,55 @@ const Nav: React.FC<NavProps> = ({ className = '', children: center, ...props })
     ms.fetchModules();
   }, [ms]);
 
+  const children = (id: number, prefix: string, routes: string[]) => routes.map(
+    (path, idx) => ({
+      id: parseFloat(`${id}${idx + 1}`),
+      name: capitalize(path),
+      slug: `${prefix}/${path}`
+    })
+  );
+
   return (
     <div className={classNames("nav", className)} {...props}>
       <Tree<NavItemData>
         renderRow={Row}
+        width={"100%"}
+        indent={10}
+        height={1000}
         data={[
           { id: 1, name: "Home", slug: "/" },
           {
             id: 2,
-            name: "Documentation",
-            children: docRoutes.map(
-              (path, idx) => ({
-                id: parseFloat(`2.${idx + 1}`),
-                name: capitalize(path),
-                slug: `docs/${path}`
-              })
-            )
+            name: "Guide",
+            children: [
+              {
+                id: 2.1,
+                name: "Documentation",
+                children: children(2.1, 'docs', docRoutes)
+              },
+              {
+                id: 2.2,
+                name: "Standard Library",
+                // children: children(2.2, 'stdlib', stdlibRoutes)
+              },
+              {
+                id: 2.3,
+                name: "Examples",
+                children: children(2.3, 'exx', exampleRoutes)
+
+              },
+            ]
           },
           {
             name: "Library",
             id: 3,
-            children: ms.moduleList.map(({ module: { slug, title, id } }) => ({
+            children: ms.moduleList.map(({ slug, title, id }) => ({
               id,
-              name: `${title}(${id})`,
+              name: title,
               slug: `lib/${slug}`,
             }))
-          }
+          },
+          { id: 4, name: "Contributing", slug: "contributing" },
         ]}
       >
         {NavItem}

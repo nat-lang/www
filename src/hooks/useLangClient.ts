@@ -1,16 +1,15 @@
-import { ModuleRecordStore, ModuleType } from "interfaces/Module";
 import { MonacoLanguageClient, ShowDocumentRequest } from "monaco-languageclient";
-import { ID, UUID } from "types";
+import { ModuleStore } from "stores/ModuleStore";
 
-export const useLangClient = <K extends ID | UUID, MT extends ModuleType>(store: ModuleRecordStore<K, MT>) => {
+export const useLangClient = (store: ModuleStore) => {
 
   const handleLangClientRegister = (client: MonacoLanguageClient) => {
     client.onRequest(ShowDocumentRequest.method, ({ uri }) => {
       const bits = uri.split("/"),
             base = bits[bits.length - 1];
 
-      store.setCurrentOutputUri(base);
-      store.incrCurrentOutputVersion();
+      // store.setCurrentOutputUri(base);
+      // store.incrCurrentOutputVersion();
 
       return { success: true };
     });

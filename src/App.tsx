@@ -15,7 +15,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/">
             <Route index element={<IndexRoute/>}/>
-            <Route path="lib">
+            <Route path="new">
               <Route index element={<ModuleCreateRoute/>}/>
               <Route path=":slug" element={<ModuleUpdateRoute/>}/>
             </Route>

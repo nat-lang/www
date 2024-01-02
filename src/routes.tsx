@@ -3,6 +3,15 @@ export const docRoutes = [
   "expressions",
   "types",
   "modules",
-  "applications",
   "latex"
 ];
+
+export const exampleRoutes = [
+  "composition",
+  "quantification",
+  "generalized-quantifiers",
+  "mereology",
+  "plurality",
+  "intensionality"
+];
+
