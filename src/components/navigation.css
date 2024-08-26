@@ -1,0 +1,12 @@
+.Navigation {
+  border-right: 1px solid #dddddd;
+  font-size: 14px;
+}
+
+.Navigation .NavigationFile {
+  cursor: pointer;
+}
+
+.Navigation .NavigationFileTitle {
+  overflow-x: hidden;
+}

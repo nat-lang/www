@@ -1,26 +1,24 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
-  createBrowserRouter,
-  RouterProvider,
+  BrowserRouter,
+  Route,
+  Routes,
 } from "react-router-dom";
-import Root from "./routes/root";
 import Editor from './routes/editor';
 import "./index.css";
 import './worker';
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root />,
-  }, {
-    path: "/hack",
-    element: <Editor />,
-  }
-]);
+import './nat/nat.contribution';
+import Login from './routes/login';
+import Header from './components/header';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-)
+  <>
+    <Header />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/:file?*" element={<Editor />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
+  </>
+);

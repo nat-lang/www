@@ -1,4 +1,24 @@
-.Editor {
-  width: 100vw;
+.ide {
+  display: flex;
+  flex-direction: row;
+}
+
+.ide .Editor {
+  width: 85vw;
+  flex: 4 1 auto;
   height: 100vh;
+}
+
+.ide .Navigation {
+  width: 15vw;
+  flex: 1 1 content;
+  padding: 10px;
+  padding-top: 25px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.Navigation .NavigationFolder:not(:first-child) {
+  padding-top: 10px;
 }
