@@ -14,14 +14,10 @@ export default function Login() {
     if (token) {
       navigate("/");
     } else if (code) {
-      fetch("https://nls.natlang.online").then(d => {
-        console.log(d);
-      });
       setLoading(true);
       fetch(`https://nls.natlang.online/oauth?code=${code}`, { method: "POST" })
         .then(async (res) => {
           const data = await res.json();
-          console.log("->", data);
           if (res.status != 200)
             throw Error("Failed to authenticate.");
 
