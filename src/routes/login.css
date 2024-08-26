@@ -1,36 +1,32 @@
-.login-container {
+.Login {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.LoginContainer {
+  width: 300px;
+  height: 100px;
   background: white;
   padding: 2rem;
   border-radius: 5px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.login-container h1 {
-  margin-top: 0;
+.LoginContainer .GithubLogo {
+  padding-right: 10px;
 }
 
-.github-button {
-  background-color: #24292e;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
+.LoginContainer .GithubButton {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
   cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.github-button:hover {
-  background-color: #3c4147;
-}
-
-.github-button img {
-  vertical-align: middle;
-  height: 24px;
-  margin-right: 10px;
+  text-decoration: underline;
 }

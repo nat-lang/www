@@ -12,13 +12,11 @@ import Login from './routes/login';
 import Header from './components/header';
 
 createRoot(document.getElementById('root')!).render(
-  <>
+  <BrowserRouter>
     <Header />
-    <BrowserRouter>
-      <Routes>
-        <Route path="/:file?*" element={<Editor />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </BrowserRouter>
-  </>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/:file?*" element={<Editor />} />
+    </Routes>
+  </BrowserRouter>
 );
