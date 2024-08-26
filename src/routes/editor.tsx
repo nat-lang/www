@@ -48,7 +48,6 @@ export default function Editor() {
       const res = await octokit.rest.repos.getContent({
         owner: 'nat-lang',
         repo: 'library',
-        ref: "c&c",
         path
       });
 
@@ -77,7 +76,7 @@ export default function Editor() {
 
     (async () => {
       let t = await octokit.rest.git.getTree({
-        owner: 'nat-lang', repo: 'library', tree_sha: 'c&c',
+        owner: 'nat-lang', repo: 'library', tree_sha: 'main',
         recursive: "true"
       });
       setFiles(t.data.tree);
