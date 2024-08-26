@@ -1,0 +1,14 @@
+.Header {
+  height: 66.67px;
+  border-bottom: 1px solid #dddddd;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-left: 25px;
+  padding-right: 25px;
+
+  font-variant: small-caps;
+  font-size: 16px;
+}
