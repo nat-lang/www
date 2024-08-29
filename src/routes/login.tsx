@@ -16,7 +16,7 @@ export default function Login() {
       navigate("/");
     } else if (code) {
       setLoading(true);
-      fetch(`https://nls.natlang.online/oauth?code=${code}`, { method: "POST" })
+      fetch(`${import.meta.env.VITE_NLS_URI}/oauth?code=${code}`, { method: "POST" })
         .then(async (res) => {
           const data = await res.json();
           if (res.status != 200)
@@ -30,10 +30,8 @@ export default function Login() {
   }, [code]);
 
   const redirectToGitHub = () => {
-    const client_id = "Ov23lilAe90yeY8J0BOT";
-    const redirect_uri = "http://localhost:5173/login";
     const scope = "read:user";
-    const authUrl = `https://github.com/login/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}`;
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_GITHUB_REDIRECT_URI}&scope=${scope}`;
     window.location.href = authUrl;
   };
 
