@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
     <Header />
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/:file?*" element={<Editor />} />
+      <Route path="/:file?/*" element={<Editor />} />
     </Routes>
   </BrowserRouter>
 );
