@@ -10,7 +10,7 @@ enum InterpretResult {
 export interface NatModule extends EmscriptenModule {
   cwrap: typeof cwrap;
 
-  interpretSource(path: string, source: string): InterpretResult;
+  vmInterpretSource(path: string, source: string): InterpretResult;
 }
 
 export default function createModule(mod?: any): Promise<NatModule>;

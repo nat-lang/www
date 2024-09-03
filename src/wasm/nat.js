@@ -28,7 +28,7 @@ var readyPromise = new Promise((resolve, reject) => {
   readyPromiseResolve = resolve;
   readyPromiseReject = reject;
 });
-["_interpretSource","_memory","___indirect_function_table","___emscripten_embedded_file_data","onRuntimeInitialized"].forEach((prop) => {
+["_vmInterpretSource","_memory","___indirect_function_table","___emscripten_embedded_file_data","onRuntimeInitialized"].forEach((prop) => {
   if (!Object.getOwnPropertyDescriptor(readyPromise, prop)) {
     Object.defineProperty(readyPromise, prop, {
       get: () => abort('You are getting ' + prop + ' on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'),
@@ -4223,8 +4223,8 @@ var wasmImports = {
 };
 var wasmExports = createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors', 0);
-var _interpretSource = Module['_interpretSource'] = createExportWrapper('interpretSource', 2);
 var _main = createExportWrapper('__main_argc_argv', 2);
+var _vmInterpretSource = Module['_vmInterpretSource'] = createExportWrapper('vmInterpretSource', 2);
 var _fflush = createExportWrapper('fflush', 1);
 var _strerror = createExportWrapper('strerror', 1);
 var _emscripten_stack_init = () => (_emscripten_stack_init = wasmExports['emscripten_stack_init'])();
@@ -4235,7 +4235,7 @@ var __emscripten_stack_restore = (a0) => (__emscripten_stack_restore = wasmExpor
 var __emscripten_stack_alloc = (a0) => (__emscripten_stack_alloc = wasmExports['_emscripten_stack_alloc'])(a0);
 var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmExports['emscripten_stack_get_current'])();
 var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji', 5);
-var ___emscripten_embedded_file_data = Module['___emscripten_embedded_file_data'] = 5305292;
+var ___emscripten_embedded_file_data = Module['___emscripten_embedded_file_data'] = 5305592;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===

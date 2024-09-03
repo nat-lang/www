@@ -9,7 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Octokit } from 'octokit';
 
 let interpret = (path: string, source: string) => Module().then(mod => {
-  let intpt = mod.cwrap('interpretSource', 'number', ['string', 'string']);
+  let intpt = mod.cwrap('vmInterpretSource', 'number', ['string', 'string']);
   return intpt(path, source);
 });
 

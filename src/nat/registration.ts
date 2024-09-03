@@ -58,8 +58,6 @@ export async function loadLanguage(languageId: string): Promise<void> {
 export function registerLanguage(def: ILang): void {
   const languageId = def.id;
 
-  console.log('registering nat...');
-
   languageDefinitions[languageId] = def;
   languages.register(def);
 
