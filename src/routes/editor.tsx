@@ -2,20 +2,19 @@ import { useRef, useState, useEffect } from 'react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import './editor.css'
 
-import Module from '../wasm/nat.js'
-import Navigation from '../components/navigation.js';
-import { RepoFile, RepoFileTree } from '../types.js';
+import Navigation from '../components/navigation';
+import { RepoFile, RepoFileTree } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Octokit } from 'octokit';
-
-let interpret = (path: string, source: string) => Module().then(mod => {
-  let intpt = mod.cwrap('vmInterpretSource', 'number', ['string', 'string']);
-  return intpt(path, source);
-});
+import { interpret, compile } from '../service/nat/client';
+import Header from '../components/header';
+import Button from '../components/button';
+import Arrows from '../icons/arrows';
 
 export default function Editor() {
-  const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null)
-  const monacoEl = useRef(null)
+  const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
+  const [navigationOpen, setNavigationOpen] = useState<boolean>(true);
+  const monacoEl = useRef(null);
   const params = useParams();
   const navigate = useNavigate();
   const [files, setFiles] = useState<RepoFileTree>([]);
@@ -29,6 +28,16 @@ export default function Editor() {
     if (!file.path) throw Error("Can't navigate to pathless file.");
 
     navigate(`/${file.path}`);
+  };
+
+  const handleEvaluateClick = async () => {
+    if (editor) {
+      const source = editor.getValue();
+
+      const tex = await compile(path ?? "/", source);
+
+      console.log(tex);
+    }
   };
 
   useEffect(() => {
@@ -87,29 +96,42 @@ export default function Editor() {
     if (!monacoEl) return;
 
     setEditor((editor) => {
-      if (editor) return editor
+      if (editor) return editor;
 
-      const e = monaco.editor.create(monacoEl.current!, {
+      const newEditor = monaco.editor.create(monacoEl.current!, {
         value: "",
         language: 'nat'
-      })
+      });
 
-      e.onKeyDown(v => {
+      newEditor.onKeyDown(v => {
         if (v.metaKey && v.keyCode == 3) {
-          const a = e.getValue()
+          const source = newEditor.getValue();
 
-          interpret(path ?? "/", a);
+          interpret(path ?? "/", source);
         }
-      })
+      });
 
-      return e;
+      return newEditor;
     });
 
     return () => editor?.dispose()
   }, [monacoEl.current])
 
-  return <div className="ide">
-    <Navigation files={files} onFileClick={handleFileClick} />
-    <div className="Editor" ref={monacoEl}></div>
-  </div>
+  return <>
+    <Header>
+      <Button onClick={handleEvaluateClick}>evaluate</Button>
+    </Header>
+    <div className={`ide ${navigationOpen ? "" : "ide-nav-closed"}`}>
+      <Navigation
+        files={files}
+        onFileClick={handleFileClick}
+        className={navigationOpen ? "" : "Navigation--closed"}
+      />
+      <div className="NavAccessColumn">
+        <Arrows onClick={() => setNavigationOpen(!navigationOpen)} className="NavigationAccess" />
+      </div>
+      <div className="Editor" ref={monacoEl}></div>
+      <div className="Visual"></div>
+    </div>
+  </>;
 }

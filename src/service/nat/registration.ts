@@ -73,3 +73,12 @@ export function registerLanguage(def: ILang): void {
     languages.setLanguageConfiguration(languageId, mod.conf);
   });
 }
+
+export const registerNat = () => registerLanguage({
+  id: 'nat',
+  extensions: ['.nat',],
+  aliases: ['nat', 'natlang'],
+  loader: () => {
+    return import('./syntax');
+  }
+});

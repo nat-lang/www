@@ -7,16 +7,18 @@ import {
 import Editor from './routes/editor';
 import "./index.css";
 import './worker';
-import './nat/nat.contribution';
+import { registerNat } from './service/nat/registration';
 import Login from './routes/login';
 import Header from './components/header';
 
+registerNat();
+
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <Header />
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/:file?/*" element={<Editor />} />
     </Routes>
   </BrowserRouter>
 );
+

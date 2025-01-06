@@ -1,6 +1,8 @@
 .Navigation {
   border-right: 1px solid #dddddd;
   font-size: 14px;
+  position: relative;
+  overflow-x: hidden;
 }
 
 .Navigation .NavigationFile {
