@@ -3,13 +3,14 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import './editor.css'
 
 import Navigation from '../components/navigation';
-import { RepoFile, RepoFileTree } from '../types';
+import { CanvasNode, RepoFile, RepoFileTree } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Octokit } from 'octokit';
 import { interpret, compile } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
 import Arrows from '../icons/arrows';
+import Canvas from '../components/canvas';
 
 export default function Editor() {
   const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
@@ -20,6 +21,7 @@ export default function Editor() {
   const [files, setFiles] = useState<RepoFileTree>([]);
   const githubAuth = localStorage.getItem("githubtoken");
   const [octokit, setOctokit] = useState<Octokit | null>();
+  const [canvasData, setCanvasData] = useState<CanvasNode>();
 
   let path = params.file;
   if (params["*"]) path += `/${params["*"]}`;
@@ -34,9 +36,8 @@ export default function Editor() {
     if (editor) {
       const source = editor.getValue();
 
-      const tex = await compile(path ?? "/", source);
-
-      console.log(tex);
+      const out = await compile(path ?? "/", source);
+      setCanvasData(out.data);
     }
   };
 
@@ -131,7 +132,7 @@ export default function Editor() {
         <Arrows onClick={() => setNavigationOpen(!navigationOpen)} className="NavigationAccess" />
       </div>
       <div className="Editor" ref={monacoEl}></div>
-      <div className="Visual"></div>
+      <Canvas data={canvasData} />
     </div>
   </>;
 }
