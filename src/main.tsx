@@ -9,7 +9,6 @@ import "./index.css";
 import './worker';
 import { registerNat } from './service/nat/registration';
 import Login from './routes/login';
-import Header from './components/header';
 
 registerNat();
 
