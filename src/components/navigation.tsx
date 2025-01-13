@@ -6,11 +6,11 @@ import { RepoFile } from "../types";
 type NavigationOps = {
   files: RepoFile[];
   onFileClick: (file: RepoFile) => any;
+  className: string;
 }
 
-const Navigation: FunctionComponent<NavigationOps> = ({ onFileClick, files }) => {
-
-  return <div className="Navigation">
+const Navigation: FunctionComponent<NavigationOps> = ({ onFileClick, files, className }) => {
+  return <div className={`Navigation ${className}`}>
     {(() => {
       let roots: RepoFile[] = [];
 

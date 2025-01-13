@@ -1,5 +1,4 @@
 
-
 import type { languages } from "monaco-editor";
 
 export const conf: languages.LanguageConfiguration = {

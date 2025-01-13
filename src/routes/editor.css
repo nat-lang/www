@@ -4,14 +4,12 @@
 }
 
 .ide .Editor {
-  width: 85vw;
-  flex: 4 1 auto;
+  flex-basis: 55vw;
   height: 100vh;
 }
 
 .ide .Navigation {
-  width: 15vw;
-  flex: 1 1 content;
+  flex-basis: 15vw;
   padding: 10px;
   padding-top: 25px;
 
@@ -19,6 +17,34 @@
   flex-direction: column;
 }
 
-.Navigation .NavigationFolder:not(:first-child) {
+.ide .NavAccessColumn {
+  height: 100vh;
+  width: 0px;
+  position: relative;
+}
+
+.ide .NavigationAccess {
+  position: absolute;
+  right: -8.5px;
+  z-index: 10;
+  width: 18px;
+  height: 18px;
+  top: 30%;
+  transform: translateY(-30%);
+  fill: #707375;
+  cursor: pointer;
+}
+
+.ide .Navigation.Navigation--closed {
+  flex-basis: 0.1vw;
+}
+
+.ide .Navigation .NavigationFolder:not(:first-child) {
   padding-top: 10px;
+}
+
+.ide .Canvas {
+
+  flex-basis: 30vw;
+  height: 100vh;
 }

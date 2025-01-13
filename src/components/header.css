@@ -12,3 +12,11 @@
   font-variant: small-caps;
   font-size: 16px;
 }
+
+.HeaderLinks {
+  display: flex;
+}
+
+.HeaderLinks>div {
+  padding-right: 10px;
+}

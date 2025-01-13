@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./login.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoadingGear from "../components/loadingGear";
+import Header from "../components/header";
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
@@ -35,7 +36,8 @@ export default function Login() {
     window.location.href = authUrl;
   };
 
-  return (
+  return <>
+    <Header />
     <div className="Login">
       {loading ? <LoadingGear /> :
         <div className="LoginContainer">
@@ -50,5 +52,5 @@ export default function Login() {
         </div>
       }
     </div>
-  );
+  </>;
 }
