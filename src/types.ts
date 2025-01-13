@@ -4,10 +4,3 @@ export type RepoFileTree = OctoEndpoints["GET /repos/{owner}/{repo}/git/trees/{t
 
 export type RepoFile = RepoFileTree[0];
 
-export type CanvasNode = {
-  children: CanvasNode[];
-  name: string;
-  type: string;
-  tex: string;
-  html?: string;
-}

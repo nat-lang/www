@@ -1,12 +1,12 @@
 import { HierarchyNode } from "d3-hierarchy";
 import { FunctionComponent, useEffect, useRef, useState } from "react";
-import { CanvasNode } from "../types";
 import "./node.css";
+import { CompilationNode } from "../service/nat/client";
 
 type NodeOps = {
   width: number;
   height: number;
-  node: HierarchyNode<CanvasNode>
+  node: HierarchyNode<CompilationNode>
 };
 
 const Node: FunctionComponent<

@@ -1,9 +1,9 @@
 import React from 'react';
 import { HierarchyLink } from 'd3-hierarchy';
-import { CanvasNode } from '../types';
+import { CompilationNode } from '../service/nat/client';
 
 type EdgeProps = {
-  link: HierarchyLink<CanvasNode>
+  link: HierarchyLink<CompilationNode>
 }
 
 const Edge: React.FC<EdgeProps> = ({ link }) => {
