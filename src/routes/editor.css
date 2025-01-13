@@ -4,7 +4,7 @@
 }
 
 .ide .Editor {
-  flex-basis: 65vw;
+  flex-basis: 55vw;
   height: 100vh;
 }
 
@@ -43,7 +43,8 @@
   padding-top: 10px;
 }
 
-.ide .Visual {
-  flex-basis: 20vw;
+.ide .Canvas {
+
+  flex-basis: 30vw;
   height: 100vh;
 }

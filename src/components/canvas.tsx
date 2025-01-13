@@ -10,8 +10,10 @@ type CanvasOps = {
 }
 
 const Canvas: FunctionComponent<CanvasOps> = ({ data }) => {
-  return <div>
-    {data?.map((datum, dIdx) => <Tree data={datum} key={dIdx} />)}
+  let ref = useRef<HTMLDivElement>(null);
+
+  return <div className="Canvas" ref={ref}>
+    {data?.map((datum, dIdx) => <Tree data={datum} key={dIdx} pWidth={ref.current?.getBoundingClientRect().width} />)}
   </div>
 };
 

@@ -9,4 +9,5 @@ export type CanvasNode = {
   name: string;
   type: string;
   tex: string;
+  html?: string;
 }
