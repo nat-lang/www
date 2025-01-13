@@ -1,12 +1,12 @@
 
 
-import { FunctionComponent, useEffect, useRef, useState } from "react";
-import { CanvasNode } from "../types";
+import { FunctionComponent, useRef } from "react";
 import Tree from "./tree";
+import { CompilationNode } from "../service/nat/client";
 
 
 type CanvasOps = {
-  data?: CanvasNode[];
+  data?: CompilationNode[];
 }
 
 const Canvas: FunctionComponent<CanvasOps> = ({ data }) => {

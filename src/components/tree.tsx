@@ -3,12 +3,12 @@
 import { tree as defineTree, hierarchy } from "d3-hierarchy";
 import { FunctionComponent } from "react";
 import Node from "./node";
-import { CanvasNode } from "../types";
 import Edge from "./edge";
 import katex from "katex";
+import { CompilationNode } from "../service/nat/client";
 
 type TreeOps = {
-  data: CanvasNode;
+  data: CompilationNode;
   pWidth?: number;
 }
 
@@ -26,7 +26,7 @@ const measure = (html: string): number => {
 
 const nodeWidth = 10, nodeHeight = 50, fontHeight = 19, nodeSep = 10;
 
-const coordinate = defineTree<CanvasNode>().nodeSize([
+const coordinate = defineTree<CompilationNode>().nodeSize([
   nodeWidth,
   nodeHeight
 ]).separation((a, b) => {

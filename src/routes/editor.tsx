@@ -3,10 +3,10 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import './editor.css'
 
 import Navigation from '../components/navigation';
-import { CanvasNode, RepoFile, RepoFileTree } from '../types';
+import { RepoFile, RepoFileTree } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Octokit } from 'octokit';
-import { interpret, compile } from '../service/nat/client';
+import { interpret, compile, CompilationNode } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
 import Arrows from '../icons/arrows';
@@ -21,7 +21,7 @@ export default function Editor() {
   const [files, setFiles] = useState<RepoFileTree>([]);
   const githubAuth = localStorage.getItem("githubtoken");
   const [octokit, setOctokit] = useState<Octokit | null>();
-  const [canvasData, setCanvasData] = useState<CanvasNode>();
+  const [canvasData, setCanvasData] = useState<CompilationNode[]>();
 
   let path = params.file;
   if (params["*"]) path += `/${params["*"]}`;
@@ -35,9 +35,8 @@ export default function Editor() {
   const handleEvaluateClick = async () => {
     if (editor) {
       const source = editor.getValue();
-
-      const out = await compile(path ?? "/", source);
-      setCanvasData(out.data);
+      const compilation = await compile(path ?? "/", source);
+      setCanvasData(compilation.data);
     }
   };
 
