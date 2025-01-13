@@ -1,8 +1,9 @@
 
 
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { CanvasNode } from "../types";
 import Tree from "./tree";
+
 
 type CanvasOps = {
   data?: CanvasNode[];

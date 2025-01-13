@@ -1,6 +1,8 @@
 import { HierarchyNode } from "d3-hierarchy";
 import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { CanvasNode } from "../types";
+import "./node.css";
+import katex from "katex";
 
 type NodeOps = {
   width: number;
@@ -11,23 +13,23 @@ type NodeOps = {
 const Node: FunctionComponent<
   NodeOps
 > = ({ node }) => {
-  const ref = useRef<SVGGElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [x, setX] = useState<number>(node.x ?? 0);
-  const [y, setY] = useState<number>(node.y ?? 0);
 
   useEffect(() => {
-    if (ref.current) {
-      let bbox = ref.current.getBBox();
+    if (ref.current && node.data.tex) {
+      katex.render(node.data.tex, ref.current, { output: "mathml" });
+
+      let bbox = ref.current.getBoundingClientRect();
       setX(x - (bbox.width / 2));
-      setY(y + bbox.height);
     }
   }, [ref]);
 
   return (
-    <g ref={ref}>
-      <text x={x} y={y}>
-        {node.data.tex}
-      </text>
+    <g x={x} y={node.y}>
+      <foreignObject x={x} y={node.y}>
+        <div ref={ref} />
+      </foreignObject>
     </g>
   );
 };
