@@ -142,13 +142,6 @@ readAsync = (filename, binary = true) => {
 
   // MODULARIZE will export the module in the proper place outside, we don't need to export here
 
-  process.on('uncaughtException', (ex) => {
-    // suppress ExitStatus exceptions from showing an error
-    if (ex !== 'unwind' && !(ex instanceof ExitStatus) && !(ex.context instanceof ExitStatus)) {
-      throw ex;
-    }
-  });
-
   quit_ = (status, toThrow) => {
     process.exitCode = status;
     throw toThrow;

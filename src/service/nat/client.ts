@@ -1,4 +1,4 @@
-import Module from './wasm/nat.js';
+import Module, { NatModule } from './wasm/nat';
 
 export type CompilationNode = {
   children: CompilationNode[];
@@ -13,7 +13,7 @@ export type Compilation = {
   data: CompilationNode[];
 };
 
-const interpret = (path: string, source: string) => Module().then(mod => {
+const interpret = (path: string, source: string) => Module().then((mod: NatModule) => {
   const fn = mod.cwrap('vmInterpretSource', 'number', ['string', 'string']);
   return fn(path, source);
 });
@@ -21,7 +21,7 @@ const interpret = (path: string, source: string) => Module().then(mod => {
 const compile = async (path: string, source: string): Promise<Compilation> => {
   let out = "";
 
-  const nat = await Module({ print: (stdout: string) => out += stdout });
+  const nat: NatModule = await Module({ print: (stdout: string) => out += stdout });
   const fn = nat.cwrap('vmNLS', 'string', ['string', 'string']);
 
   fn(path, source);
