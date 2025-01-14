@@ -31,7 +31,7 @@ export default function Login() {
   }, [code]);
 
   const redirectToGitHub = () => {
-    const scope = "read:user";
+    const scope = "read:user,public_repo";
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_GITHUB_REDIRECT_URI}&scope=${scope}`;
     window.location.href = authUrl;
   };

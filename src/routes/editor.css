@@ -1,14 +1,15 @@
-.ide {
+.Editor {
   display: flex;
   flex-direction: row;
+  position: relative;
 }
 
-.ide .Editor {
+.Editor .Monaco {
   flex-basis: 55vw;
   height: 100vh;
 }
 
-.ide .Navigation {
+.Editor .Navigation {
   flex-basis: 15vw;
   padding: 10px;
   padding-top: 25px;
@@ -17,13 +18,13 @@
   flex-direction: column;
 }
 
-.ide .NavAccessColumn {
+.Editor .NavAccessColumn {
   height: 100vh;
   width: 0px;
   position: relative;
 }
 
-.ide .NavigationAccess {
+.Editor .NavigationAccess {
   position: absolute;
   right: -8.5px;
   z-index: 10;
@@ -35,15 +36,19 @@
   cursor: pointer;
 }
 
-.ide .Navigation.Navigation--closed {
+.Editor .Navigation.Navigation--closed {
   flex-basis: 0.1vw;
 }
 
-.ide .Navigation .NavigationFolder:not(:first-child) {
+.Editor .Navigation .NavigationFolder:not(:first-child) {
   padding-top: 10px;
 }
 
-.ide .Canvas {
+.Editor .Canvas {
   flex-basis: 30vw;
   height: 100vh;
+}
+
+.Editor .FilePane {
+  position: absolute;
 }

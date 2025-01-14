@@ -12,6 +12,7 @@ enum InterpretResult {
 
 export interface NatModule extends EmscriptenModule {
   cwrap: typeof cwrap;
+  FS: typeof FS;
 
   vmInterpretSource(path: string, source: string): InterpretResult;
 }

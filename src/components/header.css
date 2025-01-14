@@ -20,3 +20,8 @@
 .HeaderLinks>div {
   padding-right: 10px;
 }
+
+.Header a {
+  text-decoration: none;
+  color: black;
+}

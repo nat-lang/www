@@ -4245,6 +4245,7 @@ function dbg(...args) {
 
   var print = out;
 
+
   var FS_createPath = FS.createPath;
 
 
@@ -4301,7 +4302,7 @@ var __emscripten_stack_restore = (a0) => (__emscripten_stack_restore = wasmExpor
 var __emscripten_stack_alloc = (a0) => (__emscripten_stack_alloc = wasmExports['_emscripten_stack_alloc'])(a0);
 var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmExports['emscripten_stack_get_current'])();
 var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji', 5);
-var ___emscripten_embedded_file_data = Module['___emscripten_embedded_file_data'] = 5314656;
+var ___emscripten_embedded_file_data = Module['___emscripten_embedded_file_data'] = 5308488;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
@@ -4314,6 +4315,7 @@ Module['FS_createPreloadedFile'] = FS_createPreloadedFile;
 Module['FS_unlink'] = FS_unlink;
 Module['FS_createPath'] = FS_createPath;
 Module['FS_createDevice'] = FS_createDevice;
+Module['FS'] = FS;
 Module['FS_createDataFile'] = FS_createDataFile;
 Module['FS_createLazyFile'] = FS_createLazyFile;
 Module['print'] = print;
@@ -4565,7 +4567,6 @@ var unexportedSymbols = [
   'FS_stdin_getChar_buffer',
   'FS_stdin_getChar',
   'FS_readFile',
-  'FS',
   'MEMFS',
   'TTY',
   'PIPEFS',

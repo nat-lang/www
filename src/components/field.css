@@ -1,0 +1,22 @@
+.Field {
+  border-radius: 2.5px;
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  border: none;
+  box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
+  font-size: 1rem;
+  font-family: inherit;
+  text-transform: lowercase;
+  color: #757575;
+}
+
+.Field.Field--submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.Field.Field--submit input {
+  display: none;
+}
