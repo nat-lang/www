@@ -30,6 +30,13 @@ export default function Editor() {
   let root = params.file;
   let path = params["*"] ? `${root}/${params["*"]}` : root;
 
+  const fetchGitFiles = async () => {
+    if (!git) return;
+    let resp = await git.getTree()
+    setFiles(resp.data.tree);
+  };
+
+
   const handleFileClick = async (file: RepoFile) => {
     if (!file.path) throw Error("Can't navigate to pathless file.");
 
@@ -66,6 +73,7 @@ export default function Editor() {
 
     await git.createCommit(import.meta.env.VITE_GITHUB_BRANCH, tree.data.sha, currentCommit.commitSha);
 
+    fetchGitFiles();
     setOpenFilePane(false);
     navigate(`/${path}`);
   }
@@ -139,12 +147,7 @@ export default function Editor() {
   }, [githubAuth]);
 
   useEffect(() => {
-    if (!git) return;
-
-    (async () => {
-      let resp = await git.getTree()
-      setFiles(resp.data.tree);
-    })();
+    fetchGitFiles();
   }, [git]);
 
   useEffect(() => {

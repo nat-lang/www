@@ -14,8 +14,8 @@ type NavigationOps = {
 
 const Navigation: FunctionComponent<NavigationOps> = ({ onFileClick, files, coreFiles, className }) => {
   return <div className={`Navigation ${className}`}>
-    <FileTree files={files} onFileClick={onFileClick} />
-    <FileTree files={coreFiles} onFileClick={onFileClick} />
+    {files.length && <FileTree files={files} onFileClick={onFileClick} />}
+    {coreFiles.length && <FileTree files={coreFiles} onFileClick={onFileClick} open={false} />}
   </div>;
 };
 

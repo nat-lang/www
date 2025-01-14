@@ -15,7 +15,6 @@ const Node: FunctionComponent<
   const ref = useRef<HTMLDivElement>(null);
   const [x, setX] = useState<number>(node.x ?? 0);
 
-  console.log(node.data.tex, node.x);
   useEffect(() => {
     if (ref.current) {
       let bbox = ref.current.getBoundingClientRect();

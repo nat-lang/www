@@ -1,7 +1,18 @@
+.FileTreeFolder,
 .FileTreeFile {
   cursor: pointer;
+  overflow-x: hidden;
 }
 
-.FileTreeFileTitle {
-  overflow-x: hidden;
+.FileTreeFolder {
+  display: flex;
+  flex-direction: row;
+}
+
+.FileTreeFolder .icon {
+  margin-top: 3.5px;
+}
+
+.FileTreeFolder.FileTreeFolder--closed .icon {
+  transform: rotate(-90deg);
 }

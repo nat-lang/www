@@ -1,4 +1,6 @@
+import { useState } from "react";
 import "./filetree.css";
+import Caret from "../icons/caret";
 
 type IFile = {
   type?: string;
@@ -7,6 +9,7 @@ type IFile = {
 
 type FileTreeOps<T extends IFile> = {
   files: T[];
+  open?: boolean;
   onFileClick: (file: T) => void;
 }
 
@@ -27,32 +30,51 @@ const formatFile = (file: IFile, parent?: IFile) => {
   return formatted;
 }
 
-const FileTree = <T extends IFile,>({ onFileClick, files }: FileTreeOps<T>) => {
+type MinMap = { [key: string]: boolean };
+
+const FileTree = <T extends IFile,>({ onFileClick, open = true, files }: FileTreeOps<T>) => {
+  const [minMap, setMinMap] = useState<MinMap>(
+    files.reduce((acc, file) => {
+      if (!file.path) return acc;
+      if (file.type === "tree") acc[file.path] = open;
+      return acc;
+    }, {} as MinMap)
+  );
+
+  const toggle = (path: string) => setMinMap(minMap => ({ ...minMap, [path]: !minMap[path] }));
+
   return <>
     {(() => {
       let roots: T[] = [];
 
-      return files.map((file, idx) => {
+      return files.map(file => {
         let parent = roots[roots.length - 1];
 
         if (file.type == "tree") {
+          let isOpen = file.path && minMap[file.path];
+
           if (file?.path && !parent?.path?.includes(file.path))
             roots.pop();
           roots.push(file);
 
           return <div
-            className="FileTreeFolder"
-            key={idx}
+            className={`FileTreeFolder ${!isOpen ? "FileTreeFolder--closed" : ""}`}
+            key={file.path}
             style={{ paddingLeft: roots.length }}
+            onClick={() => file.path && toggle(file.path)}
           >
             <div className="FileTreeFileTitle">
               {file.path}
             </div>
+            <Caret className="icon" />
           </div>;
         } else if (file.type == "blob") {
+          if (parent.path && !minMap[parent.path])
+            return <div key={file.path} ></div>;
+
           return <div
             className="FileTreeFile"
-            key={idx}
+            key={file.path}
             style={{ paddingLeft: roots.length * 10 }}
             onClick={_ => onFileClick(file)}
           >
