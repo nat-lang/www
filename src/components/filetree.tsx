@@ -10,6 +10,23 @@ type FileTreeOps<T extends IFile> = {
   onFileClick: (file: T) => void;
 }
 
+const formatFile = (file: IFile, parent?: IFile) => {
+  if (!file.path) throw new Error("Missing file path!");
+
+  let formatted = file.path;
+
+  if (parent) {
+    if (!parent.path) throw new Error("Missing folder path!");
+    formatted = formatted.replace(`${parent.path}/`, "");
+  }
+
+  let formattedBits = formatted.split(".");
+  if (formattedBits[formattedBits.length - 1] === "nat")
+    return formattedBits.slice(0, formattedBits.length - 1).join();
+
+  return formatted;
+}
+
 const FileTree = <T extends IFile,>({ onFileClick, files }: FileTreeOps<T>) => {
   return <>
     {(() => {
@@ -40,7 +57,7 @@ const FileTree = <T extends IFile,>({ onFileClick, files }: FileTreeOps<T>) => {
             onClick={_ => onFileClick(file)}
           >
             <div className="FileTreeFileTitle">
-              {parent?.path && file.path ? file.path.replace(`${parent.path}/`, "") : file.path}
+              {formatFile(file, parent)}
             </div>
           </div>;
         }

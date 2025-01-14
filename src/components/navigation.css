@@ -4,11 +4,3 @@
   position: relative;
   overflow-x: hidden;
 }
-
-.Navigation .NavigationFile {
-  cursor: pointer;
-}
-
-.Navigation .NavigationFileTitle {
-  overflow-x: hidden;
-}
