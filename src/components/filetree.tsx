@@ -1,7 +1,8 @@
+import "./filetree.css";
 
 type IFile = {
   type?: string;
-  path?: string
+  path?: string;
 }
 
 type FileTreeOps<T extends IFile> = {

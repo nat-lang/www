@@ -5,7 +5,7 @@ import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
 import { RepoFile, RepoFileTree } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { interpret, compile, CompilationNode, CoreFile, getCoreFiles, getCoreFile } from '../service/nat/client';
+import { interpret, compile, CompilationNode, CoreFile, getCoreFiles, getCoreFile, CORE_DIR, setCoreFile } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
 import Arrows from '../icons/arrows';
@@ -35,11 +35,7 @@ export default function Editor() {
 
     navigate(`/${file.path}`);
   };
-  const handleCoreFileClick = async (file: CoreFile) => {
-    if (!file.path) throw Error("Can't navigate to pathless file.");
 
-    navigate(`/${file.path}`);
-  };
   const handleEvaluateClick = async () => {
     if (editor) {
       const source = editor.getValue();
@@ -100,9 +96,11 @@ export default function Editor() {
       return;
     }
 
-    if (root === "core") {
+    if (root === CORE_DIR) {
       (async () => {
-        const file = await getCoreFile(params["*"] as string);
+        if (!params["*"]) return;
+
+        const file = await getCoreFile(params["*"]);
         const model = monaco.editor.createModel(file.content, 'nat', uri);
         editor.setModel(model);
       })();
@@ -160,11 +158,22 @@ export default function Editor() {
         language: 'nat'
       });
 
-      newEditor.onKeyDown(v => {
-        if (v.metaKey && v.keyCode == 3) {
+      newEditor.onKeyDown(e => {
+        if (e.metaKey && e.keyCode == 3) {
           const source = newEditor.getValue();
 
           interpret(path ?? "/", source);
+        }
+      });
+
+      newEditor.onDidChangeModelContent(e => {
+        if (root === CORE_DIR) {
+          const value = newEditor.getValue();
+
+          (async () => {
+            if (!params["*"]) return;
+            await setCoreFile(params["*"], value);
+          })();
         }
       });
 
@@ -184,7 +193,6 @@ export default function Editor() {
         files={files}
         coreFiles={coreFiles}
         onFileClick={handleFileClick}
-        onCoreFileClick={handleCoreFileClick}
         className={navigationOpen ? "" : "Navigation--closed"}
       />
       <div className="NavAccessColumn">

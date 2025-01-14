@@ -10,7 +10,7 @@ const Field = forwardRef<HTMLInputElement, FieldOps>(({ inFlight, ...ops }, ref)
   return (
     <input className="Field Field--submit" disabled={inFlight}  {...ops} ref={ref} />
   );
-})
+});
 
 
 export default Field;

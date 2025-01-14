@@ -1,0 +1,7 @@
+.FileTree .FiletreeFile {
+  cursor: pointer;
+}
+
+.FileTree .FiletreeFileTitle {
+  overflow-x: hidden;
+}

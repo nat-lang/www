@@ -9,14 +9,13 @@ type NavigationOps = {
   files: RepoFile[];
   coreFiles: CoreFile[];
   onFileClick: (file: RepoFile) => void;
-  onCoreFileClick: (file: CoreFile) => void;
   className: string;
 }
 
-const Navigation: FunctionComponent<NavigationOps> = ({ onFileClick, onCoreFileClick, files, coreFiles, className }) => {
+const Navigation: FunctionComponent<NavigationOps> = ({ onFileClick, files, coreFiles, className }) => {
   return <div className={`Navigation ${className}`}>
     <FileTree files={files} onFileClick={onFileClick} />
-    <FileTree files={coreFiles} onFileClick={onCoreFileClick} />
+    <FileTree files={coreFiles} onFileClick={onFileClick} />
   </div>;
 };
 
