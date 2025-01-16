@@ -1,5 +1,5 @@
 
-import { FunctionComponent, forwardRef, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import "./filepane.css";
 import { useForm } from 'react-hook-form';
 import { RepoFile } from "../types";
@@ -17,7 +17,7 @@ type FilePaneOps = {
   onSubmit: (form: FilePaneFieldValues) => Promise<void>;
 }
 
-const FilePane: FunctionComponent<FilePaneOps> = forwardRef(({ files, onSubmit, path }, ref) => {
+const FilePane: FunctionComponent<FilePaneOps> = ({ files, onSubmit, path }) => {
   const pathBits = path?.split("/");
   const file = pathBits ? pathBits[pathBits.length - 1] : undefined;
   const folder = pathBits ? pathBits.slice(0, pathBits.length - 1).join() : undefined;
@@ -51,6 +51,6 @@ const FilePane: FunctionComponent<FilePaneOps> = forwardRef(({ files, onSubmit, 
       <Submission inFlight={inFlight} onClick={handleSubmit} />
     </form>
   )
-});
+};
 
 export default FilePane;

@@ -1,7 +1,6 @@
-import React, { FunctionComponent, HTMLProps, useRef } from "react";
+import { FunctionComponent, HTMLProps, useRef } from "react";
 import Balls from "../icons/balls";
 import "./field.css";
-import { UseFormRegisterReturn } from "react-hook-form";
 
 type SubmissionOps = {
   inFlight: boolean;

@@ -168,7 +168,7 @@ export default function Editor() {
         }
       });
 
-      newEditor.onDidChangeModelContent(e => {
+      newEditor.onDidChangeModelContent(_ => {
         if (root === CORE_DIR) {
           const value = newEditor.getValue();
 
