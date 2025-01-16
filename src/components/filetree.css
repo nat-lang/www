@@ -1,0 +1,27 @@
+.FileTreeFolder,
+.FileTreeFile {
+  cursor: pointer;
+  overflow-x: hidden;
+}
+
+.FileTreeFile--active .FileTreeFileTitle span {
+  background-color: #bedffc;
+  border-radius: 3px;
+  padding-left: 10px;
+  margin-left: -10px;
+  padding-right: 10px;
+  margin-right: -10px;
+}
+
+.FileTreeFolder {
+  display: flex;
+  flex-direction: row;
+}
+
+.FileTreeFolder .icon {
+  margin-top: 3.5px;
+}
+
+.FileTreeFolder.FileTreeFolder--closed .icon {
+  transform: rotate(-90deg);
+}

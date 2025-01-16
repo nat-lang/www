@@ -1,5 +1,4 @@
 .Header {
-  height: 66.67px;
   border-bottom: 1px solid #dddddd;
 
   display: flex;
@@ -19,4 +18,9 @@
 
 .HeaderLinks>div {
   padding-right: 10px;
+}
+
+.Header a {
+  text-decoration: none;
+  color: black;
 }

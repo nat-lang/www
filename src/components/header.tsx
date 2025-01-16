@@ -9,7 +9,7 @@ type HeaderOps = {
 const Header: FunctionComponent<HeaderOps> = ({ children }) => {
   const token = localStorage.getItem("githubtoken")
   return <div className="Header">
-    <div>natlang online</div>
+    <Link className="root-link" to="/">natlang online</Link>
     <div className="HeaderLinks">
       {children}
       {token ? <Link to="/logout">logout</Link> : <Link to="/login">login</Link>}
