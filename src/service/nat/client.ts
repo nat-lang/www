@@ -1,22 +1,21 @@
 import { v4 } from 'uuid';
-import initialize, { NatModule } from './wasm/nat';
+import { Module, NatModule } from '@nat-lang/nat';
 
-type StdOutHandler = (stdout: string) => void;
+type OutputHandler = (stdout: string) => void;
 
 class Config {
-  stdOutHandlers: { [key: string]: StdOutHandler };
+  stdOutHandlers: { [key: string]: OutputHandler };
+  stdErrHandlers: { [key: string]: OutputHandler };
 
   constructor() {
-    this.stdOutHandlers = {};
+    this.stdOutHandlers = { console: console.log };
+    this.stdErrHandlers = { console: console.error };
   }
 
   print = (stdout: string) => Object.values(this.stdOutHandlers).forEach(handler => handler(stdout));
+  printErr = (stderr: string) => Object.values(this.stdOutHandlers).forEach(handler => handler(stderr));
 
-  printErr = (stderr: string) => {
-    console.error(stderr);
-  }
-
-  onStdout = (handler: StdOutHandler) => {
+  onStdout = (handler: OutputHandler) => {
     let uid = v4();
 
     this.stdOutHandlers[uid] = handler;
@@ -31,7 +30,7 @@ let conf = new Config();
 let mod: NatModule;
 
 const useM = async () => {
-  if (!mod) mod = await initialize({
+  if (!mod) mod = await Module({
     print: conf.print,
     printErr: conf.printErr
   });
@@ -53,10 +52,11 @@ export type Compilation = {
 
 export const CORE_DIR = "core", SRC_DIR = "src";
 
-const interpret = (path: string, source: string) => useM().then((mod: NatModule) => {
-  const fn = mod.cwrap('vmInterpretSource', 'number', ['string', 'string']);
+const interpret = async (path: string, source: string) => {
+  const nat: NatModule = await useM();
+  const fn = nat.cwrap('vmInterpretSource', 'number', ['string', 'string']);
   return fn(path, source);
-});
+};
 
 const compile = async (path: string, source: string): Promise<Compilation> => {
   let out = "";

@@ -75,8 +75,8 @@ class Git {
     if (email.data.length < 1) throw new Error("Can't commit without user email.");
 
     const commit = this.octo.rest.git.createCommit({
-      owner: 'nat-lang',
-      repo: 'library',
+      owner: this.org,
+      repo: this.repo,
       message: (new Date()).toString(),
       tree: newTreeSha,
       author: {

@@ -1,4 +1,5 @@
 .Editor {
+  height: 100vh;
   display: flex;
   flex-direction: row;
   position: relative;
@@ -6,7 +7,6 @@
 
 .Editor .Monaco {
   flex-basis: 55vw;
-  height: 100vh;
 }
 
 .Editor .Navigation {
@@ -19,7 +19,6 @@
 }
 
 .Editor .NavAccessColumn {
-  height: 100vh;
   width: 0px;
   position: relative;
 }
@@ -46,7 +45,8 @@
 
 .Editor .Canvas {
   flex-basis: 30vw;
-  height: 100vh;
+  flex-grow: 1;
+  overflow-y: scroll;
 }
 
 .Editor .FilePane {

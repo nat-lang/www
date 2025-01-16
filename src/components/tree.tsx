@@ -51,8 +51,9 @@ const Tree: FunctionComponent<TreeOps> = ({ data, pWidth }) => {
         node.data.html = katex.renderToString(node.data.tex, { output: "mathml" });
     }
   )
-  let root = coordinate(annotatedData);
-  let descendants = root.descendants();
+  let root = coordinate(annotatedData),
+    links = root.links(),
+    descendants = root.descendants();
 
   let height = (nodeHeight + fontHeight) * root.height;
   return pWidth ? (
@@ -63,15 +64,15 @@ const Tree: FunctionComponent<TreeOps> = ({ data, pWidth }) => {
       key={JSON.stringify(data)}
     >
       <g transform={`translate(${pWidth / 2}, 0)`}>
-        {root.links()
-          .map((link, lIdx) => <Edge
-            link={link}
-            key={lIdx} />
-          )}
-        {descendants.map(
-          (node, nIdx) => {
-            return <Node width={5} height={5} node={node} key={nIdx} />
-          }
+        {links.map((link, idx) => <Edge
+          link={link}
+          key={idx} />
+        )}
+        {descendants.map((node, idx) => <Node
+          width={5}
+          height={5}
+          node={node}
+          key={idx} />
         )}
       </g>
     </svg>

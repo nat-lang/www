@@ -36,7 +36,6 @@ export default function Editor() {
     setFiles(resp.data.tree);
   };
 
-
   const handleFileClick = async (file: RepoFile) => {
     if (!file.path) throw Error("Can't navigate to pathless file.");
 
@@ -194,6 +193,7 @@ export default function Editor() {
     <div className={`Editor ${navigationOpen ? "" : "Editor-nav-closed"}`}>
       <Navigation
         files={files}
+        activeFilePath={path}
         coreFiles={coreFiles}
         onFileClick={handleFileClick}
         className={navigationOpen ? "" : "Navigation--closed"}
@@ -202,7 +202,9 @@ export default function Editor() {
         <Arrows onClick={() => setNavigationOpen(!navigationOpen)} className="NavigationAccess" />
       </div>
       <div className="Monaco" ref={monacoEl}></div>
+
       <Canvas data={canvasData} />
+
       {openFilePane && <FilePane onSubmit={handleSave} files={files} path={path} />}
     </div>
   </>;

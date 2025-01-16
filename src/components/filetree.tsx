@@ -9,6 +9,7 @@ type IFile = {
 
 type FileTreeOps<T extends IFile> = {
   files: T[];
+  activeFilePath?: string;
   open?: boolean;
   onFileClick: (file: T) => void;
 }
@@ -32,7 +33,7 @@ const formatFile = (file: IFile, parent?: IFile) => {
 
 type MinMap = { [key: string]: boolean };
 
-const FileTree = <T extends IFile,>({ onFileClick, open = true, files }: FileTreeOps<T>) => {
+const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFilePath }: FileTreeOps<T>) => {
   const [minMap, setMinMap] = useState<MinMap>(
     files.reduce((acc, file) => {
       if (!file.path) return acc;
@@ -73,13 +74,13 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files }: FileTre
             return <div key={file.path} ></div>;
 
           return <div
-            className="FileTreeFile"
+            className={`FileTreeFile ${activeFilePath === file.path ? "FileTreeFile--active" : ""}`}
             key={file.path}
             style={{ paddingLeft: roots.length * 10 }}
             onClick={_ => onFileClick(file)}
           >
             <div className="FileTreeFileTitle">
-              {formatFile(file, parent)}
+              <span>{formatFile(file, parent)}</span>
             </div>
           </div>;
         }
