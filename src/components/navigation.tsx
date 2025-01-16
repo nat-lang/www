@@ -1,5 +1,5 @@
 
-import { FunctionComponent, act } from "react";
+import { FunctionComponent } from "react";
 import "./navigation.css";
 import { RepoFile } from "../types";
 import { CoreFile } from "../service/nat/client";
