@@ -1,21 +1,18 @@
 
 
 import { FunctionComponent, useEffect, useRef, useState } from "react";
-import { CompilationNode } from "../service/nat/client";
 import { Document, Page } from "react-pdf";
 import "./canvas.css";
 import Plus from "../icons/plus";
 import Minus from "../icons/minus";
 
 type CanvasOps = {
-  data?: CompilationNode[];
   file?: string;
 }
 
 const SCALE_STEP = 0.1;
 
-const Canvas: FunctionComponent<CanvasOps> = ({ data, file }) => {
-  const [width, setWidth] = useState(0);
+const Canvas: FunctionComponent<CanvasOps> = ({ file }) => {
   const [scale, setScale] = useState(1);
   const [pages, setPages] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
