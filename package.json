@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@nat-lang/nat": "file:../natc/wasm",
+    "@nat-lang/nat": "0.2.3",
     "axios": "^1.7.7",
     "monaco-editor": "^0.50.0",
     "octokit": "^4.0.2",
