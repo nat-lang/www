@@ -1,6 +1,6 @@
 
 
-import { FunctionComponent, useEffect, useRef, useState } from "react";
+import { FunctionComponent, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import "./canvas.css";
 import Plus from "../icons/plus";
