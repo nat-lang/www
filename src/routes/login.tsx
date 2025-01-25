@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./login.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import LoadingGear from "../components/loadingGear";
+import LoadingGear from "../icons/loadingGear";
 import Header from "../components/header";
 
 const useQuery = () => new URLSearchParams(useLocation().search);

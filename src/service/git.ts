@@ -33,12 +33,20 @@ class Git {
     }
   }
 
-  getContent = (path: string) => this.octo.rest.repos.getContent({
-    owner: 'nat-lang',
-    repo: 'library',
-    path,
-    ref: this.branch
-  });
+  getContent = async (path: string) => {
+    const resp = await this.octo.rest.repos.getContent({
+      owner: 'nat-lang',
+      repo: 'library',
+      path,
+      ref: this.branch
+    });
+
+    if (Array.isArray(resp.data))
+      throw Error(`Unexpected file type: directory.`);
+    if (resp.data.type !== "file")
+      throw Error(`Unexpected file type: ${resp.data.type}`);
+    return atob(resp.data.content);
+  }
 
   getTree = () => this.octo.rest.git.getTree({
     owner: this.org,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./filetree.css";
 import Caret from "../icons/caret";
+import { stripExt } from "../util";
 
 type IFile = {
   type?: string;
@@ -24,9 +25,7 @@ const formatFile = (file: IFile, parent?: IFile) => {
     formatted = formatted.replace(`${parent.path}/`, "");
   }
 
-  let formattedBits = formatted.split(".");
-  if (formattedBits[formattedBits.length - 1] === "nat")
-    return formattedBits.slice(0, formattedBits.length - 1).join();
+  formatted = stripExt(formatted);
 
   return formatted;
 }
@@ -53,7 +52,6 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
 
         if (file.type == "tree") {
           let isOpen = file.path && minMap[file.path];
-
           if (file?.path && !parent?.path?.includes(file.path))
             roots.pop();
           roots.push(file);
@@ -70,7 +68,10 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
             <Caret className="icon" />
           </div>;
         } else if (file.type == "blob") {
-          if (parent.path && !minMap[parent.path])
+          if (file?.path && parent?.path && !file.path?.includes(parent.path))
+            roots.pop();
+
+          if (parent?.path && !minMap[parent.path])
             return <div key={file.path} ></div>;
 
           return <div

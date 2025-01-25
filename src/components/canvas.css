@@ -1,0 +1,29 @@
+.Canvas {
+  position: relative;
+}
+
+.Canvas-toolbar {
+  position: absolute;
+
+  right: 20px;
+  top: 10px;
+  display: flex;
+  flex-direction: row;
+  z-index: 1;
+}
+
+.Canvas .Canvas-zoom-in {
+  width: 12px;
+  height: 20px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.Canvas .Canvas-zoom-out {
+  width: 15px;
+  height: 20px;
+  cursor: pointer;
+  vertical-align: middle;
+  fill: currentColor;
+  overflow: hidden;
+}
