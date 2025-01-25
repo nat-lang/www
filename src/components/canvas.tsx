@@ -21,23 +21,6 @@ const Canvas: FunctionComponent<CanvasOps> = ({ file }) => {
 
   const pageIndices: number[] = Array(pages).fill(0).reduce((cum, _, idx) => [...cum, idx + 1], []);
 
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      setWidth(entry.contentRect.width);
-    });
-
-    if (ref.current) {
-      resizeObserver.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        resizeObserver.unobserve(ref.current);
-      }
-    };
-  }, []);
-
   return <div className="Canvas" ref={ref}>
     <div className="Canvas-toolbar">
       <Plus className="Canvas-zoom-in" onClick={handleZoomin} />
