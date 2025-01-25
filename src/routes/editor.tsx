@@ -26,7 +26,6 @@ export default function Editor() {
   const [coreFiles, setCoreFiles] = useState<CoreFile[]>([]);
   const githubAuth = localStorage.getItem("githubtoken");
   const [git, setGit] = useState<Git | null>(null);
-  const [canvasData, setCanvasData] = useState<CompilationNode[]>();
   const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
 
@@ -228,7 +227,7 @@ export default function Editor() {
       </div>
       <div className="Monaco" ref={monacoEl}></div>
 
-      <Canvas data={canvasData} file={canvasFile} />
+      <Canvas file={canvasFile} />
 
       {openFilePane && <FilePane onSubmit={handleSave} files={files} path={path} />}
     </div>
