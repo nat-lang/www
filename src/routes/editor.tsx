@@ -5,13 +5,15 @@ import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
 import { RepoFile, RepoFileTree } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { interpret, compile, CompilationNode, CoreFile, getCoreFiles, getCoreFile, CORE_DIR, setCoreFile } from '../service/nat/client';
+import client, { CompilationNode, CoreFile, CORE_DIR } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
 import Arrows from '../icons/arrows';
 import Canvas from '../components/canvas';
 import Git from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
+import { ensureExt, stripExt } from '../util';
+import * as tex from '../service/tex';
 
 
 export default function Editor() {
@@ -25,6 +27,7 @@ export default function Editor() {
   const githubAuth = localStorage.getItem("githubtoken");
   const [git, setGit] = useState<Git | null>(null);
   const [canvasData, setCanvasData] = useState<CompilationNode[]>();
+  const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
 
   let root = params.file;
@@ -32,7 +35,8 @@ export default function Editor() {
 
   const fetchGitFiles = async () => {
     if (!git) return;
-    let resp = await git.getTree()
+    let resp = await git.getTree();
+    console.log(resp);
     setFiles(resp.data.tree);
   };
 
@@ -45,8 +49,12 @@ export default function Editor() {
   const handleEvaluateClick = async () => {
     if (editor) {
       const source = editor.getValue();
-      const compilation = await compile(path ?? "/", source);
-      setCanvasData(compilation.data);
+      const compilation = await client.compile(path ?? "/", source);
+
+      if (compilation) {
+        const resp = await tex.render(compilation.tex);
+        setCanvasFile(resp);
+      }
     }
   };
 
@@ -79,7 +87,7 @@ export default function Editor() {
 
   useEffect(() => {
     (async () => {
-      setCoreFiles(await getCoreFiles());
+      setCoreFiles(await client.getCoreFiles());
     })();
   }, []);
 
@@ -107,7 +115,7 @@ export default function Editor() {
       (async () => {
         if (!params["*"]) return;
 
-        const file = await getCoreFile(params["*"]);
+        const file = await client.getFile(path);
         const model = monaco.editor.createModel(file.content, 'nat', uri);
         editor.setModel(model);
       })();
@@ -116,14 +124,7 @@ export default function Editor() {
     }
 
     (async () => {
-      const res = await git.getContent(path);
-
-      if (Array.isArray(res.data))
-        throw Error(`Unexpected file type: directory.`);
-      if (res.data.type !== "file")
-        throw Error(`Unexpected file type: ${res.data.type}`);
-
-      const content = atob(res.data.content);
+      const content = await git.getContent(path);
       const model = monaco.editor.createModel(content, 'nat', uri);
       editor.setModel(model);
     })();
@@ -142,7 +143,6 @@ export default function Editor() {
       "library"
     );
     setGit(git);
-
   }, [githubAuth]);
 
   useEffect(() => {
@@ -160,30 +160,55 @@ export default function Editor() {
         language: 'nat'
       });
 
-      newEditor.onKeyDown(e => {
-        if (e.metaKey && e.keyCode == 3) {
-          const source = newEditor.getValue();
-
-          interpret(path ?? "/", source);
-        }
-      });
-
-      newEditor.onDidChangeModelContent(_ => {
-        if (root === CORE_DIR) {
-          const value = newEditor.getValue();
-
-          (async () => {
-            if (!params["*"]) return;
-            await setCoreFile(params["*"], value);
-          })();
-        }
-      });
-
       return newEditor;
     });
 
     return () => editor?.dispose()
-  }, [monacoEl.current])
+  }, [monacoEl.current]);
+
+  useEffect(() => {
+    if (!editor) return;
+    if (!path) return;
+
+    let disposables = [
+      editor.onKeyDown(e => {
+        if (e.metaKey && e.keyCode == 3) {
+          if (!path) return;
+
+          path = stripExt(path);
+          client.interpret(path);
+        }
+      }),
+      editor.onDidChangeModelContent(_ => {
+        const value = editor.getValue();
+
+        (async () => {
+          if (!path) return;
+          path = ensureExt(path);
+          await client.setFile(path, value);
+        })();
+      })
+    ];
+
+    return () => disposables.forEach(x => x.dispose());
+  }, [editor, path]);
+
+  useEffect(() => {
+    if (!files) return;
+    if (!git) return
+
+    files.forEach(async file => {
+      if (file.path) {
+        if (file.type === "tree") {
+          client.mkDir(file.path);
+        } else {
+          const content = await git.getContent(file.path);
+          await client.setFile(ensureExt(file.path), content);
+
+        }
+      }
+    });
+  }, [git, files]);
 
   return <>
     <Header>
@@ -203,7 +228,7 @@ export default function Editor() {
       </div>
       <div className="Monaco" ref={monacoEl}></div>
 
-      <Canvas data={canvasData} />
+      <Canvas data={canvasData} file={canvasFile} />
 
       {openFilePane && <FilePane onSubmit={handleSave} files={files} path={path} />}
     </div>
