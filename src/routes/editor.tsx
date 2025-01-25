@@ -5,7 +5,7 @@ import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
 import { RepoFile, RepoFileTree } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
-import client, { CompilationNode, CoreFile, CORE_DIR } from '../service/nat/client';
+import client, { CoreFile, CORE_DIR } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
 import Arrows from '../icons/arrows';
