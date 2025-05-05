@@ -35,7 +35,6 @@ type LayoutDims = typeof oLayoutDims;
 
 const vw = (v: number) => `${v}vw`;
 const px2vw = (px: number) => (px / window.innerWidth) * 100;
-const vw2px = (vw: number) => (vw * window.innerWidth) / 100;
 
 export default function Editor() {
   const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
@@ -52,7 +51,7 @@ export default function Editor() {
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
   const [navColDragging, setNavColDragging] = useState<boolean>(false);
   const [canvasColDragging, setCanvasColDragging] = useState<boolean>(false);
-  const [prevDragEvent, setPrevDragEvent] = useState<DragMoveEvent | null>(null);
+  const [_, setPrevDragEvent] = useState<DragMoveEvent | null>(null);
 
   let root = params.file;
   let path = params["*"] ? `${root}/${params["*"]}` : root;
