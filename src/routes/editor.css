@@ -5,12 +5,9 @@
   position: relative;
 }
 
-.Editor .Monaco {
-  flex-basis: 55vw;
-}
+.Editor .Monaco {}
 
 .Editor .Navigation {
-  flex-basis: 15vw;
   padding: 10px;
   padding-top: 25px;
 
@@ -18,21 +15,31 @@
   flex-direction: column;
 }
 
-.Editor .NavAccessColumn {
-  width: 0px;
+.Editor .AccessColumn {
   position: relative;
+  cursor: pointer;
+  z-index: 1;
+  padding: 3px;
+  margin: -3px;
 }
 
-.Editor .NavigationAccess {
-  position: absolute;
-  right: -8.5px;
-  z-index: 10;
-  width: 18px;
-  height: 18px;
-  top: 30%;
-  transform: translateY(-30%);
-  fill: #707375;
-  cursor: pointer;
+.Editor .AccessColumn>div {
+  width: 1px;
+  height: 100%;
+  background-color: #dddddd;
+}
+
+.Editor .AccessColumn:hover>div {
+  background-color: #2994c6;
+  -webkit-transition: background-color 500ms linear;
+  -ms-transition: background-color 500ms linear;
+  transition: background-color 500ms linear;
+}
+
+.Editor .AccessColumn.dragging>div {
+  background-color: #2994c6;
+  box-shadow: 0 0 2px 1px #2994c6;
+  transition: none;
 }
 
 .Editor .Navigation.Navigation--closed {
@@ -44,8 +51,7 @@
 }
 
 .Editor .Canvas {
-  flex-basis: 30vw;
-  flex-grow: 1;
+  flex-shrink: 0;
   overflow-y: scroll;
 }
 
