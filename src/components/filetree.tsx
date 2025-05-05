@@ -62,17 +62,17 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
             style={{ paddingLeft: roots.length }}
             onClick={() => file.path && toggle(file.path)}
           >
+            <Caret className="icon" />
             <div className="FileTreeFileTitle">
               {file.path}
             </div>
-            <Caret className="icon" />
           </div>;
         } else if (file.type == "blob") {
           if (file?.path && parent?.path && !file.path?.includes(parent.path))
             roots.pop();
 
           if (parent?.path && !minMap[parent.path])
-            return <div key={file.path} ></div>;
+            return <div key={file.path}></div>;
 
           return <div
             className={`FileTreeFile ${activeFilePath === file.path ? "FileTreeFile--active" : ""}`}

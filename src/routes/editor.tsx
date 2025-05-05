@@ -8,18 +8,40 @@ import { useNavigate, useParams } from 'react-router-dom';
 import client, { CoreFile, CORE_DIR } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
-import Arrows from '../icons/arrows';
 import Canvas from '../components/canvas';
 import Git from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import { ensureExt, stripExt } from '../util';
 import * as tex from '../service/tex';
+import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
+import Draggable from '../components/draggable';
+import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 
+const DRAGGABLE_ELEMENTS = {
+  NAV_COL: "NAV_COL",
+  CANVAS_COL: "CANVAS_COL"
+};
+
+const MIN_EDITOR_VW = 15;
+const MIN_NAV_VW = 1;
+
+const oLayoutDims = {
+  nav: 15,
+  editor: 55,
+  canvas: 30
+};
+
+type LayoutDims = typeof oLayoutDims;
+
+const vw = (v: number) => `${v}vw`;
+const px2vw = (px: number) => (px / window.innerWidth) * 100;
+const vw2px = (vw: number) => (vw * window.innerWidth) / 100;
 
 export default function Editor() {
   const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
-  const [navigationOpen, setNavigationOpen] = useState<boolean>(true);
-  const monacoEl = useRef(null);
+  const [layoutDims, setLayoutDims] = useState<LayoutDims>(oLayoutDims);
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
   const params = useParams();
   const navigate = useNavigate();
   const [files, setFiles] = useState<RepoFileTree>([]);
@@ -28,6 +50,9 @@ export default function Editor() {
   const [git, setGit] = useState<Git | null>(null);
   const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
+  const [navColDragging, setNavColDragging] = useState<boolean>(false);
+  const [canvasColDragging, setCanvasColDragging] = useState<boolean>(false);
+  const [prevDragEvent, setPrevDragEvent] = useState<DragMoveEvent | null>(null);
 
   let root = params.file;
   let path = params["*"] ? `${root}/${params["*"]}` : root;
@@ -35,7 +60,6 @@ export default function Editor() {
   const fetchGitFiles = async () => {
     if (!git) return;
     let resp = await git.getTree();
-    console.log(resp);
     setFiles(resp.data.tree);
   };
 
@@ -47,12 +71,11 @@ export default function Editor() {
 
   const handleEvaluateClick = async () => {
     if (editor) {
-      const source = editor.getValue();
-      const compilation = await client.compile(path ?? "/", source);
+      const intptResp = await client.typeset(path ?? "/");
 
-      if (compilation) {
-        const resp = await tex.render(compilation.tex);
-        setCanvasFile(resp);
+      if (intptResp) {
+        const texResp = await tex.render(intptResp.tex);
+        setCanvasFile(texResp);
       }
     }
   };
@@ -149,21 +172,22 @@ export default function Editor() {
   }, [git]);
 
   useEffect(() => {
-    if (!monacoEl) return;
+    if (!editorRef) return;
 
     setEditor((editor) => {
       if (editor) return editor;
 
-      const newEditor = monaco.editor.create(monacoEl.current!, {
+      const newEditor = monaco.editor.create(editorRef.current!, {
         value: "",
-        language: 'nat'
+        language: 'nat',
+        automaticLayout: true
       });
 
       return newEditor;
     });
 
     return () => editor?.dispose()
-  }, [monacoEl.current]);
+  }, [editorRef.current]);
 
   useEffect(() => {
     if (!editor) return;
@@ -176,6 +200,7 @@ export default function Editor() {
 
           path = stripExt(path);
           client.interpret(path);
+          e.stopPropagation();
         }
       }),
       editor.onDidChangeModelContent(_ => {
@@ -209,27 +234,91 @@ export default function Editor() {
     });
   }, [git, files]);
 
+  const handleDragMove = (e: DragMoveEvent) => {
+    setPrevDragEvent(prevE => {
+      const diff = px2vw(prevE ? e.delta.x - prevE.delta.x : e.delta.x);
+
+      setLayoutDims(dims => {
+        switch (e.active.id) {
+          case DRAGGABLE_ELEMENTS.NAV_COL: {
+            let next = {
+              nav: dims.nav + diff,
+              editor: dims.editor - diff,
+              canvas: dims.canvas
+            };
+
+            if (next.editor <= MIN_EDITOR_VW) {
+              next.editor = MIN_EDITOR_VW;
+              next.canvas = 100 - next.nav - next.editor;
+            }
+
+            return next;
+          }
+          case DRAGGABLE_ELEMENTS.CANVAS_COL: {
+            let next = {
+              nav: dims.nav + diff,
+              editor: dims.editor,
+              canvas: dims.canvas - diff
+            };
+
+            if (next.nav <= MIN_NAV_VW) {
+              next.nav = MIN_NAV_VW;
+              next.editor = 100 - next.nav - next.canvas;
+            }
+
+            return next;
+          }
+        }
+        return dims;
+      });
+
+
+      return e;
+    });
+  }
+
+  const handleDragStart = (e: DragStartEvent) => {
+    switch (e.active.id) {
+      case DRAGGABLE_ELEMENTS.NAV_COL: setNavColDragging(true); break;
+      case DRAGGABLE_ELEMENTS.CANVAS_COL: setCanvasColDragging(true);
+    }
+  };
+  const handleDragEnd = (e: DragEndEvent) => {
+    switch (e.active.id) {
+      case DRAGGABLE_ELEMENTS.NAV_COL: setNavColDragging(false); break;
+      case DRAGGABLE_ELEMENTS.CANVAS_COL: setCanvasColDragging(false);
+    }
+    setPrevDragEvent(null);
+  };
+
   return <>
     <Header>
       <Button onClick={handleSaveClick}>save</Button>
       <Button onClick={handleEvaluateClick}>evaluate</Button>
     </Header>
-    <div className={`Editor ${navigationOpen ? "" : "Editor-nav-closed"}`}>
-      <Navigation
-        files={files}
-        activeFilePath={path}
-        coreFiles={coreFiles}
-        onFileClick={handleFileClick}
-        className={navigationOpen ? "" : "Navigation--closed"}
-      />
-      <div className="NavAccessColumn">
-        <Arrows onClick={() => setNavigationOpen(!navigationOpen)} className="NavigationAccess" />
-      </div>
-      <div className="Monaco" ref={monacoEl}></div>
+    <div className="Editor">
+      <DndContext onDragMove={handleDragMove} onDragStart={handleDragStart} onDragEnd={handleDragEnd} modifiers={[restrictToHorizontalAxis]}>
+        <Navigation
+          style={{ flexBasis: vw(layoutDims.nav) }}
+          ref={navRef}
+          files={files}
+          activeFilePath={path}
+          coreFiles={coreFiles}
+          onFileClick={handleFileClick}
+        />
+        <Draggable id={DRAGGABLE_ELEMENTS.NAV_COL} className={`AccessColumn ${navColDragging ? " dragging" : ""}`}>
+          <div />
+        </Draggable>
 
-      <Canvas file={canvasFile} />
+        <div className="Monaco" ref={editorRef} style={{ width: vw(layoutDims.editor) }}></div>
 
-      {openFilePane && <FilePane onSubmit={handleSave} files={files} path={path} />}
+        <Draggable id={DRAGGABLE_ELEMENTS.CANVAS_COL} className={`AccessColumn ${canvasColDragging ? " dragging" : ""}`}>
+          <div />
+        </Draggable>
+        <Canvas file={canvasFile} style={{ width: vw(layoutDims.canvas) }} />
+
+        {openFilePane && <FilePane onSubmit={handleSave} files={files} path={path} />}
+      </DndContext>
     </div>
   </>;
 }

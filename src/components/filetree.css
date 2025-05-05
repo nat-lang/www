@@ -4,6 +4,10 @@
   overflow-x: hidden;
 }
 
+.FileTreeFile {
+  padding-left: 15px;
+}
+
 .FileTreeFile--active .FileTreeFileTitle span {
   background-color: #bedffc;
   border-radius: 3px;
