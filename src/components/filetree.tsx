@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./filetree.css";
 import Caret from "../icons/caret";
-import { stripExt } from "../util";
 
 type IFile = {
   type?: string;
@@ -14,6 +13,16 @@ type FileTreeOps<T extends IFile> = {
   open?: boolean;
   onFileClick: (file: T) => void;
 }
+
+const EXT = "nat";
+
+const stripExt = (str: string) => {
+  let strBits = str.split(".");
+  if (strBits[strBits.length - 1] === EXT)
+    return strBits.slice(0, strBits.length - 1).join();
+  return str;
+};
+
 
 const formatFile = (file: IFile, parent?: IFile) => {
   if (!file.path) throw new Error("Missing file path!");

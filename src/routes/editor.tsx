@@ -11,7 +11,6 @@ import Button from '../components/button';
 import Canvas from '../components/canvas';
 import Git from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
-import { ensureExt, stripExt } from '../util';
 import * as tex from '../service/tex';
 import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
 import Draggable from '../components/draggable';
@@ -197,7 +196,6 @@ export default function Editor() {
         if (e.metaKey && e.keyCode == 3) {
           if (!path) return;
 
-          path = stripExt(path);
           client.interpret(path);
           e.stopPropagation();
         }
@@ -207,7 +205,6 @@ export default function Editor() {
 
         (async () => {
           if (!path) return;
-          path = ensureExt(path);
           await client.setFile(path, value);
         })();
       })
@@ -226,7 +223,7 @@ export default function Editor() {
           client.mkDir(file.path);
         } else {
           const content = await git.getContent(file.path);
-          await client.setFile(ensureExt(file.path), content);
+          await client.setFile(file.path, content);
 
         }
       }
