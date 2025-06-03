@@ -3,12 +3,16 @@ import "./login.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoadingGear from "../icons/loadingGear";
 import Header from "../components/header";
+import useAuthCtx from "../context/auth";
+import { useShallow } from 'zustand/react/shallow';
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 export default function Login() {
   const code = useQuery().get("code");
-  const token = localStorage.getItem("githubtoken")
+  const [token, setToken] = useAuthCtx(
+    useShallow(state => [state.token, state.setToken])
+  );
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +27,7 @@ export default function Login() {
           if (res.status != 200)
             throw Error("Failed to authenticate.");
 
-          localStorage.setItem("githubtoken", JSON.stringify(data));
+          setToken(JSON.stringify(data));
           setLoading(false);
           navigate("/");
         });

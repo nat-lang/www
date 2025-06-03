@@ -16,6 +16,7 @@ import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-ki
 import Draggable from '../components/draggable';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { abs } from '@nat-lang/nat';
+import useAuthCtx from '../context/auth';
 
 const DRAGGABLE_ELEMENTS = {
   NAV_COL: "NAV_COL",
@@ -45,7 +46,7 @@ export default function Editor() {
   const navigate = useNavigate();
   const [files, setFiles] = useState<RepoFileTree>([]);
   const [coreFiles, setCoreFiles] = useState<CoreFile[]>([]);
-  const githubAuth = localStorage.getItem("githubtoken");
+  const githubAuth = useAuthCtx(state => state.token);
   const [git, setGit] = useState<Git | null>(null);
   const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
@@ -110,6 +111,8 @@ export default function Editor() {
     (async () => {
       setCoreFiles(await client.getCoreFiles());
     })();
+
+    setGit(new Git());
   }, []);
 
   useEffect(() => {
@@ -158,11 +161,7 @@ export default function Editor() {
     const data = JSON.parse(githubAuth);
     if (!data.access_token) throw Error("Corrupt token.");
 
-    const git = new Git(
-      { auth: data.access_token },
-      "nat-lang",
-      "library"
-    );
+    const git = new Git({ auth: data.access_token });
     setGit(git);
   }, [githubAuth]);
 
@@ -290,7 +289,7 @@ export default function Editor() {
 
   return <>
     <Header>
-      <Button onClick={handleSaveClick}>save</Button>
+      {githubAuth && <Button onClick={handleSaveClick}>save</Button>}
       <Button onClick={handleEvaluateClick}>evaluate</Button>
     </Header>
     <div className="Editor">

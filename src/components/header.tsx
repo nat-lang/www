@@ -1,18 +1,26 @@
 import { Link } from "react-router-dom";
 import "./header.css";
 import { FunctionComponent, ReactNode } from "react";
+import useAuthCtx from "../context/auth";
+import { useShallow } from 'zustand/react/shallow'
+import Button from "./button";
 
 type HeaderOps = {
   children?: ReactNode
 }
 
 const Header: FunctionComponent<HeaderOps> = ({ children }) => {
-  const token = localStorage.getItem("githubtoken")
+  const [token, setToken] = useAuthCtx(
+    useShallow(state => [state.token, state.setToken])
+  );
+
+  const handleLogoutClick = () => setToken("");
+
   return <div className="Header">
     <Link className="root-link" to="/">natlang online</Link>
     <div className="HeaderLinks">
       {children}
-      {token ? <Link to="/logout">logout</Link> : <Link to="/login">login</Link>}
+      {token ? <Button onClick={handleLogoutClick}>logout</Button> : <Link to="/login">login</Link>}
     </div>
   </div>
 };
