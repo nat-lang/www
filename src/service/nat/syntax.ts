@@ -29,7 +29,7 @@ export const language = <languages.IMonarchLanguage>{
   tokenPostfix: '.nat',
   defaultToken: 'invalid',
   keywords: [
-    'class', 'dom', 'const', 'let', 'else', 'for', 'if', 'in', 'return', 'while', 'print', 'throw', 'import'
+    'class', 'dom', 'sym', 'let', 'else', 'for', 'if', 'in', 'return', 'while', 'print', 'throw', 'import'
   ],
 
   typeKeywords: [

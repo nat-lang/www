@@ -12,6 +12,9 @@ import Login from './routes/login';
 
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
+import pack from "../package.json";
+
+console.log(`This is natlang.online ${pack.version}, running natc ${pack.dependencies["@nat-lang/nat"]}.`);
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -19,6 +22,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 registerNat();
+
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>

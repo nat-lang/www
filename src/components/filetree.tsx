@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./filetree.css";
 import Caret from "../icons/caret";
-import { stripExt } from "../util";
 
 type IFile = {
   type?: string;
@@ -14,6 +13,16 @@ type FileTreeOps<T extends IFile> = {
   open?: boolean;
   onFileClick: (file: T) => void;
 }
+
+const EXT = "nat";
+
+const stripExt = (str: string) => {
+  let strBits = str.split(".");
+  if (strBits[strBits.length - 1] === EXT)
+    return strBits.slice(0, strBits.length - 1).join();
+  return str;
+};
+
 
 const formatFile = (file: IFile, parent?: IFile) => {
   if (!file.path) throw new Error("Missing file path!");
@@ -47,6 +56,8 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
     {(() => {
       let roots: T[] = [];
 
+      const iconWidth = 15;
+
       return files.map(file => {
         let parent = roots[roots.length - 1];
 
@@ -59,7 +70,6 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
           return <div
             className={`FileTreeFolder ${!isOpen ? "FileTreeFolder--closed" : ""}`}
             key={file.path}
-            style={{ paddingLeft: roots.length }}
             onClick={() => file.path && toggle(file.path)}
           >
             <Caret className="icon" />
@@ -77,7 +87,7 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
           return <div
             className={`FileTreeFile ${activeFilePath === file.path ? "FileTreeFile--active" : ""}`}
             key={file.path}
-            style={{ paddingLeft: roots.length * 10 }}
+            style={{ paddingLeft: iconWidth + roots.length * 10 }}
             onClick={_ => onFileClick(file)}
           >
             <div className="FileTreeFileTitle">

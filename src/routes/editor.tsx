@@ -11,11 +11,11 @@ import Button from '../components/button';
 import Canvas from '../components/canvas';
 import Git from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
-import { ensureExt, stripExt } from '../util';
 import * as tex from '../service/tex';
 import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
 import Draggable from '../components/draggable';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
+import { abs } from '@nat-lang/nat';
 
 const DRAGGABLE_ELEMENTS = {
   NAV_COL: "NAV_COL",
@@ -70,7 +70,7 @@ export default function Editor() {
 
   const handleEvaluateClick = async () => {
     if (editor) {
-      const intptResp = await client.typeset(path ?? "/");
+      const intptResp = await client.typeset(path ? abs(path) : "/");
 
       if (intptResp) {
         const texResp = await tex.render(intptResp.tex);
@@ -197,8 +197,7 @@ export default function Editor() {
         if (e.metaKey && e.keyCode == 3) {
           if (!path) return;
 
-          path = stripExt(path);
-          client.interpret(path);
+          client.interpret(abs(path));
           e.stopPropagation();
         }
       }),
@@ -207,7 +206,6 @@ export default function Editor() {
 
         (async () => {
           if (!path) return;
-          path = ensureExt(path);
           await client.setFile(path, value);
         })();
       })
@@ -226,7 +224,7 @@ export default function Editor() {
           client.mkDir(file.path);
         } else {
           const content = await git.getContent(file.path);
-          await client.setFile(ensureExt(file.path), content);
+          await client.setFile(file.path, content);
 
         }
       }
