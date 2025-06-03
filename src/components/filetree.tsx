@@ -56,6 +56,8 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
     {(() => {
       let roots: T[] = [];
 
+      const iconWidth = 15;
+
       return files.map(file => {
         let parent = roots[roots.length - 1];
 
@@ -68,7 +70,6 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
           return <div
             className={`FileTreeFolder ${!isOpen ? "FileTreeFolder--closed" : ""}`}
             key={file.path}
-            style={{ paddingLeft: roots.length }}
             onClick={() => file.path && toggle(file.path)}
           >
             <Caret className="icon" />
@@ -86,7 +87,7 @@ const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFil
           return <div
             className={`FileTreeFile ${activeFilePath === file.path ? "FileTreeFile--active" : ""}`}
             key={file.path}
-            style={{ paddingLeft: roots.length * 10 }}
+            style={{ paddingLeft: iconWidth + roots.length * 10 }}
             onClick={_ => onFileClick(file)}
           >
             <div className="FileTreeFileTitle">

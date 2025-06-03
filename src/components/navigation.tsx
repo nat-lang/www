@@ -16,8 +16,13 @@ type NavigationOps = {
 
 const Navigation = forwardRef<HTMLDivElement, NavigationOps>(({ onFileClick, files, coreFiles, activeFilePath, style, className = "" }, ref) => {
   return <div ref={ref} className={`Navigation ${className}`} style={style}>
-    {files.length && <FileTree files={files} onFileClick={onFileClick} activeFilePath={activeFilePath} />}
-    {coreFiles.length && <FileTree files={coreFiles} onFileClick={onFileClick} open={false} activeFilePath={activeFilePath} />}
+    <div className="NavigationSecTitle">introduction</div>
+    <div className="NavigationSecTitle">library</div>
+    <div className="NavigationPane">
+      {files.length && <FileTree files={files} onFileClick={onFileClick} activeFilePath={activeFilePath} />}
+      <div className="NavigationSecTitle">core</div>
+      {coreFiles.length && <FileTree files={coreFiles} onFileClick={onFileClick} open={false} activeFilePath={activeFilePath} />}
+    </div>
   </div>;
 });
 

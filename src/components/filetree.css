@@ -4,8 +4,10 @@
   overflow-x: hidden;
 }
 
-.FileTreeFile {
-  padding-left: 15px;
+.FileTreeFileTitle span {
+  padding-left: 5px;
+  text-indent: -5px;
+  display: inline-block;
 }
 
 .FileTreeFile--active .FileTreeFileTitle span {
@@ -20,10 +22,13 @@
 .FileTreeFolder {
   display: flex;
   flex-direction: row;
+  align-items: flex-start;
 }
 
 .FileTreeFolder .icon {
   margin-top: 3.5px;
+  min-width: 15px;
+  min-height: 15px;
 }
 
 .FileTreeFolder.FileTreeFolder--closed .icon {
