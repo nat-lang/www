@@ -15,6 +15,7 @@ import * as tex from '../service/tex';
 import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
 import Draggable from '../components/draggable';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
+import { abs } from '@nat-lang/nat';
 
 const DRAGGABLE_ELEMENTS = {
   NAV_COL: "NAV_COL",
@@ -69,7 +70,7 @@ export default function Editor() {
 
   const handleEvaluateClick = async () => {
     if (editor) {
-      const intptResp = await client.typeset(path ?? "/");
+      const intptResp = await client.typeset(path ? abs(path) : "/");
 
       if (intptResp) {
         const texResp = await tex.render(intptResp.tex);
@@ -196,7 +197,7 @@ export default function Editor() {
         if (e.metaKey && e.keyCode == 3) {
           if (!path) return;
 
-          client.interpret(path);
+          client.interpret(abs(path));
           e.stopPropagation();
         }
       }),
