@@ -9,7 +9,6 @@ import "./index.css";
 import './worker';
 import { registerNat } from './service/nat/registration';
 import Login from './routes/login';
-
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import pack from "../package.json";

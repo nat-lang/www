@@ -2,13 +2,15 @@ import { OctokitOptions } from "@octokit/core";
 import { Endpoints } from "@octokit/types";
 import { Octokit } from "octokit";
 
+const DEFAULT_ORG = "nat-lang", DEFAULT_REPO = "library";
+
 class Git {
   octo: Octokit;
   org: string;
   repo: string;
   branch: string;
 
-  constructor(octoOpts: OctokitOptions, org: string, repo: string) {
+  constructor(octoOpts: OctokitOptions = {}, org: string = DEFAULT_ORG, repo: string = DEFAULT_REPO) {
     this.octo = new Octokit(octoOpts);
     this.org = org;
     this.repo = repo;
