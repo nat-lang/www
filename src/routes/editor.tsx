@@ -123,7 +123,7 @@ export default function Editor() {
     if (path === undefined) {
       const uid = v4();
       const uri = monaco.Uri.file(uid);
-      const model = monaco.editor.createModel(`\\documentclass{article}`, 'nat', uri);
+      const model = monaco.editor.createModel(`import prelude`, 'nat', uri);
       editor.setModel(model);
       return;
     }
@@ -166,7 +166,7 @@ export default function Editor() {
       if (!editorRef.current) return editor;
 
       const newEditor = monaco.editor.create(editorRef.current, {
-        value: `\\documentclass{article}`,
+        model: null,
         language: "nat",
         automaticLayout: true,
         minimap: { enabled: false }
