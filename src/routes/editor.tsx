@@ -11,13 +11,12 @@ import Button from '../components/button';
 import Canvas from '../components/canvas';
 import Git from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
-import * as tex from '../service/tex';
+import * as nls from '../service/nls/client';
 import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
 import Draggable from '../components/draggable';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { abs } from '@nat-lang/nat';
 import useAuthCtx from '../context/auth';
-import "../service/nat/syntax";
 
 const DRAGGABLE_ELEMENTS = {
   NAV_COL: "NAV_COL",
@@ -75,7 +74,7 @@ export default function Editor() {
       const intptResp = await client.typeset(path ? abs(path) : "/");
 
       if (intptResp) {
-        const texResp = await tex.render(intptResp.tex);
+        const texResp = await nls.render(intptResp.tex);
         setCanvasFile(texResp);
       }
     }
