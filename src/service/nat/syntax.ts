@@ -1,125 +1,24 @@
 
-import type { languages } from "monaco-editor";
+import natGrammar from './grammar.json' with { type: 'json' };
 
-export const conf: languages.LanguageConfiguration = {
-  comments: {
-    lineComment: '//',
-  },
-  brackets: [
-    ['{', '}'],
-    ['[', ']'],
-    ['(', ')']
-  ],
-  autoClosingPairs: [
-    { open: '[', close: ']' },
-    { open: '{', close: '}' },
-    { open: '(', close: ')' },
-    { open: '"', close: '"', notIn: ['string'] }
-  ],
-  surroundingPairs: [
-    { open: '{', close: '}' },
-    { open: '[', close: ']' },
-    { open: '(', close: ')' },
-    { open: '"', close: '"' },
-    { open: "'", close: "'" }
-  ],
-};
+import { shikiToMonaco } from '@shikijs/monaco';
+import * as monaco from 'monaco-editor';
+import { createHighlighter } from 'shiki';
 
-export const language = <languages.IMonarchLanguage>{
-  tokenPostfix: '.nat',
-  defaultToken: 'invalid',
-  keywords: [
-    'class', 'dom', 'sym', 'let', 'else', 'for', 'if', 'in', 'return', 'while', 'print', 'throw', 'import'
-  ],
-
-  typeKeywords: [
-    'bool', 'num', '->', 'string', 'void',
-  ],
-
-  constants: ['true', 'false', 'nil', 'undefined'],
-
-  operators: [
-    '=',
-    '!',
-    '!=',
-    '==',
-    '<=',
-    '>=',
-    '..',
-    '-',
-    '+',
-    '*',
-    'and',
-    'or'
-  ],
-  delimiters: /[,]/,
-  symbols: /[\#\!\%\&\*\+\-\.\/\:\;\<\=\>\@\^\|_\?]+/,
-
-  tokenizer: {
-    root: [
-      // Raw string literals
-      [/r(#*)"/, { token: 'string.quote', bracket: '@open', next: '@stringraw.$1' }],
-      [
-        /[a-zA-Z][a-zA-Z0-9_]*!?|_[a-zA-Z0-9_]+/,
-        {
-          cases: {
-            '@keywords': 'keyword',
-            '@constants': 'keyword',
-          }
-        }
+const highlighter = await createHighlighter({
+  themes: ["vitesse-light"],
+  langs: [
+    "latex",
+    {
+      embeddedLangs: [
+        "latex",
       ],
-      // Designator
-      [/\$/, 'identifier'],
-      // Lifetime annotations
-      [/'[a-zA-Z_][a-zA-Z0-9_]*(?=[^\'])/, 'identifier'],
-      // Strings
-      [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }],
-      { include: '@numbers' },
-      // Whitespace + comments
-      { include: '@whitespace' },
-      [
-        /@delimiters/,
-        {
-          cases: {
-            '@keywords': 'keyword',
-          }
-        }
-      ],
+      ...natGrammar
+    },
+  ]
+})
 
-      [/[{}()\[\]<>]/, '@brackets'],
-      [/@symbols/, { cases: { '@operators': 'operator', '@default': '' } }]
-    ],
+monaco.languages.register({ id: 'nat' });
+monaco.languages.register({ id: 'latex' });
 
-    whitespace: [
-      [/[ \t\r\n]+/, 'white'],
-      [/\/\/.*$/, 'comment']
-    ],
-
-    string: [
-      [/[^\\"]+/, 'string'],
-      [/\\./, 'string.escape.invalid'],
-      [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
-    ],
-
-    stringraw: [
-      [/[^"#]+/, { token: 'string' }],
-      [
-        /"(#*)/,
-        {
-          cases: {
-            '$1==$S2': { token: 'string.quote', bracket: '@close', next: '@pop' },
-            '@default': { token: 'string' }
-          }
-        }
-      ],
-      [/["#]/, { token: 'string' }]
-    ],
-
-    numbers: [
-      //Float
-      [/\b(\d\.?[\d_]*)\b/, { token: 'number' }],
-      //Integer
-      [/[\d][\d_]*?/, { token: 'number' }]
-    ]
-  }
-};
+shikiToMonaco(highlighter, monaco);

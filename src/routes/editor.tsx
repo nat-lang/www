@@ -1,6 +1,6 @@
-import { useRef, useState, useEffect } from 'react'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import './editor.css'
+import { useRef, useState, useEffect } from 'react';
+import * as monaco from 'monaco-editor';
+import './editor.css';
 import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
 import { RepoFile, RepoFileTree } from '../types';
@@ -17,6 +17,7 @@ import Draggable from '../components/draggable';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { abs } from '@nat-lang/nat';
 import useAuthCtx from '../context/auth';
+import "../service/nat/syntax";
 
 const DRAGGABLE_ELEMENTS = {
   NAV_COL: "NAV_COL",
@@ -122,7 +123,7 @@ export default function Editor() {
     if (path === undefined) {
       const uid = v4();
       const uri = monaco.Uri.file(uid);
-      const model = monaco.editor.createModel("", 'nat', uri);
+      const model = monaco.editor.createModel(`\\documentclass{article}`, 'nat', uri);
       editor.setModel(model);
       return;
     }
@@ -135,24 +136,14 @@ export default function Editor() {
       return;
     }
 
-    if (root === CORE_DIR) {
-      (async () => {
-        if (!params["*"]) return;
-
-        const file = await client.getFile(path);
-        const model = monaco.editor.createModel(file.content, 'nat', uri);
-        editor.setModel(model);
-      })();
-
-      return;
-    }
-
     (async () => {
-      const content = await git.getContent(path);
+      const content = root === CORE_DIR
+        ? (await client.getFile(path)).content
+        : await git.getContent(path);
       const model = monaco.editor.createModel(content, 'nat', uri);
+
       editor.setModel(model);
     })();
-
   }, [path, git, editor]);
 
   useEffect(() => {
@@ -170,21 +161,21 @@ export default function Editor() {
   }, [git]);
 
   useEffect(() => {
-    if (!editorRef) return;
-
     setEditor((editor) => {
       if (editor) return editor;
+      if (!editorRef.current) return editor;
 
-      const newEditor = monaco.editor.create(editorRef.current!, {
-        value: "",
-        language: 'nat',
-        automaticLayout: true
+      const newEditor = monaco.editor.create(editorRef.current, {
+        value: `\\documentclass{article}`,
+        language: "nat",
+        automaticLayout: true,
+        minimap: { enabled: false }
       });
 
       return newEditor;
     });
 
-    return () => editor?.dispose()
+    return () => editor?.dispose();
   }, [editorRef.current]);
 
   useEffect(() => {

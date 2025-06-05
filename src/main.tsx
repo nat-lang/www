@@ -7,7 +7,6 @@ import {
 import Editor from './routes/editor';
 import "./index.css";
 import './worker';
-import { registerNat } from './service/nat/registration';
 import Login from './routes/login';
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -19,9 +18,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
 ).toString();
-
-registerNat();
-
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
