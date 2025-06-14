@@ -8,9 +8,10 @@ type EditorProps = {
   model: monaco.editor.ITextModel | null;
   onChange: (text: string) => void;
   onKeyDown: (e: monaco.IKeyboardEvent) => void;
+  style?: React.CSSProperties;
 }
 
-const Editor: FunctionComponent<EditorProps> = ({ model, onChange, onKeyDown }) => {
+const Editor: FunctionComponent<EditorProps> = ({ model, onChange, onKeyDown, style }) => {
   const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
   const editorRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -56,7 +57,7 @@ const Editor: FunctionComponent<EditorProps> = ({ model, onChange, onKeyDown }) 
   return <div
     className="Monaco"
     ref={editorRef}
-    style={{ width: vw(defaultLayoutDims.editor) }}
+    style={style}
   />;
 };
 

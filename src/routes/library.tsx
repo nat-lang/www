@@ -20,6 +20,7 @@ import { px2vw, vw } from '../utilities';
 import { DOC_PATH, DRAGGABLE_ELEMENTS, LayoutDims, MIN_EDITOR_VW, MIN_NAV_VW, defaultLayoutDims } from '../config';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
+import Grid from '../components/grid';
 
 type LibraryProps = {
   git: Git | null;
@@ -27,7 +28,7 @@ type LibraryProps = {
 
 const Library: FunctionComponent<LibraryProps> = ({ git }) => {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
-  const [layoutDims, setLayoutDims] = useState<LayoutDims>(defaultLayoutDims);
+
   const params = useParams();
   const navigate = useNavigate();
 
@@ -36,9 +37,6 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
   const githubAuth = useAuthCtx(state => state.token);
   const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-  const [navColDragging, setNavColDragging] = useState<boolean>(false);
-  const [canvasColDragging, setCanvasColDragging] = useState<boolean>(false);
-  const [_, setPrevDragEvent] = useState<DragMoveEvent | null>(null);
 
   let root = params.root;
   let path = params["*"] ? `${root}/${params["*"]}` : root;
@@ -112,77 +110,15 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
     })();
   }, [path, git]);
 
-  const handleDragMove = (e: DragMoveEvent) => {
-    setPrevDragEvent(prevE => {
-      const diff = px2vw(prevE ? e.delta.x - prevE.delta.x : e.delta.x);
-
-      setLayoutDims(dims => {
-        switch (e.active.id) {
-          case DRAGGABLE_ELEMENTS.NAV_COL: {
-            let next = {
-              nav: dims.nav + diff,
-              editor: dims.editor - diff,
-              canvas: dims.canvas
-            };
-
-            if (next.editor <= MIN_EDITOR_VW) {
-              next.editor = MIN_EDITOR_VW;
-              next.canvas = 100 - next.nav - next.editor;
-            }
-
-            return next;
-          }
-          case DRAGGABLE_ELEMENTS.CANVAS_COL: {
-            let next = {
-              nav: dims.nav + diff,
-              editor: dims.editor,
-              canvas: dims.canvas - diff
-            };
-
-            if (next.nav <= MIN_NAV_VW) {
-              next.nav = MIN_NAV_VW;
-              next.editor = 100 - next.nav - next.canvas;
-            }
-
-            return next;
-          }
-        }
-        return dims;
-      });
-
-
-      return e;
-    });
-  }
-
-  const handleDragStart = (e: DragStartEvent) => {
-    switch (e.active.id) {
-      case DRAGGABLE_ELEMENTS.NAV_COL: setNavColDragging(true); break;
-      case DRAGGABLE_ELEMENTS.CANVAS_COL: setCanvasColDragging(true);
-    }
-  };
-  const handleDragEnd = (e: DragEndEvent) => {
-    switch (e.active.id) {
-      case DRAGGABLE_ELEMENTS.NAV_COL: setNavColDragging(false); break;
-      case DRAGGABLE_ELEMENTS.CANVAS_COL: setCanvasColDragging(false);
-    }
-    setPrevDragEvent(null);
-  };
-
   return <>
     <Header>
       {githubAuth && root !== CORE_DIR && <Button onClick={handleSaveClick}>save</Button>}
       <Button onClick={handleEvaluateClick}>evaluate</Button>
     </Header>
     <div className="Editor">
-      <DndContext onDragMove={handleDragMove} onDragStart={handleDragStart} onDragEnd={handleDragEnd} modifiers={[restrictToHorizontalAxis]}>
-        <Navigation style={{ flexBasis: vw(layoutDims.nav) }} />
-
-        <Draggable id={DRAGGABLE_ELEMENTS.NAV_COL} className={`AccessColumn ${navColDragging ? " dragging" : ""}`}>
-          <div />
-        </Draggable>
-
-        <Editor model={model}
+      <Grid
+        left={dims => <Navigation style={{ flexBasis: vw(dims.nav) }} />}
+        center={dims => <Editor model={model} style={{ width: vw(dims.editor) }}
           onChange={(value => {
             (async () => {
               if (!path) return;
@@ -198,15 +134,11 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
               e.stopPropagation();
             }
           }}
-        />
+        />}
+        right={dims => <Canvas file={canvasFile} style={{ width: vw(dims.canvas) }} />}
+      />
 
-        <Draggable id={DRAGGABLE_ELEMENTS.CANVAS_COL} className={`AccessColumn ${canvasColDragging ? " dragging" : ""}`}>
-          <div />
-        </Draggable>
-        <Canvas file={canvasFile} style={{ width: vw(layoutDims.canvas) }} />
-
-        {openFilePane && <FilePane onSubmit={root === DOC_PATH ? handleDocSave : handleLibSave} files={libFiles} path={path} />}
-      </DndContext>
+      {openFilePane && <FilePane onSubmit={root === DOC_PATH ? handleDocSave : handleLibSave} files={libFiles} path={path} />}
     </div>
   </>;
 };
