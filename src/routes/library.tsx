@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, FunctionComponent } from 'react';
 import * as monaco from 'monaco-editor';
 import './library.css';
 import { v4 } from 'uuid';
@@ -23,22 +23,21 @@ import { DOC_PATH, DRAGGABLE_ELEMENTS, LayoutDims, MIN_EDITOR_VW, MIN_NAV_VW, de
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
 
-export default function Library() {
+type LibraryProps = {
+  git: Git | null;
+}
+
+const Library: FunctionComponent<LibraryProps> = ({ git }) => {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
   const [layoutDims, setLayoutDims] = useState<LayoutDims>(defaultLayoutDims);
-  const navRef = useRef<HTMLDivElement | null>(null);
   const params = useParams();
   const navigate = useNavigate();
 
-  const docFiles = useFileCtx(state => state.docs);
-  const libFiles = useFileCtx(state => state.lib);
-  const coreFiles = useFileCtx(state => state.core);
-  const setDocFiles = useFileCtx(state => state.setDocs);
-  const setLibFiles = useFileCtx(state => state.setLib);
-  const setCoreFiles = useFileCtx(state => state.setCore);
+  const {
+    lib: libFiles,
+  } = useFileCtx();
 
   const githubAuth = useAuthCtx(state => state.token);
-  const [git, setGit] = useState<Git | null>(null);
   const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
   const [navColDragging, setNavColDragging] = useState<boolean>(false);
@@ -47,30 +46,6 @@ export default function Library() {
 
   let root = params.root;
   let path = params["*"] ? `${root}/${params["*"]}` : root;
-
-  const fetchLibFiles = async () => {
-    if (!git) return;
-    let resp = await git.getTree(LIB_REPO);
-    setLibFiles(resp.data.tree);
-  };
-
-  const fetchDocFiles = async () => {
-    if (!git) return;
-    let resp = await git.getTree(DOC_REPO);
-    setDocFiles(resp.data.tree);
-  };
-
-  const handleFileClick = async (file: RepoFile) => {
-    if (!file.path) throw Error("Can't navigate to pathless file.");
-
-    navigate(`/${file.path}`);
-  };
-
-  const handleDocFileClick = async (file: RepoFile) => {
-    if (!file.path) throw Error("Can't navigate to pathless file.");
-
-    navigate(`/${DOC_PATH}/${file.path}`);
-  };
 
   const handleEvaluateClick = async () => {
     const intptResp = await runtime.typeset(path ? abs(path) : "/");
@@ -114,39 +89,14 @@ export default function Library() {
   const handleDocSave = async (form: FilePaneFieldValues) => {
     const path = formPath(form).replace(`${DOC_PATH}/`, "");
     await handleSave(DOC_REPO, path);
-    fetchDocFiles();
     navigate(`/${DOC_PATH}/${path}`);
   };
 
   const handleLibSave = async (form: FilePaneFieldValues) => {
     const path = formPath(form);
     await handleSave(LIB_REPO, path);
-    fetchLibFiles();
     navigate(`/${path}`);
   };
-
-  const setRuntimeFiles = (repo: string, files: RepoFile[], root?: string) => {
-    if (!git) return;
-
-    files.forEach(async file => {
-      if (file.path) {
-        if (file.type === "tree") {
-          runtime.mkDir(file.path);
-        } else {
-          const content = await git.getContent(repo, file.path);
-          await runtime.setFile(root ? `${root}/${file.path}` : file.path, content);
-        }
-      }
-    });
-  }
-
-  useEffect(() => {
-    (async () => {
-      setCoreFiles(await runtime.getCoreFiles());
-    })();
-
-    setGit(new Git());
-  }, []);
 
   useEffect(() => {
     if (!git) return;
@@ -167,7 +117,6 @@ export default function Library() {
       return;
     }
 
-    console.log("?");
     (async () => {
       const content = root === CORE_DIR
         ? (await runtime.getFile(path)).content
@@ -179,32 +128,6 @@ export default function Library() {
       setModel(model);
     })();
   }, [path, git]);
-
-  useEffect(() => {
-    if (!githubAuth) return;
-
-    const data = JSON.parse(githubAuth);
-    if (!data.access_token) throw Error("Corrupt token.");
-
-    const git = new Git({ auth: data.access_token });
-    setGit(git);
-  }, [githubAuth]);
-
-  useEffect(() => {
-    fetchLibFiles();
-    fetchDocFiles();
-  }, [git]);
-
-  useEffect(() => {
-    if (!libFiles) return;
-    setRuntimeFiles(LIB_REPO, libFiles);
-  }, [git, libFiles]);
-
-  useEffect(() => {
-    if (!docFiles) return;
-    runtime.mkDir(DOC_PATH);
-    setRuntimeFiles(DOC_REPO, docFiles, DOC_PATH);
-  }, [git, docFiles]);
 
   const handleDragMove = (e: DragMoveEvent) => {
     setPrevDragEvent(prevE => {
@@ -270,23 +193,8 @@ export default function Library() {
     </Header>
     <div className="Editor">
       <DndContext onDragMove={handleDragMove} onDragStart={handleDragStart} onDragEnd={handleDragEnd} modifiers={[restrictToHorizontalAxis]}>
-        <Navigation
-          ref={navRef}
-          style={{ flexBasis: vw(layoutDims.nav) }}
-        >
-          <div className="NavigationPane">
-            <div className="NavigationSecTitle">docs</div>
-            {docFiles.length && <FileTree files={docFiles} onFileClick={handleDocFileClick} activeFilePath={path} />}
-          </div>
-          <div className="NavigationPane">
-            <div className="NavigationSecTitle">library</div>
-            {libFiles.length && <FileTree files={libFiles} onFileClick={handleFileClick} activeFilePath={path} />}
-          </div>
-          <div className="NavigationPane">
-            <div className="NavigationSecTitle">core</div>
-            {coreFiles.length && <FileTree files={coreFiles} onFileClick={handleFileClick} open={false} activeFilePath={path} />}
-          </div>
-        </Navigation>
+        <Navigation style={{ flexBasis: vw(layoutDims.nav) }} />
+
         <Draggable id={DRAGGABLE_ELEMENTS.NAV_COL} className={`AccessColumn ${navColDragging ? " dragging" : ""}`}>
           <div />
         </Draggable>
@@ -318,4 +226,6 @@ export default function Library() {
       </DndContext>
     </div>
   </>;
-}
+};
+
+export default Library;

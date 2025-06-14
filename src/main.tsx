@@ -1,18 +1,11 @@
-import { createRoot } from 'react-dom/client'
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { createRoot } from 'react-dom/client';
 import "./index.css";
 import './worker';
-import Login from './routes/login';
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import pack from "../package.json";
 import { installSyntax } from './service/nat/syntax';
-import Library from './routes/library';
+import App from "./app";
 
 console.log(`This is natlang.online ${pack.version}, running natc ${pack.dependencies["@nat-lang/nat"]}.`);
 
@@ -23,13 +16,4 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-createRoot(document.getElementById('root')!).render(
-  <BrowserRouter>
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/:root?/*" element={<Library />} />
-      <Route index element={<Navigate replace to="/docs/introduction" />} />
-    </Routes>
-  </BrowserRouter>
-);
-
+createRoot(document.getElementById('root')!).render(<App />);
