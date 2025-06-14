@@ -3,9 +3,9 @@ import * as monaco from 'monaco-editor';
 import './library.css';
 import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
-import { RepoFile, RepoFileTree } from '../types';
+import { RepoFile } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
-import runtime, { CoreFile, CORE_DIR } from '../service/nat/client';
+import runtime, { CORE_DIR } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
 import Canvas from '../components/canvas';
@@ -21,7 +21,7 @@ import FileTree from '../components/filetree';
 import { px2vw, vw } from '../utilities';
 import { DOC_PATH, DRAGGABLE_ELEMENTS, LayoutDims, MIN_EDITOR_VW, MIN_NAV_VW, defaultLayoutDims } from '../config';
 import Editor from '../components/editor';
-
+import useFileCtx from '../context/file';
 
 export default function Library() {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
@@ -29,9 +29,14 @@ export default function Library() {
   const navRef = useRef<HTMLDivElement | null>(null);
   const params = useParams();
   const navigate = useNavigate();
-  const [libFiles, setLibFiles] = useState<RepoFileTree>([]);
-  const [docFiles, setDocFiles] = useState<RepoFileTree>([]);
-  const [coreFiles, setCoreFiles] = useState<CoreFile[]>([]);
+
+  const docFiles = useFileCtx(state => state.docs);
+  const libFiles = useFileCtx(state => state.lib);
+  const coreFiles = useFileCtx(state => state.core);
+  const setDocFiles = useFileCtx(state => state.setDocs);
+  const setLibFiles = useFileCtx(state => state.setLib);
+  const setCoreFiles = useFileCtx(state => state.setCore);
+
   const githubAuth = useAuthCtx(state => state.token);
   const [git, setGit] = useState<Git | null>(null);
   const [canvasFile, setCanvasFile] = useState<string>();
