@@ -1,10 +1,7 @@
 import { FunctionComponent, useEffect, useRef, useState } from "react";
-import { vw } from "../utilities";
-import { defaultLayoutDims } from "../config";
 import * as monaco from 'monaco-editor';
 
 type EditorProps = {
-  // editor: monaco.editor.ICodeEditor;
   model: monaco.editor.ITextModel | null;
   onChange: (text: string) => void;
   onKeyDown: (e: monaco.IKeyboardEvent) => void;

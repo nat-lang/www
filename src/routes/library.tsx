@@ -11,13 +11,9 @@ import Canvas from '../components/canvas';
 import Git, { DOC_REPO, LIB_REPO } from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import * as nls from '../service/nls/client';
-import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
-import Draggable from '../components/draggable';
-import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { abs } from '@nat-lang/nat';
 import useAuthCtx from '../context/auth';
-import { px2vw, vw } from '../utilities';
-import { DOC_PATH, DRAGGABLE_ELEMENTS, LayoutDims, MIN_EDITOR_VW, MIN_NAV_VW, defaultLayoutDims } from '../config';
+import { DOC_PATH } from '../config';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
 import Grid from '../components/grid';
@@ -117,8 +113,13 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
     </Header>
     <div className="Editor">
       <Grid
-        left={dims => <Navigation style={{ flexBasis: vw(dims.nav) }} />}
-        center={dims => <Editor model={model} style={{ width: vw(dims.editor) }}
+        initialDims={{
+          left: 15,
+          center: 55,
+          right: 30
+        }}
+        left={width => <Navigation style={{ flexBasis: width }} />}
+        center={width => <Editor model={model} style={{ width }}
           onChange={(value => {
             (async () => {
               if (!path) return;
@@ -135,7 +136,7 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
             }
           }}
         />}
-        right={dims => <Canvas file={canvasFile} style={{ width: vw(dims.canvas) }} />}
+        right={width => <Canvas file={canvasFile} style={{ width }} />}
       />
 
       {openFilePane && <FilePane onSubmit={root === DOC_PATH ? handleDocSave : handleLibSave} files={libFiles} path={path} />}

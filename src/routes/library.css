@@ -13,33 +13,6 @@
   flex-direction: column;
 }
 
-.Editor .AccessColumn {
-  position: relative;
-  cursor: pointer;
-  z-index: 1;
-  padding: 3px;
-  margin: -3px;
-}
-
-.Editor .AccessColumn>div {
-  width: 1px;
-  height: 100%;
-  background-color: #dddddd;
-}
-
-.Editor .AccessColumn:hover>div {
-  background-color: #2994c6;
-  -webkit-transition: background-color 500ms linear;
-  -ms-transition: background-color 500ms linear;
-  transition: background-color 500ms linear;
-}
-
-.Editor .AccessColumn.dragging>div {
-  background-color: #2994c6;
-  box-shadow: 0 0 2px 1px #2994c6;
-  transition: none;
-}
-
 .Editor .Navigation.Navigation--closed {
   flex-basis: 0.1vw;
 }
