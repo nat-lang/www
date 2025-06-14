@@ -108,6 +108,22 @@ class Git {
     })
     return blobData.data
   }
+
+  commitFileChange = async (path: string, content: string, repo: string, branch: string) => {
+    const currentCommit = await this.getCurrentCommit(repo, branch);
+    const blob = await this.createBlob(repo, content);
+    const tree = await this.createTree(
+      repo,
+      [{
+        path,
+        mode: "100644",
+        type: "blob",
+        sha: blob.sha,
+      }],
+      currentCommit.treeSha,
+    );
+    await this.createCommit(repo, branch, tree.data.sha, currentCommit.commitSha);
+  }
 }
 
 export default Git;

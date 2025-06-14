@@ -1,9 +1,8 @@
-import { useRef, useState, useEffect, FunctionComponent } from 'react';
+import { useState, useEffect, FunctionComponent } from 'react';
 import * as monaco from 'monaco-editor';
 import './library.css';
 import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
-import { RepoFile } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
 import runtime, { CORE_DIR } from '../service/nat/client';
 import Header from '../components/header';
@@ -17,7 +16,6 @@ import Draggable from '../components/draggable';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { abs } from '@nat-lang/nat';
 import useAuthCtx from '../context/auth';
-import FileTree from '../components/filetree';
 import { px2vw, vw } from '../utilities';
 import { DOC_PATH, DRAGGABLE_ELEMENTS, LayoutDims, MIN_EDITOR_VW, MIN_NAV_VW, defaultLayoutDims } from '../config';
 import Editor from '../components/editor';
@@ -33,9 +31,7 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
   const params = useParams();
   const navigate = useNavigate();
 
-  const {
-    lib: libFiles,
-  } = useFileCtx();
+  const { lib: libFiles } = useFileCtx();
 
   const githubAuth = useAuthCtx(state => state.token);
   const [canvasFile, setCanvasFile] = useState<string>();
@@ -67,20 +63,7 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
     if (!git) return;
     if (!model) return;
 
-    const currentCommit = await git.getCurrentCommit(repo, import.meta.env.VITE_GITHUB_BRANCH);
-    const blob = await git.createBlob(repo, model.getValue());
-    const tree = await git.createTree(
-      repo,
-      [{
-        path,
-        mode: "100644",
-        type: "blob",
-        sha: blob.sha,
-      }],
-      currentCommit.treeSha,
-    );
-
-    await git.createCommit(repo, import.meta.env.VITE_GITHUB_BRANCH, tree.data.sha, currentCommit.commitSha);
+    await git.commitFileChange(path, model.getValue(), repo, import.meta.env.VITE_GITHUB_BRANCH);
     setOpenFilePane(false);
   };
 

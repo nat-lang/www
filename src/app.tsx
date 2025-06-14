@@ -15,7 +15,7 @@ const App = () => {
   const {
     docs: docFiles, setDocs: setDocFiles,
     lib: libFiles, setLib: setLibFiles,
-    core: coreFiles, setCore: setCoreFiles
+    setCore: setCoreFiles
   } = useFileCtx();
 
   const fetchLibFiles = async () => {
@@ -31,6 +31,7 @@ const App = () => {
   };
 
   const setRuntimeFiles = (repo: string, files: RepoFile[], root?: string) => {
+    console.log(files);
     if (!git) return;
 
     files.forEach(async file => {

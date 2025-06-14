@@ -15,6 +15,7 @@ type NavigationProps = {
 const Navigation: FunctionComponent<NavigationProps> = (({ style, className = "" }) => {
   const navigate = useNavigate();
   const params = useParams();
+  const root = params.root;
   const path = params["*"] ? `${root}/${params["*"]}` : root;
   const { docs: docFiles, lib: libFiles, core: coreFiles } = useFileCtx();
   const handleFileClick = async (file: RepoFile) => {
