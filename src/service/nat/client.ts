@@ -1,6 +1,6 @@
-import Engine from '@nat-lang/nat';
+import Runtime from '@nat-lang/nat';
 
-const client = new Engine();
+const runtime = new Runtime();
 
-export default client;
+export default runtime;
 export { type CoreFile, CORE_DIR } from '@nat-lang/nat';

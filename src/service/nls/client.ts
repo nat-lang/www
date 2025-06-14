@@ -1,6 +1,12 @@
 
 import axios from "axios";
 
+export type RenderResp = {
+  success: boolean;
+  pdf?: string;
+  errors?: string;
+}
+
 const nls = axios.create({
   baseURL: import.meta.env.VITE_NLS_URI,
   headers: {
@@ -8,7 +14,7 @@ const nls = axios.create({
   },
 });
 
-const render = (tex: string): Promise<string> => nls
+const render = (tex: string): Promise<RenderResp> => nls
   .post('/render', { tex })
   .then(({ data }) => data);
 

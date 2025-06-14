@@ -1,15 +1,15 @@
 import { useRef, useState, useEffect } from 'react';
 import * as monaco from 'monaco-editor';
-import './editor.css';
+import './library.css';
 import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
 import { RepoFile, RepoFileTree } from '../types';
 import { useNavigate, useParams } from 'react-router-dom';
-import client, { CoreFile, CORE_DIR } from '../service/nat/client';
+import runtime, { CoreFile, CORE_DIR } from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
 import Canvas from '../components/canvas';
-import Git from '../service/git';
+import Git, { DOC_REPO, LIB_REPO } from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import * as nls from '../service/nls/client';
 import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
@@ -17,34 +17,20 @@ import Draggable from '../components/draggable';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { abs } from '@nat-lang/nat';
 import useAuthCtx from '../context/auth';
+import FileTree from '../components/filetree';
+import { px2vw, vw } from '../utilities';
+import { DOC_PATH, DRAGGABLE_ELEMENTS, LayoutDims, MIN_EDITOR_VW, MIN_NAV_VW, defaultLayoutDims } from '../config';
+import Editor from '../components/editor';
 
-const DRAGGABLE_ELEMENTS = {
-  NAV_COL: "NAV_COL",
-  CANVAS_COL: "CANVAS_COL"
-};
 
-const MIN_EDITOR_VW = 15;
-const MIN_NAV_VW = 1;
-
-const oLayoutDims = {
-  nav: 15,
-  editor: 55,
-  canvas: 30
-};
-
-type LayoutDims = typeof oLayoutDims;
-
-const vw = (v: number) => `${v}vw`;
-const px2vw = (px: number) => (px / window.innerWidth) * 100;
-
-export default function Editor() {
-  const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
-  const [layoutDims, setLayoutDims] = useState<LayoutDims>(oLayoutDims);
+export default function Library() {
+  const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
+  const [layoutDims, setLayoutDims] = useState<LayoutDims>(defaultLayoutDims);
   const navRef = useRef<HTMLDivElement | null>(null);
-  const editorRef = useRef<HTMLDivElement | null>(null);
   const params = useParams();
   const navigate = useNavigate();
-  const [files, setFiles] = useState<RepoFileTree>([]);
+  const [libFiles, setLibFiles] = useState<RepoFileTree>([]);
+  const [docFiles, setDocFiles] = useState<RepoFileTree>([]);
   const [coreFiles, setCoreFiles] = useState<CoreFile[]>([]);
   const githubAuth = useAuthCtx(state => state.token);
   const [git, setGit] = useState<Git | null>(null);
@@ -54,13 +40,19 @@ export default function Editor() {
   const [canvasColDragging, setCanvasColDragging] = useState<boolean>(false);
   const [_, setPrevDragEvent] = useState<DragMoveEvent | null>(null);
 
-  let root = params.file;
+  let root = params.root;
   let path = params["*"] ? `${root}/${params["*"]}` : root;
 
-  const fetchGitFiles = async () => {
+  const fetchLibFiles = async () => {
     if (!git) return;
-    let resp = await git.getTree();
-    setFiles(resp.data.tree);
+    let resp = await git.getTree(LIB_REPO);
+    setLibFiles(resp.data.tree);
+  };
+
+  const fetchDocFiles = async () => {
+    if (!git) return;
+    let resp = await git.getTree(DOC_REPO);
+    setDocFiles(resp.data.tree);
   };
 
   const handleFileClick = async (file: RepoFile) => {
@@ -69,28 +61,36 @@ export default function Editor() {
     navigate(`/${file.path}`);
   };
 
-  const handleEvaluateClick = async () => {
-    if (editor) {
-      const intptResp = await client.typeset(path ? abs(path) : "/");
+  const handleDocFileClick = async (file: RepoFile) => {
+    if (!file.path) throw Error("Can't navigate to pathless file.");
 
-      if (intptResp) {
-        const texResp = await nls.render(intptResp.tex);
-        setCanvasFile(texResp);
-      }
+    navigate(`/${DOC_PATH}/${file.path}`);
+  };
+
+  const handleEvaluateClick = async () => {
+    const intptResp = await runtime.typeset(path ? abs(path) : "/");
+
+    if (intptResp.success) {
+      const renderResp = await nls.render(intptResp.tex);
+      if (renderResp.success && renderResp.pdf)
+        setCanvasFile(renderResp.pdf);
+      else if (renderResp.errors)
+        console.log(renderResp.errors);
+    } else {
+      console.log(intptResp.errors);
     }
   };
 
   const handleSaveClick = () => setOpenFilePane(true);
 
-  const handleSave = async (form: FilePaneFieldValues) => {
+  const handleSave = async (repo: string, path: string) => {
     if (!git) return;
-    if (!editor) return;
+    if (!model) return;
 
-    let currentCommit = await git.getCurrentCommit(import.meta.env.VITE_GITHUB_BRANCH);
-    let blob = await git.createBlob(editor.getValue());
-    let path = form.folder ? `${form.folder}/${form.filename}` : form.filename;
-
+    const currentCommit = await git.getCurrentCommit(repo, import.meta.env.VITE_GITHUB_BRANCH);
+    const blob = await git.createBlob(repo, model.getValue());
     const tree = await git.createTree(
+      repo,
       [{
         path,
         mode: "100644",
@@ -100,16 +100,44 @@ export default function Editor() {
       currentCommit.treeSha,
     );
 
-    await git.createCommit(import.meta.env.VITE_GITHUB_BRANCH, tree.data.sha, currentCommit.commitSha);
-
-    fetchGitFiles();
+    await git.createCommit(repo, import.meta.env.VITE_GITHUB_BRANCH, tree.data.sha, currentCommit.commitSha);
     setOpenFilePane(false);
+  };
+
+  const formPath = (form: FilePaneFieldValues) => form.folder ? `${form.folder}/${form.filename}` : form.filename;
+
+  const handleDocSave = async (form: FilePaneFieldValues) => {
+    const path = formPath(form).replace(`${DOC_PATH}/`, "");
+    await handleSave(DOC_REPO, path);
+    fetchDocFiles();
+    navigate(`/${DOC_PATH}/${path}`);
+  };
+
+  const handleLibSave = async (form: FilePaneFieldValues) => {
+    const path = formPath(form);
+    await handleSave(LIB_REPO, path);
+    fetchLibFiles();
     navigate(`/${path}`);
+  };
+
+  const setRuntimeFiles = (repo: string, files: RepoFile[], root?: string) => {
+    if (!git) return;
+
+    files.forEach(async file => {
+      if (file.path) {
+        if (file.type === "tree") {
+          runtime.mkDir(file.path);
+        } else {
+          const content = await git.getContent(repo, file.path);
+          await runtime.setFile(root ? `${root}/${file.path}` : file.path, content);
+        }
+      }
+    });
   }
 
   useEffect(() => {
     (async () => {
-      setCoreFiles(await client.getCoreFiles());
+      setCoreFiles(await runtime.getCoreFiles());
     })();
 
     setGit(new Git());
@@ -117,13 +145,12 @@ export default function Editor() {
 
   useEffect(() => {
     if (!git) return;
-    if (!editor) return;
 
     if (path === undefined) {
       const uid = v4();
       const uri = monaco.Uri.file(uid);
-      const model = monaco.editor.createModel(`import prelude`, 'nat', uri);
-      editor.setModel(model);
+      const model = monaco.editor.createModel(`use prelude`, 'nat', uri);
+      setModel(model);
       return;
     }
 
@@ -131,19 +158,22 @@ export default function Editor() {
     const model = monaco.editor.getModel(uri);
 
     if (model) {
-      editor.setModel(model);
+      setModel(model);
       return;
     }
 
+    console.log("?");
     (async () => {
       const content = root === CORE_DIR
-        ? (await client.getFile(path)).content
-        : await git.getContent(path);
+        ? (await runtime.getFile(path)).content
+        : root === DOC_REPO
+          ? await git.getContent(DOC_REPO, path.replace(DOC_PATH, ""))
+          : await git.getContent(LIB_REPO, path);
       const model = monaco.editor.createModel(content, 'nat', uri);
 
-      editor.setModel(model);
+      setModel(model);
     })();
-  }, [path, git, editor]);
+  }, [path, git]);
 
   useEffect(() => {
     if (!githubAuth) return;
@@ -156,69 +186,20 @@ export default function Editor() {
   }, [githubAuth]);
 
   useEffect(() => {
-    fetchGitFiles();
+    fetchLibFiles();
+    fetchDocFiles();
   }, [git]);
 
   useEffect(() => {
-    setEditor((editor) => {
-      if (editor) return editor;
-      if (!editorRef.current) return editor;
-
-      const newEditor = monaco.editor.create(editorRef.current, {
-        model: null,
-        language: "nat",
-        automaticLayout: true,
-        minimap: { enabled: false }
-      });
-
-      return newEditor;
-    });
-
-    return () => editor?.dispose();
-  }, [editorRef.current]);
+    if (!libFiles) return;
+    setRuntimeFiles(LIB_REPO, libFiles);
+  }, [git, libFiles]);
 
   useEffect(() => {
-    if (!editor) return;
-    if (!path) return;
-
-    let disposables = [
-      editor.onKeyDown(e => {
-        if (e.metaKey && e.keyCode == 3) {
-          if (!path) return;
-
-          client.interpret(abs(path));
-          e.stopPropagation();
-        }
-      }),
-      editor.onDidChangeModelContent(_ => {
-        const value = editor.getValue();
-
-        (async () => {
-          if (!path) return;
-          await client.setFile(path, value);
-        })();
-      })
-    ];
-
-    return () => disposables.forEach(x => x.dispose());
-  }, [editor, path]);
-
-  useEffect(() => {
-    if (!files) return;
-    if (!git) return
-
-    files.forEach(async file => {
-      if (file.path) {
-        if (file.type === "tree") {
-          client.mkDir(file.path);
-        } else {
-          const content = await git.getContent(file.path);
-          await client.setFile(file.path, content);
-
-        }
-      }
-    });
-  }, [git, files]);
+    if (!docFiles) return;
+    runtime.mkDir(DOC_PATH);
+    setRuntimeFiles(DOC_REPO, docFiles, DOC_PATH);
+  }, [git, docFiles]);
 
   const handleDragMove = (e: DragMoveEvent) => {
     setPrevDragEvent(prevE => {
@@ -279,31 +260,56 @@ export default function Editor() {
 
   return <>
     <Header>
-      {githubAuth && <Button onClick={handleSaveClick}>save</Button>}
+      {githubAuth && root !== CORE_DIR && <Button onClick={handleSaveClick}>save</Button>}
       <Button onClick={handleEvaluateClick}>evaluate</Button>
     </Header>
     <div className="Editor">
       <DndContext onDragMove={handleDragMove} onDragStart={handleDragStart} onDragEnd={handleDragEnd} modifiers={[restrictToHorizontalAxis]}>
         <Navigation
-          style={{ flexBasis: vw(layoutDims.nav) }}
           ref={navRef}
-          files={files}
-          activeFilePath={path}
-          coreFiles={coreFiles}
-          onFileClick={handleFileClick}
-        />
+          style={{ flexBasis: vw(layoutDims.nav) }}
+        >
+          <div className="NavigationPane">
+            <div className="NavigationSecTitle">docs</div>
+            {docFiles.length && <FileTree files={docFiles} onFileClick={handleDocFileClick} activeFilePath={path} />}
+          </div>
+          <div className="NavigationPane">
+            <div className="NavigationSecTitle">library</div>
+            {libFiles.length && <FileTree files={libFiles} onFileClick={handleFileClick} activeFilePath={path} />}
+          </div>
+          <div className="NavigationPane">
+            <div className="NavigationSecTitle">core</div>
+            {coreFiles.length && <FileTree files={coreFiles} onFileClick={handleFileClick} open={false} activeFilePath={path} />}
+          </div>
+        </Navigation>
         <Draggable id={DRAGGABLE_ELEMENTS.NAV_COL} className={`AccessColumn ${navColDragging ? " dragging" : ""}`}>
           <div />
         </Draggable>
 
-        <div className="Monaco" ref={editorRef} style={{ width: vw(layoutDims.editor) }}></div>
+        <Editor model={model}
+          onChange={(value => {
+            (async () => {
+              if (!path) return;
+              console.log(path);
+              await runtime.setFile(path, value);
+            })();
+          })}
+          onKeyDown={e => {
+            if (e.metaKey && e.keyCode == 3) {
+              if (!path) return;
+
+              runtime.interpret(abs(path));
+              e.stopPropagation();
+            }
+          }}
+        />
 
         <Draggable id={DRAGGABLE_ELEMENTS.CANVAS_COL} className={`AccessColumn ${canvasColDragging ? " dragging" : ""}`}>
           <div />
         </Draggable>
         <Canvas file={canvasFile} style={{ width: vw(layoutDims.canvas) }} />
 
-        {openFilePane && <FilePane onSubmit={handleSave} files={files} path={path} />}
+        {openFilePane && <FilePane onSubmit={root === DOC_PATH ? handleDocSave : handleLibSave} files={libFiles} path={path} />}
       </DndContext>
     </div>
   </>;
