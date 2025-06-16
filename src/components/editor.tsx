@@ -4,11 +4,10 @@ import * as monaco from 'monaco-editor';
 type EditorProps = {
   model: monaco.editor.ITextModel | null;
   onChange: (text: string) => void;
-  onKeyDown: (e: monaco.IKeyboardEvent) => void;
   style?: React.CSSProperties;
 }
 
-const Editor: FunctionComponent<EditorProps> = ({ model, onChange, onKeyDown, style }) => {
+const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style }) => {
   const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
   const editorRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -42,14 +41,13 @@ const Editor: FunctionComponent<EditorProps> = ({ model, onChange, onKeyDown, st
     if (!editor) return;
 
     const disposables = [
-      editor.onKeyDown(onKeyDown),
       editor.onDidChangeModelContent(_ => {
         onChange(editor.getValue());
       })
     ];
 
     return () => disposables.forEach(x => x.dispose());
-  }, [editor, onKeyDown, onChange]);
+  }, [editor, onChange]);
 
   return <div
     className="Monaco"

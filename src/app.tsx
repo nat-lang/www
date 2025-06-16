@@ -8,6 +8,8 @@ import runtime from "./service/nat/client";
 import useAuthCtx from "./context/auth";
 import { RepoFile } from "./types";
 import { DOC_PATH } from "./config";
+import Docs from "./routes/docs";
+import Core from "./routes/core";
 
 const App = () => {
   const [git, setGit] = useState<Git | null>(null);
@@ -30,10 +32,8 @@ const App = () => {
     setDocFiles(resp.data.tree);
   };
 
-  const setRuntimeFiles = (repo: string, files: RepoFile[], root?: string) => {
-    console.log(files);
+  const setRuntimeFiles = async (repo: string, files: RepoFile[], root?: string) => {
     if (!git) return;
-
     files.forEach(async file => {
       if (file.path) {
         if (file.type === "tree") {
@@ -48,8 +48,6 @@ const App = () => {
 
   // init.
   useEffect(() => {
-    runtime.mkDir(DOC_PATH);
-
     (async () => {
       setCoreFiles(await runtime.getCoreFiles());
     })();
@@ -79,12 +77,19 @@ const App = () => {
 
   useEffect(() => {
     if (!docFiles) return;
-    setRuntimeFiles(DOC_REPO, docFiles, DOC_PATH);
+
+    (async () => {
+      await runtime.mkDir(DOC_PATH);
+      setRuntimeFiles(DOC_REPO, docFiles, DOC_PATH);
+    })();
+
   }, [git, docFiles]);
 
   return <BrowserRouter>
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/core/*" element={<Core git={git} />} />
+      <Route path="/docs/*" element={<Docs git={git} />} />
       <Route path="/:root?/*" element={<Library git={git} />} />
       <Route index element={<Navigate replace to="/docs/introduction" />} />
     </Routes>

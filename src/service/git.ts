@@ -34,7 +34,6 @@ class Git {
   }
 
   getContent = async (repo: string, path: string) => {
-    if (path == "docs/introduction") throw new Error("!");
     const resp = await this.octo.rest.repos.getContent({
       owner: 'nat-lang',
       repo,
