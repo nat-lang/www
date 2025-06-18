@@ -1,5 +1,4 @@
 import { createRoot } from 'react-dom/client';
-import "./index.css";
 import './worker';
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';

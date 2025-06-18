@@ -70,4 +70,32 @@ button:active {
 
 .Editor {
   height: calc(100vh - var(--header-height));
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+.Editor .Navigation {
+  padding: 10px;
+  padding-top: 25px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.Editor .Navigation.Navigation--closed {
+  flex-basis: 0.1vw;
+}
+
+.Editor .Navigation .NavigationFolder:not(:first-child) {
+  padding-top: 10px;
+}
+
+.Editor .Canvas {
+  flex-shrink: 0;
+  overflow-y: scroll;
+}
+
+.Editor .FilePane {
+  position: absolute;
 }

@@ -9,13 +9,13 @@ import Button from '../components/button';
 import Canvas from '../components/canvas';
 import Git, { DOC_REPO } from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
-import * as nls from '../service/nls/client';
 import { abs } from '@nat-lang/nat';
 import useAuthCtx from '../context/auth';
 import { DOC_PATH } from '../config';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
 import Grid from '../components/grid';
+import { evaluate } from '../service/eval';
 
 type DocsProps = {
   git: Git | null;
@@ -25,26 +25,20 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
   const params = useParams();
   const navigate = useNavigate();
-  const { docs: docFiles } = useFileCtx();
+  const { docTree, docsLoaded, libLoaded, docs } = useFileCtx();
   const githubAuth = useAuthCtx(state => state.token);
   const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
   const path = params["*"];
+  const content = useFileCtx(state => state.docs[`${DOC_PATH}/${path}`]);
 
-  const handleEvaluateClick = async () => {
+  const handleEvaluate = async () => {
     if (!path) return;
 
-    const intptResp = await runtime.typeset(abs(`${DOC_PATH}/${path}`));
+    const pdf = await evaluate(abs(`${DOC_PATH}/${path}`));
 
-    if (intptResp.success) {
-      const renderResp = await nls.render(intptResp.tex);
-      if (renderResp.success && renderResp.pdf)
-        setCanvasFile(renderResp.pdf);
-      else if (renderResp.errors)
-        console.log(renderResp.errors);
-    } else {
-      console.log(intptResp.errors);
-    }
+    if (pdf)
+      setCanvasFile(pdf);
   };
 
   const handleSaveClick = () => setOpenFilePane(true);
@@ -61,29 +55,25 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
   };
 
   useEffect(() => {
-    if (!git) return;
     if (!path) return;
+    if (!content) return;
 
     const uri = monaco.Uri.file(path);
-    const model = monaco.editor.getModel(uri);
+    const model = monaco.editor.getModel(uri)
+      ?? monaco.editor.createModel(content, 'nat', uri);
 
-    if (model) {
-      setModel(model);
-      return;
-    }
+    setModel(model);
+  }, [path, content]);
 
-    (async () => {
-      const content = await git.getContent(DOC_REPO, path.replace(DOC_PATH, ""))
-      const model = monaco.editor.createModel(content, 'nat', uri);
-
-      setModel(model);
-    })();
-  }, [path, git]);
+  useEffect(() => {
+    if (docsLoaded && libLoaded)
+      handleEvaluate();
+  }, [docsLoaded, libLoaded])
 
   return <>
     <Header>
       {githubAuth && <Button onClick={handleSaveClick}>save</Button>}
-      <Button onClick={handleEvaluateClick}>evaluate</Button>
+      <Button onClick={handleEvaluate}>evaluate</Button>
     </Header>
     <div className="Editor">
       <Grid
@@ -93,13 +83,13 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
           right: 30
         }}
         left={width => <Navigation style={{ flexBasis: width }} />}
-        center={width => <Editor model={model} style={{ width }}
+        center={width => <Canvas file={canvasFile} style={{ width }} initialScale={1.5} />}
+        right={width => <Editor model={model} style={{ width }}
           onChange={value => runtime.setFile(`${DOC_PATH}/${path}`, value)}
         />}
-        right={width => <Canvas file={canvasFile} style={{ width }} />}
       />
 
-      {openFilePane && <FilePane onSubmit={handleSave} files={docFiles} path={path} />}
+      {openFilePane && <FilePane onSubmit={handleSave} files={docTree} path={path} />}
     </div>
   </>;
 };

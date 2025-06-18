@@ -1,3 +1,4 @@
+import "./app.css"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./routes/login";
 import Library from "./routes/library";
@@ -15,41 +16,31 @@ const App = () => {
   const [git, setGit] = useState<Git | null>(null);
   const githubAuth = useAuthCtx(state => state.token);
   const {
-    docs: docFiles, setDocs: setDocFiles,
-    lib: libFiles, setLib: setLibFiles,
-    setCore: setCoreFiles
+    docTree, setDocTree,
+    libTree, setLibTree,
+    setCoreTree,
+    setDocFile, setLibFile,
+    setDocsLoaded, setLibLoaded,
   } = useFileCtx();
 
-  const fetchLibFiles = async () => {
-    if (!git) return;
-    let resp = await git.getTree(LIB_REPO);
-    setLibFiles(resp.data.tree);
-  };
-
-  const fetchDocFiles = async () => {
-    if (!git) return;
-    let resp = await git.getTree(DOC_REPO);
-    setDocFiles(resp.data.tree);
-  };
-
-  const setRuntimeFiles = async (repo: string, files: RepoFile[], root?: string) => {
-    if (!git) return;
-    files.forEach(async file => {
+  const setRuntimeFiles = (git: Git, repo: string, files: RepoFile[], cb: (path: string, content: string) => void, root?: string) =>
+    Promise.all(files.map(async file => {
       if (file.path) {
         if (file.type === "tree") {
           runtime.mkDir(file.path);
         } else {
+          const path = root ? `${root}/${file.path}` : file.path;
           const content = await git.getContent(repo, file.path);
-          await runtime.setFile(root ? `${root}/${file.path}` : file.path, content);
+          await runtime.setFile(path, content);
+          cb(path, content);
         }
       }
-    });
-  }
+    }));
 
   // init.
   useEffect(() => {
     (async () => {
-      setCoreFiles(await runtime.getCoreFiles());
+      setCoreTree(await runtime.getCoreFiles());
     })();
 
     setGit(new Git());
@@ -61,36 +52,47 @@ const App = () => {
     const data = JSON.parse(githubAuth);
     if (!data.access_token) throw Error("Corrupt token.");
 
-    const git = new Git({ auth: data.access_token });
-    setGit(git);
+    setGit(new Git({ auth: data.access_token }));
   }, [githubAuth]);
 
   useEffect(() => {
-    fetchLibFiles();
-    fetchDocFiles();
-  }, [git]);
+    if (!git) return;
+    git.getTree(LIB_REPO).then(
+      resp => setLibTree(resp.data.tree)
+    );
+    git.getTree(DOC_REPO).then(
+      resp => setDocTree(resp.data.tree)
+    );
+  }, [git, setLibTree, setDocTree]);
 
   useEffect(() => {
-    if (!libFiles) return;
-    setRuntimeFiles(LIB_REPO, libFiles);
-  }, [git, libFiles]);
+    if (!git) return;
+    if (libTree.length === 0) return;
+    (async () => {
+      await setRuntimeFiles(git, LIB_REPO, libTree, setLibFile);
+      setLibLoaded();
+    })();
+
+  }, [git, libTree]);
 
   useEffect(() => {
-    if (!docFiles) return;
+    if (!git) return;
+    if (docTree.length === 0) return;
 
     (async () => {
       await runtime.mkDir(DOC_PATH);
-      setRuntimeFiles(DOC_REPO, docFiles, DOC_PATH);
+      await setRuntimeFiles(git, DOC_REPO, docTree, setDocFile, DOC_PATH);
+      setDocsLoaded();
     })();
 
-  }, [git, docFiles]);
+  }, [git, docTree]);
 
   return <BrowserRouter>
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/core/*" element={<Core git={git} />} />
       <Route path="/docs/*" element={<Docs git={git} />} />
-      <Route path="/:root?/*" element={<Library git={git} />} />
+      <Route path="/*" element={<Library git={git} />} />
       <Route index element={<Navigate replace to="/docs/introduction" />} />
     </Routes>
   </BrowserRouter>

@@ -3,7 +3,7 @@ import * as monaco from 'monaco-editor';
 import './library.css';
 import { v4 } from 'uuid';
 import Navigation from '../components/navigation';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import runtime from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
@@ -15,6 +15,7 @@ import { abs } from '@nat-lang/nat';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
 import Grid from '../components/grid';
+import { evaluate } from '../service/eval';
 
 type LibraryProps = {
   git: Git | null;
@@ -23,26 +24,21 @@ type LibraryProps = {
 const Library: FunctionComponent<LibraryProps> = ({ git }) => {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
   const navigate = useNavigate();
-  const { lib: libFiles } = useFileCtx();
+  const { libTree, lib } = useFileCtx();
   const [canvasFile, setCanvasFile] = useState<string>();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-  const { pathname } = useLocation();
+  const params = useParams();
+  const path = params["*"];
+  const content = useFileCtx(state => path ? state.lib[path] : undefined);
 
-  const handleEvaluateClick = async () => {
-    const intptResp = await runtime.typeset(abs(pathname));
+  const handleEvaluate = async () => {
+    if (!path) return;
 
-    if (intptResp.success) {
-      const renderResp = await nls.render(intptResp.tex);
-      if (renderResp.success && renderResp.pdf)
-        setCanvasFile(renderResp.pdf);
-      else if (renderResp.errors)
-        console.log(renderResp.errors);
-    } else {
-      console.log(intptResp.errors);
-    }
+    const pdf = await evaluate(abs(path));
+
+    if (pdf)
+      setCanvasFile(pdf);
   };
-
-  const handleSaveClick = () => setOpenFilePane(true);
 
   const formPath = (form: FilePaneFieldValues) => form.folder ? `${form.folder}/${form.filename}` : form.filename;
 
@@ -57,36 +53,20 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
   };
 
   useEffect(() => {
-    if (!git) return;
+    if (!path) return;
+    if (!content) return;
 
-    if (pathname === undefined) {
-      const uid = v4();
-      const uri = monaco.Uri.file(uid);
-      const model = monaco.editor.createModel(`use prelude`, 'nat', uri);
-      setModel(model);
-      return;
-    }
+    const uri = monaco.Uri.file(path);
+    const model = monaco.editor.getModel(uri)
+      ?? monaco.editor.createModel(content, 'nat', uri);
 
-    const uri = monaco.Uri.file(pathname);
-    const model = monaco.editor.getModel(uri);
-
-    if (model) {
-      setModel(model);
-      return;
-    }
-
-    (async () => {
-      const content = await git.getContent(LIB_REPO, pathname);
-      const model = monaco.editor.createModel(content, 'nat', uri);
-
-      setModel(model);
-    })();
-  }, [pathname, git]);
+    setModel(model);
+  }, [path, content]);
 
   return <>
     <Header>
-      <Button onClick={handleSaveClick}>save</Button>
-      <Button onClick={handleEvaluateClick}>evaluate</Button>
+      <Button onClick={() => setOpenFilePane(true)}>save</Button>
+      <Button onClick={handleEvaluate}>evaluate</Button>
     </Header>
     <div className="Editor">
       <Grid
@@ -97,12 +77,12 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
         }}
         left={width => <Navigation style={{ flexBasis: width }} />}
         center={width => <Editor model={model} style={{ width }}
-          onChange={value => runtime.setFile(pathname, value)}
+          onChange={value => path && runtime.setFile(path, value)}
         />}
         right={width => <Canvas file={canvasFile} style={{ width }} />}
       />
 
-      {openFilePane && <FilePane onSubmit={handleSave} files={libFiles} path={pathname} />}
+      {openFilePane && <FilePane onSubmit={handleSave} files={libTree} path={path} />}
     </div>
   </>;
 };

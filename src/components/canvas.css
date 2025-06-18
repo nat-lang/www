@@ -1,3 +1,13 @@
+.Canvas {
+  position: relative;
+  display: flex;
+}
+
+.Canvas-scrollguard {
+  overflow-y: scroll;
+  width: 100%;
+}
+
 .Canvas-toolbar {
   position: absolute;
 
