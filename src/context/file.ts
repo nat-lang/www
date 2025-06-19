@@ -1,5 +1,4 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from 'zustand';
 import { RepoFileTree } from '../types';
 import { CoreFile } from '@nat-lang/nat';
 

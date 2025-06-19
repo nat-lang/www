@@ -1,5 +1,5 @@
 
-import { FunctionComponent, ReactNode } from "react";
+import { FunctionComponent } from "react";
 import "./navigation.css";
 import { RepoFile } from "../types";
 import { useNavigate, useParams } from "react-router-dom";
