@@ -1,6 +1,5 @@
 import { useState, useEffect, FunctionComponent } from 'react';
 import * as monaco from 'monaco-editor';
-import './library.css';
 import Navigation from '../components/navigation';
 import { useLocation } from 'react-router-dom';
 import runtime from '../service/nat/client';

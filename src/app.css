@@ -96,6 +96,12 @@ button:active {
   overflow-y: scroll;
 }
 
+.Editor .CanvasPreview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .Editor .FilePane {
   position: absolute;
 }

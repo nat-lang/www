@@ -31,7 +31,7 @@ const Navigation: FunctionComponent<NavigationProps> = (({ style, className = ""
   };
   return <div className={`Navigation ${className}`} style={style}>
     <div className="NavigationPane">
-      <div className="NavigationSecTitle">docs</div>
+      <div className="NavigationSecTitle">guide</div>
       {docTree.length && <FileTree files={docTree} onFileClick={handleDocFileClick} activeFilePath={path} />}
     </div>
     <div className="NavigationPane">
