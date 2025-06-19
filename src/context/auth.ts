@@ -7,7 +7,7 @@ interface AuthCtx {
 }
 const useAuthCtx = create<AuthCtx>()(
   persist(
-    (set) => ({
+    set => ({
       token: "",
       setToken: token => set(_ => ({ token })),
     }),
