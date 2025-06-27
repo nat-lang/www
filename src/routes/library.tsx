@@ -10,8 +10,8 @@ import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
 import Grid from '../components/grid';
-import { useEvaluation } from '../service/hooks/evaluate';
-import { useModel } from '../service/hooks/useModel';
+import { useEvaluation } from '../hooks/useEvaluation';
+import { useModel } from '../hooks/useModel';
 import LoadingGear from '../icons/loadingGear';
 
 type LibraryProps = {
@@ -26,7 +26,6 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
   const path = params["*"];
   const content = useFileCtx(state => path ? state.lib[path] : undefined);
   const model = useModel(path, content);
-
   const { evaluate, evaluating, pdf } = useEvaluation();
 
   const formPath = (form: FilePaneFieldValues) => form.folder ? `${form.folder}/${form.filename}` : form.filename;

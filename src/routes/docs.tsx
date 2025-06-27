@@ -12,8 +12,8 @@ import { DOC_PATH } from '../config';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
 import Grid from '../components/grid';
-import { useEvaluation } from '../service/hooks/evaluate';
-import { useModel } from '../service/hooks/useModel';
+import { useEvaluation } from '../hooks/useEvaluation';
+import { useModel } from '../hooks/useModel';
 import LoadingGear from '../icons/loadingGear';
 
 type DocsProps = {
