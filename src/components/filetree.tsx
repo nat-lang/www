@@ -41,7 +41,7 @@ const formatFile = (file: IFile, parent?: IFile) => {
 
 type MinMap = { [key: string]: boolean };
 
-const FileTree = <T extends IFile,>({ onFileClick, open = true, files, activeFilePath }: FileTreeOps<T>) => {
+const FileTree = <T extends IFile,>({ onFileClick, open = false, files, activeFilePath }: FileTreeOps<T>) => {
   const [minMap, setMinMap] = useState<MinMap>(
     files.reduce((acc, file) => {
       if (!file.path) return acc;

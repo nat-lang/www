@@ -1,0 +1,56 @@
+.Codeblock {
+  position: relative;
+}
+
+.Codeblock .Button-eval {
+  position: absolute;
+  top: -2px;
+  right: 10px;
+  z-index: 1;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.Codeblock:hover .Button-eval svg {
+  display: block;
+}
+
+.Codeblock .Button-eval svg:hover {
+  opacity: 1;
+}
+
+.Codeblock .Button-eval svg {
+  height: 20px;
+  width: 20px;
+  opacity: 0.5;
+  display: none;
+}
+
+.Codeblock .Codeblock-margin {
+  width: 3px;
+}
+
+.Codeblock .Codeblock-outer-margin {
+  display: none;
+  background-color: #feee87;
+}
+
+.Codeblock .Codeblock-inner-margin {
+  background-color: #3cb042;
+}
+
+.Codeblock .Codeblock-space {
+  width: 10px;
+}
+
+.Codeblock .Codeblock-col {
+  flex-grow: 1;
+}
+
+.Codeblock-out {
+  padding-top: 5px;
+}
+
+.Codeblock-stdout {
+  font-size: 12px;
+}

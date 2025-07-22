@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor';
 import { useEffect, useState } from "react";
 
-export const useModel = (path: string | undefined, content: string | undefined) => {
+export const useMonaco = (path: string | undefined, content: string | undefined) => {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
   useEffect(() => {
     if (!path) return;

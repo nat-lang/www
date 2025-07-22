@@ -1,10 +1,10 @@
-import { useState, FunctionComponent, useEffect } from 'react';
+import { useState, FunctionComponent } from 'react';
 import Navigation from '../components/navigation';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import runtime from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
-import Git, { LIB_REPO } from '../service/git';
+import Git, { DOC_REPO } from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
@@ -12,45 +12,37 @@ import Grid from '../components/grid';
 import { useRuntime } from '../hooks/useRuntime';
 import { useMonaco } from '../hooks/useMonaco';
 import LoadingGear from '../icons/loadingGear';
-import usePersistence from '../hooks/usePersistence';
-import useAuthCtx from '../context/auth';
+import useCreateCtx from '../context/create';
 import Canvas from '../components/canvas';
 
-type LibraryProps = {
+type DocCreateProps = {
   git: Git | null;
 }
 
-const Library: FunctionComponent<LibraryProps> = ({ git }) => {
+const DocCreate: FunctionComponent<DocCreateProps> = ({ git }) => {
   const navigate = useNavigate();
-  const { libTree, libLoaded } = useFileCtx();
-  const githubAuth = useAuthCtx(state => state.token);
+  const { docTree, libLoaded } = useFileCtx();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-  const params = useParams();
-  const path = params["*"];
-  const content = useFileCtx(state => path ? state.lib[path] : undefined);
-  const model = useMonaco(path, content);
+  const { doc, docPath: path } = useCreateCtx();
+  const model = useMonaco(path, doc);
   const { evaluate, evaluating, output } = useRuntime();
-  const { save, saving } = usePersistence(git, model, LIB_REPO);
 
-  const handleNewClick = () => navigate(`/lib/new`);
+  const formPath = (form: FilePaneFieldValues) => form.folder ? `${form.folder}/${form.filename}` : form.filename;
+
   const handleSave = async (form: FilePaneFieldValues) => {
-    setOpenFilePane(false);
-    await save(form);
-    navigate(`/${path}`);
-  };
+    if (!git) return;
+    if (!model) return;
+    const path = formPath(form);
 
-  useEffect(() => {
-    if (libLoaded && path)
-      evaluate(path);
-  }, [libLoaded])
+    await git.commitFileChange(path, model.getValue(), DOC_REPO, import.meta.env.VITE_GITHUB_BRANCH);
+    setOpenFilePane(false);
+    navigate(`/guide/${path}`);
+  };
 
   return <>
     <Header>
-      {saving ?
-        <LoadingGear />
-        : githubAuth && <Button onClick={() => setOpenFilePane(true)}>save</Button>}
-      <Button onClick={() => path && evaluate(path)}>evaluate</Button>
-      <Button onClick={handleNewClick}>new</Button>
+      <Button onClick={() => setOpenFilePane(true)}>save</Button>
+      <Button disabled={!libLoaded} onClick={() => path && evaluate(path)}>evaluate</Button>
     </Header>
     <div className="Editor">
       <Grid
@@ -65,13 +57,13 @@ const Library: FunctionComponent<LibraryProps> = ({ git }) => {
         />}
         right={width => evaluating
           ? <div className="CanvasPreview" style={{ width }}><LoadingGear /></div>
-          : <Canvas output={output} path={path!} width={width} />
+          : <Canvas output={output} path={path} width={width} />
         }
       />
 
-      {openFilePane && <FilePane onSubmit={handleSave} files={libTree} path={path} />}
+      {openFilePane && <FilePane onSubmit={handleSave} files={docTree} />}
     </div>
   </>;
 };
 
-export default Library;
+export default DocCreate;

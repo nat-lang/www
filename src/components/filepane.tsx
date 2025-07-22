@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { RepoFile } from "../types";
 import Field from "./field";
 import Submission from "./submission";
+import { pathBits } from "../utilities";
 
 export type FilePaneFieldValues = {
   filename: string;
@@ -18,9 +19,7 @@ type FilePaneOps = {
 }
 
 const FilePane: FunctionComponent<FilePaneOps> = ({ files, onSubmit, path }) => {
-  const pathBits = path?.split("/");
-  const file = pathBits ? pathBits[pathBits.length - 1] : undefined;
-  const folder = pathBits ? pathBits.slice(0, pathBits.length - 1).join() : undefined;
+  const [folder, file] = path ? pathBits(path) : [undefined, undefined];
 
   const [inFlight, setInFlight] = useState<boolean>(false);
   const {
@@ -39,7 +38,7 @@ const FilePane: FunctionComponent<FilePaneOps> = ({ files, onSubmit, path }) => 
 
   return (
     <form className="FilePane" onSubmit={handleSubmit}>
-      {pathBits
+      {path
         ? <Field inFlight={inFlight} {...register('filename', { required: true, value: file })} placeholder={file} disabled />
         : <Field inFlight={inFlight} {...register('filename', { required: true })} placeholder="filename" />
       }

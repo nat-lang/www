@@ -11,6 +11,8 @@ import { RepoFile } from "./types";
 import { DOC_PATH } from "./config";
 import Docs from "./routes/docs";
 import Core from "./routes/core";
+import DocCreate from "./routes/docCreate";
+import LibCreate from "./routes/libCreate";
 
 const App = () => {
   const [git, setGit] = useState<Git | null>(null);
@@ -23,19 +25,31 @@ const App = () => {
     setDocsLoaded, setLibLoaded,
   } = useFileCtx();
 
-  const setRuntimeFiles = (git: Git, repo: string, files: RepoFile[], cb: (path: string, content: string) => void, root?: string) =>
-    Promise.all(files.map(async file => {
-      if (file.path) {
-        if (file.type === "tree") {
-          runtime.mkDir(file.path);
-        } else {
-          const path = root ? `${root}/${file.path}` : file.path;
-          const content = await git.getContent(repo, file.path);
-          await runtime.setFile(path, content);
-          cb(path, content);
-        }
+  const setRuntimeDirs = (
+    files: RepoFile[],
+    root?: string
+  ) => Promise.all(
+    files.filter(file => file.type === "tree" && !!file.path).map(
+      async file => await runtime.mkDir(root ? `${root}/${file.path!}` : file.path!)
+    )
+  );
+
+  const setRuntimeFiles = (
+    git: Git,
+    repo: string,
+    files: RepoFile[],
+    cb: (path: string, content: string) => void,
+    root?: string
+  ) => setRuntimeDirs(files, root).then(
+    () => Promise.all(files.map(async file => {
+      if (file.path && file.type !== "tree") {
+        const path = root ? `${root}/${file.path}` : file.path;
+        const content = await git.getContent(repo, file.path);
+
+        await runtime.setFile(path, content);
+        cb(path, content);
       }
-    }));
+    })));
 
   // init.
   useEffect(() => {
@@ -90,10 +104,12 @@ const App = () => {
   return <BrowserRouter>
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/core/*" element={<Core git={git} />} />
-      <Route path="/docs/*" element={<Docs git={git} />} />
+      <Route path="/core/*" element={<Core />} />
+      <Route path="/guide/*" element={<Docs git={git} />} />
+      <Route path="/guide/new" element={<DocCreate git={git} />} />
+      <Route path="/lib/new" element={<LibCreate git={git} />} />
       <Route path="/*" element={<Library git={git} />} />
-      <Route index element={<Navigate replace to="/docs/introduction" />} />
+      <Route index element={<Navigate replace to="/guide/introduction" />} />
     </Routes>
   </BrowserRouter>
 };
