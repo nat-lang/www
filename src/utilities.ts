@@ -11,10 +11,7 @@ export const getOrCreateMonacoModel = async (
   path: string, getContent: () => Promise<string>
 ) => {
   const uri = monaco.Uri.file(path);
-
-  console.log("getting or setting", uri);
   const model = monaco.editor.getModel(uri);
-  console.log("found", model);
 
   if (model) return model;
   const content = await getContent();

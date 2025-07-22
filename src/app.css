@@ -74,21 +74,38 @@ button:active {
   flex-direction: column;
 }
 
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+
 .Header {
   height: var(--header-height);
 }
 
-.Header .SaveButton {
+.Header .Button {
   position: relative;
 }
 
-.Header .SaveButton svg {
+.Header .Button .Icon {
+  display: none;
+}
+
+.Header .Button.Button--inflight .Icon {
+  display: block;
+}
+
+.Header .Button.Button--disabled .Button-text {
+  visibility: hidden;
+}
+
+.Header .Button svg {
   height: 25px;
   width: 25px;
-  padding-bottom: -2px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   position: absolute;
-  right: 10px;
-  top: 1px;
 }
 
 .Editor {

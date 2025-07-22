@@ -9,10 +9,39 @@ type EditorProps = {
   fitHeightToContent?: boolean;
 }
 
+const Commands = {
+  CmdEnter: "CmdEnter"
+};
+
 const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style, fitHeightToContent = false, options = {} }) => {
   const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [height, setHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    // monaco swallows this keyboard event, so we have to capture and re-emit
+    // on the window.
+    const disposables = [
+      monaco.editor.addCommand({
+        id: Commands.CmdEnter,
+        run: () => {
+          const event = new KeyboardEvent("keydown", {
+            key: "Enter",
+            metaKey: true
+          });
+          window.dispatchEvent(event);
+        }
+      }),
+      monaco.editor.addKeybindingRule(
+        {
+          keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+          command: Commands.CmdEnter,
+        }
+      )
+    ];
+
+    return () => disposables.forEach(x => x.dispose());
+  }, []);
 
   useEffect(() => {
     setEditor((editor) => {

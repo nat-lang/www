@@ -8,29 +8,33 @@ import { v4 } from 'uuid';
 
 export const useRuntime = () => {
   const [evaluating, setEvaluating] = useState<boolean>(false);
+  const [rendering, setRendering] = useState<boolean>(false);
   const [output, setOutput] = useState<(TypesetNatput | Natput)[]>([]);
   const [stdout, setStdout] = useState<string[]>([]);
   const [stderr, setStderr] = useState<string[]>([]);
   const [_, setErrors] = useState<string | null>(null);
   let order = 0;
 
-  const process = (resp: InterpretResp) => {
-    if (!resp.success || !resp.out) return;
+  const process = async (intptResp: InterpretResp) => {
+    if (!intptResp.success || !intptResp.out) return;
 
     order = order + 1;
-    const iResp = { id: v4(), order, ...resp };
+    const iIntptResp = { id: v4(), order, ...intptResp };
 
-    if (resp.type == "tex")
-      nls.render(resp.out).then(
-        resp => {
-          if (resp.success && resp.pdf)
-            setOutput(out => [{ pdf: resp.pdf!, ...iResp }, ...out]);
-          else if (resp.errors)
-            setErrors(resp.errors);
-        }
-      );
-    else
-      setOutput(out => [iResp, ...out]);
+    if (intptResp.type == "tex") {
+      setRendering(true);
+      try {
+        const resp = await nls.render(intptResp.out)
+        if (resp.success && resp.pdf)
+          setOutput(out => [{ pdf: resp.pdf!, ...iIntptResp }, ...out]);
+        else if (resp.errors)
+          setErrors(resp.errors);
+      } finally {
+        setRendering(false);
+      }
+    } else {
+      setOutput(out => [iIntptResp, ...out]);
+    }
   }
 
   const evaluate = async (path: string) => {
@@ -57,9 +61,6 @@ export const useRuntime = () => {
       } else {
         process(resp);
       }
-    } catch {
-      const f = await runtime.getFile(path);
-      console.log(f);
     } finally {
       await runtime.free();
       disposables.forEach(x => x());
@@ -67,5 +68,5 @@ export const useRuntime = () => {
     }
   }
 
-  return { evaluate, evaluating, output, stdout, stderr };
+  return { evaluate, evaluating, rendering, output, stdout, stderr };
 };

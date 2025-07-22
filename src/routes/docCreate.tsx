@@ -24,7 +24,6 @@ const DocCreate: FunctionComponent<DocCreateProps> = ({ git }) => {
   const { docTree, libLoaded } = useFileCtx();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
   const { doc, docPath: path } = useCreateCtx();
-  console.log(doc);
   const model = useMonaco(path, doc);
   const { evaluate, evaluating, output } = useRuntime();
 

@@ -1,29 +1,31 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
-type useKeysProps = {
+type useCmdKeysProps = {
   onS: () => void,
   onEnter: () => void
 }
 
-const useCmdKeys = ({ onS, onEnter }: useKeysProps) => {
-  const handler = (e: KeyboardEvent) => {
-    if (e.metaKey && e.shiftKey) {
+const useCmdKeys = ({ onS, onEnter }: useCmdKeysProps, deps: React.DependencyList) => {
+  const handler = useCallback((e: KeyboardEvent) => {
+    if (e.metaKey) {
       switch (e.key) {
         case "s": {
-          console.log("?");
           onS();
-          e.stopPropagation();
+          e.preventDefault();
           break;
         }
-        case "Enter": onEnter(); break;
+        case "Enter": {
+          onEnter();
+          break;
+        }
       }
     }
-  };
+  }, deps);
 
   useEffect(() => {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [handler]);
 };
 
 export default useCmdKeys;

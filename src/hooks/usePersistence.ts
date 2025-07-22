@@ -7,13 +7,10 @@ const usePersistence = (git: Git | null, model: editor.ITextModel | null, repo: 
   const [saving, setSaving] = useState(false);
   const formPath = (form: FilePaneFieldValues) => form.folder ? `${form.folder}/${form.filename}` : form.filename;
   const save = useCallback(async (form: FilePaneFieldValues) => {
-    console.log(git, model);
     if (!git) return;
     if (!model) return;
     setSaving(true);
-    console.log(1);
     const path = formPath(form);
-    console.log(2);
     await git.commitFileChange(path, model.getValue(), repo, import.meta.env.VITE_GITHUB_BRANCH);
     setSaving(false);
   }, [git, model]);

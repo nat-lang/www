@@ -33,13 +33,12 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
   const fullPath = `${DOC_PATH}/${path}`;
   const content = useFileCtx(state => state.docs[fullPath]);
   const model = useMonaco(path, content);
-  const { evaluate, evaluating, output } = useRuntime();
+  const { evaluate, evaluating, rendering, output } = useRuntime();
   const { save, saving } = usePersistence(git, model, DOC_REPO);
 
   const handleNewClick = () => navigate(`/guide/new`);
   const handleSave = async (form: FilePaneFieldValues) => {
     setOpenFilePane(false);
-    console.log(form);
     await save(form);
     navigate(`/${fullPath}`);
   };
@@ -51,7 +50,7 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
       save({ folder, filename });
     },
     onEnter: () => path && evaluate(fullPath)
-  });
+  }, [path, fullPath, save]);
 
   useEffect(() => {
     if (docsLoaded && libLoaded && fullPath)
@@ -60,10 +59,14 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
 
   return <>
     <Header>
-      {githubAuth && <Button className="SaveButton" onClick={() => setOpenFilePane(true)}>
-        {saving ? <LoadingGear className="SaveIcon" /> : <>save</>}
+      {githubAuth && <Button disabled={saving} inflight={saving} className="SaveButton" onClick={() => setOpenFilePane(true)}>
+        <LoadingGear className="SaveIcon" />
+        <div className="Button-text">save</div>
       </Button>}
-      <Button onClick={() => path && evaluate(fullPath)}>evaluate</Button>
+      <Button disabled={evaluating || rendering} inflight={evaluating || rendering} className="EvalButton" onClick={() => path && evaluate(fullPath)}>
+        <LoadingGear className="SaveIcon" />
+        <div className="Button-text">evaluate</div>
+      </Button>
       <Button onClick={handleNewClick}>new</Button>
     </Header>
     <div className="Editor Docs">
