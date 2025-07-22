@@ -16,7 +16,7 @@ import { useMonaco } from '../hooks/useMonaco';
 import LoadingGear from '../icons/loadingGear';
 import usePersistence from '../hooks/usePersistence';
 import Canvas from '../components/canvas';
-import useCmdKeys from '../hooks/usecmdKeys';
+import useCmdKeys from '../hooks/useCmdKeys';
 import { pathBits } from '../utilities';
 
 type DocsProps = {
