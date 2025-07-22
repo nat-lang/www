@@ -2,7 +2,7 @@
 
 import { CSSProperties, FunctionComponent, useState } from "react";
 import { Document, Page } from "react-pdf";
-import "./Standalone.css";
+import "./standalone.css";
 import Plus from "../../icons/plus";
 import Minus from "../../icons/minus";
 
