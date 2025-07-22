@@ -1,0 +1,48 @@
+.Article {
+  position: relative;
+  display: flex;
+}
+
+.Article-scrollguard {
+  overflow-y: scroll;
+  width: 100%;
+}
+
+.Article-toolbar {
+  position: absolute;
+
+  right: 20px;
+  top: 10px;
+  display: flex;
+  flex-direction: row;
+  z-index: 1;
+
+  opacity: 0;
+}
+
+.Article-toolbar:hover {
+  opacity: 1;
+}
+
+.Article .Article-zoom-in {
+  width: 12px;
+  height: 20px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.Article .Article-zoom-out {
+  width: 15px;
+  height: 20px;
+  cursor: pointer;
+  vertical-align: middle;
+  fill: currentColor;
+  overflow: hidden;
+}
+
+.Article .react-pdf__Page {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,14 +1,14 @@
-.Canvas {
+.Standalone {
   position: relative;
   display: flex;
 }
 
-.Canvas-scrollguard {
+.Standalone-scrollguard {
   overflow-y: scroll;
   width: 100%;
 }
 
-.Canvas-toolbar {
+.Standalone-toolbar {
   position: absolute;
 
   right: 20px;
@@ -16,20 +16,32 @@
   display: flex;
   flex-direction: row;
   z-index: 1;
+
+  opacity: 0;
 }
 
-.Canvas .Canvas-zoom-in {
+.Standalone-toolbar:hover {
+  opacity: 1;
+}
+
+.Standalone .Standalone-zoom-in {
   width: 12px;
   height: 20px;
   cursor: pointer;
   margin-right: 10px;
 }
 
-.Canvas .Canvas-zoom-out {
+.Standalone .Standalone-zoom-out {
   width: 15px;
   height: 20px;
   cursor: pointer;
   vertical-align: middle;
   fill: currentColor;
   overflow: hidden;
+}
+
+.Standalone.centered .react-pdf__Page {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }

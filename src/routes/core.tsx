@@ -5,58 +5,31 @@ import { useLocation } from 'react-router-dom';
 import runtime from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
-import Canvas from '../components/canvas';
-import Git from '../service/git';
-import * as nls from '../service/nls/client';
-import { abs } from '@nat-lang/nat';
 import Editor from '../components/editor';
 import Grid from '../components/grid';
+import { useRuntime } from '../hooks/useRuntime';
+import LoadingGear from '../icons/loadingGear';
+import { getOrCreateMonacoModel } from '../utilities';
+import Canvas from '../components/canvas';
 
-type CoreProps = {
-  git: Git | null;
-}
+type CoreProps = {}
 
-const Core: FunctionComponent<CoreProps> = ({ git }) => {
+const Core: FunctionComponent<CoreProps> = () => {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
-  const [canvasFile, setCanvasFile] = useState<string>();
-  const { pathname } = useLocation();
-
-  const handleEvaluateClick = async () => {
-    const intptResp = await runtime.typeset(abs(pathname));
-
-    if (intptResp.success) {
-      const renderResp = await nls.render(intptResp.tex);
-      if (renderResp.success && renderResp.pdf)
-        setCanvasFile(renderResp.pdf);
-      else if (renderResp.errors)
-        console.log(renderResp.errors);
-    } else {
-      console.log(intptResp.errors);
-    }
-  };
+  const { pathname: path } = useLocation();
+  const { evaluate, evaluating, output } = useRuntime();
 
   useEffect(() => {
-    if (!git) return;
-
-    const uri = monaco.Uri.file(pathname);
-    const model = monaco.editor.getModel(uri);
-
-    if (model) {
-      setModel(model);
-      return;
-    }
-
     (async () => {
-      const content = (await runtime.getFile(pathname)).content;
-      const model = monaco.editor.createModel(content, 'nat', uri);
-
-      setModel(model);
+      setModel(
+        await getOrCreateMonacoModel(path, async () => (await runtime.getFile(path)).content)
+      );
     })();
-  }, [pathname, git]);
+  }, [path]);
 
   return <>
     <Header>
-      <Button onClick={handleEvaluateClick}>evaluate</Button>
+      <Button onClick={() => path && evaluate(path)}>evaluate</Button>
     </Header>
     <div className="Editor">
       <Grid
@@ -69,11 +42,14 @@ const Core: FunctionComponent<CoreProps> = ({ git }) => {
         center={width => <Editor model={model} style={{ width }}
           onChange={(value => {
             (async () => {
-              await runtime.setFile(pathname, value);
+              await runtime.setFile(path, value);
             })();
           })}
         />}
-        right={width => <Canvas file={canvasFile} style={{ width }} />}
+        right={width => evaluating
+          ? <div className="CanvasPreview" style={{ width }}><LoadingGear /></div>
+          : <Canvas output={output} path={path} width={width} />
+        }
       />
     </div>
   </>;

@@ -2,7 +2,9 @@ import { OctokitOptions } from "@octokit/core";
 import { Endpoints } from "@octokit/types";
 import { Octokit } from "octokit";
 
-export const DEFAULT_ORG = "nat-lang", LIB_REPO = "library", DOC_REPO = "docs";
+export const DEFAULT_ORG = "nat-lang", LIB_REPO = "library" as const, DOC_REPO = "docs" as const;
+
+export type Repo = typeof LIB_REPO | typeof DOC_REPO;
 
 class Git {
   octo: Octokit;

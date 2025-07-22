@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import runtime from '../service/nat/client';
 import Header from '../components/header';
 import Button from '../components/button';
-import Canvas from '../components/canvas';
 import Git, { DOC_REPO } from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import useAuthCtx from '../context/auth';
@@ -12,9 +11,13 @@ import { DOC_PATH } from '../config';
 import Editor from '../components/editor';
 import useFileCtx from '../context/file';
 import Grid from '../components/grid';
-import { useEvaluation } from '../hooks/useEvaluation';
-import { useModel } from '../hooks/useModel';
+import { useRuntime } from '../hooks/useRuntime';
+import { useMonaco } from '../hooks/useMonaco';
 import LoadingGear from '../icons/loadingGear';
+import usePersistence from '../hooks/usePersistence';
+import Canvas from '../components/canvas';
+import useCmdKeys from '../hooks/usecmdKeys';
+import { pathBits } from '../utilities';
 
 type DocsProps = {
   git: Git | null;
@@ -29,30 +32,41 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
   const path = params["*"];
   const fullPath = `${DOC_PATH}/${path}`;
   const content = useFileCtx(state => state.docs[fullPath]);
-  const model = useModel(path, content);
-  const { evaluate, evaluating, pdf } = useEvaluation();
-  const handleSaveClick = () => setOpenFilePane(true);
-  const formPath = (form: FilePaneFieldValues) => form.folder ? `${form.folder} / ${form.filename}` : form.filename;
+  const model = useMonaco(path, content);
+  const { evaluate, evaluating, output } = useRuntime();
+  const { save, saving } = usePersistence(git, model, DOC_REPO);
+
+  const handleNewClick = () => navigate(`/guide/new`);
   const handleSave = async (form: FilePaneFieldValues) => {
-    if (!git) return;
-    if (!model) return;
-    const path = formPath(form).replace(`${DOC_PATH}/`, "");
-    await git.commitFileChange(path, model.getValue(), DOC_REPO, import.meta.env.VITE_GITHUB_BRANCH);
     setOpenFilePane(false);
-    navigate(`/${DOC_PATH}/${path}`);
+    console.log(form);
+    await save(form);
+    navigate(`/${fullPath}`);
   };
+
+  useCmdKeys({
+    onS: () => {
+      if (!path) return;
+      const [folder, filename] = pathBits(path);
+      save({ folder, filename });
+    },
+    onEnter: () => path && evaluate(fullPath)
+  });
 
   useEffect(() => {
     if (docsLoaded && libLoaded && fullPath)
       evaluate(fullPath);
-  }, [docsLoaded, libLoaded])
+  }, [fullPath, docsLoaded, libLoaded])
 
   return <>
     <Header>
-      {githubAuth && <Button onClick={handleSaveClick}>save</Button>}
+      {githubAuth && <Button className="SaveButton" onClick={() => setOpenFilePane(true)}>
+        {saving ? <LoadingGear className="SaveIcon" /> : <>save</>}
+      </Button>}
       <Button onClick={() => path && evaluate(fullPath)}>evaluate</Button>
+      <Button onClick={handleNewClick}>new</Button>
     </Header>
-    <div className="Editor">
+    <div className="Editor Docs">
       <Grid
         initialDims={{
           left: 15,
@@ -60,12 +74,12 @@ const Docs: FunctionComponent<DocsProps> = ({ git }) => {
           right: 30
         }}
         left={width => <Navigation style={{ flexBasis: width }} />}
-        center={width => evaluating || !pdf
+        center={width => evaluating
           ? <div className="CanvasPreview" style={{ width }}><LoadingGear /></div>
-          : <Canvas file={pdf} style={{ width }} initialScale={1.7} />
+          : <Canvas output={output} path={fullPath} width={width} initialScale={1.5} />
         }
         right={width => <Editor model={model} style={{ width }}
-          onChange={value => runtime.setFile(`${DOC_PATH}/${path}`, value)}
+          onChange={value => runtime.setFile(fullPath, value)}
         />}
       />
 

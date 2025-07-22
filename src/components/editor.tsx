@@ -5,11 +5,15 @@ type EditorProps = {
   model: monaco.editor.ITextModel | null;
   onChange: (text: string) => void;
   style?: React.CSSProperties;
+  options?: monaco.editor.IEditorOptions;
+  fitHeightToContent?: boolean;
 }
 
-const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style }) => {
+const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style, fitHeightToContent = false, options = {} }) => {
   const [editor, setEditor] = useState<monaco.editor.ICodeEditor | null>(null);
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const [height, setHeight] = useState<number | null>(null);
+
   useEffect(() => {
     setEditor((editor) => {
       if (editor) return editor;
@@ -21,7 +25,8 @@ const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style }) => {
         automaticLayout: true,
         minimap: { enabled: false },
         tabSize: 2,
-        detectIndentation: false
+        detectIndentation: false,
+        ...options
       });
 
       return newEditor;
@@ -31,11 +36,13 @@ const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style }) => {
   }, [editorRef.current]);
 
   useEffect(() => {
-    if (editor && model)
+    if (editor && model) {
       editor.setModel(model);
-
+      if (fitHeightToContent) {
+        setHeight(editor.getContentHeight() + 5);
+      }
+    }
   }, [editor, model]);
-
 
   useEffect(() => {
     if (!editor) return;
@@ -43,6 +50,10 @@ const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style }) => {
     const disposables = [
       editor.onDidChangeModelContent(_ => {
         onChange(editor.getValue());
+
+        if (fitHeightToContent) {
+          setHeight(editor.getContentHeight() + 5);
+        }
       })
     ];
 
@@ -52,7 +63,7 @@ const Editor: FunctionComponent<EditorProps> = ({ model, onChange, style }) => {
   return <div
     className="Monaco"
     ref={editorRef}
-    style={style}
+    style={height ? { height, ...style } : style}
   />;
 };
 

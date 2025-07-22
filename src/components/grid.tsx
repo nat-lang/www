@@ -86,7 +86,12 @@ const Grid: FunctionComponent<GridProps> = ({ initialDims, left, center, right }
     setPrevDragEvent(null);
   };
 
-  return <DndContext onDragMove={handleDragMove} onDragStart={handleDragStart} onDragEnd={handleDragEnd} modifiers={[restrictToHorizontalAxis]}>
+  return <DndContext
+    onDragMove={handleDragMove}
+    onDragStart={handleDragStart}
+    onDragEnd={handleDragEnd}
+    modifiers={[restrictToHorizontalAxis]}
+  >
     {left(vw(dims.left))}
 
     <Draggable id={COLS.LEFT} className={`GridColumn ${leftColDragging ? " dragging" : ""}`}>
@@ -98,6 +103,7 @@ const Grid: FunctionComponent<GridProps> = ({ initialDims, left, center, right }
     <Draggable id={COLS.RIGHT} className={`GridColumn ${rightColDragging ? " dragging" : ""}`}>
       <div />
     </Draggable>
+
     {right(vw(dims.right))}
   </DndContext>
 };
