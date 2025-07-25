@@ -15,7 +15,7 @@ const nls = axios.create({
 });
 
 const render = (tex: string): Promise<RenderResp> => nls
-  .post('/render', { tex })
+  .get('/render', { params: { tex } })
   .then(({ data }) => data);
 
 export {
