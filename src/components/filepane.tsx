@@ -19,7 +19,7 @@ type FilePaneOps = {
 }
 
 const FilePane: FunctionComponent<FilePaneOps> = ({ repo, onSubmit, path }) => {
-  const [folder, file] = path ? pathBits(path) : [undefined, undefined];
+  const [_, file] = path ? pathBits(path) : [undefined, undefined];
 
   const [inFlight, setInFlight] = useState<boolean>(false);
   const {

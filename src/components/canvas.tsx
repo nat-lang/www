@@ -1,4 +1,4 @@
-import { Fragment, FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import Codeblock from "./codeblock";
 import StandalonePDF from "./pdf/standalone";
 import AnchorPDF from "./pdf/anchor";
