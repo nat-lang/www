@@ -9,7 +9,7 @@ import useAuthCtx from "./context/auth";
 import { RepoFile } from "./types";
 import { DOC_PATH, LIB_PATH } from "./config";
 import Core, { CoreBase } from "./routes/core";
-import { px2pt, sortObjs } from "./utilities";
+import { pt2px, px2pt, sortObjs } from "./utilities";
 import useDimsCtx from "./context/dims";
 import useModelCtx, { createModel } from "./context/monaco";
 import * as monaco from 'monaco-editor';
@@ -37,7 +37,7 @@ const App = () => {
     setCtxLoaded,
     lib, docs
   } = useFileCtx();
-  const { canvas } = useDimsCtx();
+  const { center, canvas } = useDimsCtx();
   const runtimeCtx = useRuntimeCtx();
   const { pageRef, anchorRefs, setObserver, setAnchorRefInView } = useCanvasCtx();
   const createCtx = useCreateCtx();
@@ -47,6 +47,7 @@ const App = () => {
 
   const ctxPath = "/core/online.nat";
   const ctxModel = models[ctxPath];
+
   const ctx = () => `let window = {"center": "${px2pt(canvas())}pt"};
 let host = "${window.location.protocol}//${window.location.host}";
 let path = "${location.pathname}";

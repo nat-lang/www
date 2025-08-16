@@ -23,14 +23,14 @@ type PageProps = {
 const Page: FunctionComponent<PageProps> = ({ evaluating, fsPath, urlPath, model, className = "", orientation }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const canvasCtx = useCanvasCtx();
-  const { setDims } = useDimsCtx();
-  const Nav = ({ left }: Dims) => <Navigation style={{ flexBasis: vw(left) }} />;
+  const { setDims, maxPdfWidth } = useDimsCtx();
+
   const Editor = (pane: keyof Dims) => (dims: Dims) => <Monaco model={model} style={{ width: vw(dims[pane]) }} />;
   const Output = (pane: keyof Dims) => (dims: Dims) => <div className="Page" style={{ width: vw(dims[pane]) }} >
     {evaluating
       ? <div className="CanvasPreview" style={{ width: vw(dims[pane]) }}><LoadingGear /></div>
       : <div className="PageScrollguard" ref={ref}>
-        <Canvas fsPath={fsPath} urlPath={urlPath} />
+        <Canvas fsPath={fsPath} urlPath={urlPath} style={{ maxWidth: maxPdfWidth ?? undefined }} />
       </div>
     }
 
@@ -55,13 +55,13 @@ const Page: FunctionComponent<PageProps> = ({ evaluating, fsPath, urlPath, model
       switch (orientation) {
         case "OE":
           return <Grid
-            left={Nav}
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
             center={Output("center")}
             right={Editor("right")}
           />
         case "EO":
           return <Grid
-            left={Nav}
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
             center={Editor("center")}
             right={Output("right")}
           />

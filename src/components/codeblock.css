@@ -1,5 +1,7 @@
 .Codeblock {
   position: relative;
+  flex-basis: 0;
+  flex-grow: 1;
 }
 
 .Codeblock .Button-eval {
