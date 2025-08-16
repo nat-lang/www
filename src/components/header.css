@@ -12,6 +12,12 @@
   font-size: 16px;
 }
 
+.Header .HeaderRootLink {
+  font-size: 15px;
+  font-variant: normal;
+  font-weight: 550;
+}
+
 .HeaderLinks {
   display: flex;
 }

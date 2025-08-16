@@ -5,18 +5,18 @@ import { Document, Page } from "react-pdf";
 import "./Article.css";
 import Plus from "../../icons/plus";
 import Minus from "../../icons/minus";
+import useDimsCtx from "../../context/dims";
 
 type ArticleOps = {
   file?: string;
   style?: CSSProperties;
-  initialScale?: number;
   className?: string;
 }
 
 const SCALE_STEP = 0.1;
 
-const Article: FunctionComponent<ArticleOps> = ({ file, style, className = "", initialScale = 1 }) => {
-  const [scale, setScale] = useState(initialScale);
+const Article: FunctionComponent<ArticleOps> = ({ file, style, className = "" }) => {
+  const { scale, setScale } = useDimsCtx();
   const [pages, setPages] = useState(0);
   const handleZoomin = () => setScale(scale => scale + SCALE_STEP);
   const handleZoomout = () => setScale(scale => scale > 0 ? scale - SCALE_STEP : scale);

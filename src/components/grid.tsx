@@ -1,76 +1,78 @@
 import "./grid.css";
 import { DndContext, DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
 import { FunctionComponent, ReactNode, useState } from "react";
-import { px2vw, vw } from "../utilities";
-import { MIN_EDITOR_VW, MIN_NAV_VW } from "../config";
+import { px2vw } from "../utilities";
 import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 import Draggable from "./draggable";
+import useDimsCtx, { Dims } from "../context/dims";
+
+export const MIN_COL_VW = 1;
 
 const COLS = {
   LEFT: "LEFT_COL",
   RIGHT: "RIGHT_COL"
 };
 
-type GridDims = {
-  left: number;
-  center: number;
-  right: number;
-};
-
 type GridProps = {
-  initialDims: GridDims;
-  left: (width: string) => ReactNode;
-  center: (width: string) => ReactNode;
-  right: (width: string) => ReactNode;
+  left: (dims: Dims) => ReactNode;
+  center: (dims: Dims) => ReactNode;
+  right: (dims: Dims) => ReactNode;
 }
 
-const Grid: FunctionComponent<GridProps> = ({ initialDims, left, center, right }) => {
+const Grid: FunctionComponent<GridProps> = ({ left, center, right }) => {
+  const { setDims, ...dims } = useDimsCtx();
   const [leftColDragging, setleftColDragging] = useState<boolean>(false);
   const [rightColDragging, setrightColDragging] = useState<boolean>(false);
-  const [_, setPrevDragEvent] = useState<DragMoveEvent | null>(null);
-  const [dims, setDims] = useState<GridDims>(initialDims);
+  const [prevDrag, setPrevDragEvent] = useState<DragMoveEvent | null>(null);
 
   const handleDragMove = (e: DragMoveEvent) => {
-    setPrevDragEvent(prevE => {
-      const diff = px2vw(prevE ? e.delta.x - prevE.delta.x : e.delta.x);
+    const diff = px2vw(prevDrag ? e.delta.x - prevDrag.delta.x : e.delta.x);
 
-      setDims(dims => {
-        switch (e.active.id) {
-          case COLS.LEFT: {
-            let next = {
-              left: dims.left + diff,
-              center: dims.center - diff,
-              right: dims.right
-            };
+    setDims(({ left, center, right }) => {
+      const staticCenter = {
+        left: left + diff,
+        center: MIN_COL_VW,
+        right: 100 - (left + diff + MIN_COL_VW)
+      };
 
-            if (next.center <= MIN_EDITOR_VW) {
-              next.center = MIN_EDITOR_VW;
-              next.right = 100 - next.left - next.center;
-            }
+      switch (e.active.id) {
+        case COLS.LEFT: {
+          const next = { left: left + diff, center: center - diff, right };
 
+          // moving to the right.
+          if (diff > 0) {
+            if (center <= MIN_COL_VW && right <= MIN_COL_VW)
+              return { left, center, right };
+            if (center <= MIN_COL_VW)
+              return staticCenter;
             return next;
           }
-          case COLS.RIGHT: {
-            let next = {
-              left: dims.left + diff,
-              center: dims.center,
-              right: dims.right - diff
-            };
-
-            if (next.left <= MIN_NAV_VW) {
-              next.left = MIN_NAV_VW;
-              next.center = 100 - next.left - next.right;
-            }
-
-            return next;
-          }
+          // to the left.
+          if (left <= MIN_COL_VW)
+            return { left, center, right };
+          return next;
         }
-        return dims;
-      });
+        case COLS.RIGHT: {
+          const next = { left, center: center + diff, right: right - diff };
 
-      return e;
+          // moving to the left.
+          if (diff < 0) {
+            if (center <= MIN_COL_VW && left <= MIN_COL_VW)
+              return { left, center, right };
+            if (center <= MIN_COL_VW)
+              return staticCenter;
+            return next;
+          }
+          // to the right.
+          if (right <= MIN_COL_VW)
+            return { left, center, right };
+          return next
+        }
+      }
+      throw Error("Unexpected dragged element.");
     });
-  }
+    setPrevDragEvent(e);
+  };
 
   const handleDragStart = (e: DragStartEvent) => {
     switch (e.active.id) {
@@ -92,19 +94,19 @@ const Grid: FunctionComponent<GridProps> = ({ initialDims, left, center, right }
     onDragEnd={handleDragEnd}
     modifiers={[restrictToHorizontalAxis]}
   >
-    {left(vw(dims.left))}
+    {left(dims)}
 
     <Draggable id={COLS.LEFT} className={`GridColumn ${leftColDragging ? " dragging" : ""}`}>
       <div />
     </Draggable>
 
-    {center(vw(dims.center))}
+    {center(dims)}
 
     <Draggable id={COLS.RIGHT} className={`GridColumn ${rightColDragging ? " dragging" : ""}`}>
       <div />
     </Draggable>
 
-    {right(vw(dims.right))}
+    {right(dims)}
   </DndContext>
 };
 

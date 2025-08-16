@@ -1,58 +1,57 @@
-import { useState, useEffect, FunctionComponent } from 'react';
-import * as monaco from 'monaco-editor';
-import Navigation from '../components/navigation';
+import { FunctionComponent, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import runtime from '../service/nat/client';
 import Header from '../components/header';
-import Button from '../components/button';
-import Editor from '../components/editor';
+import useModelCtx, { createModel } from '../context/monaco';
+import runtime from '../service/nat/client';
+import { editor } from 'monaco-editor';
 import Grid from '../components/grid';
-import { useRuntime } from '../hooks/useRuntime';
-import LoadingGear from '../icons/loadingGear';
-import { getOrCreateMonacoModel } from '../utilities';
-import Canvas from '../components/canvas';
+import Navigation from '../components/navigation';
+import Monaco from '../components/monaco';
+import { vw } from '../utilities';
+import useDimsCtx from '../context/dims';
 
-type CoreProps = {}
+type CoreBaseProps = {
+  model: editor.ITextModel | null;
+}
 
-const Core: FunctionComponent<CoreProps> = () => {
-  const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
-  const { pathname: path } = useLocation();
-  const { evaluate, evaluating, output } = useRuntime();
-
+export const CoreBase: FunctionComponent<CoreBaseProps> = ({ model }) => {
+  const { left, right, center, setDims } = useDimsCtx();
   useEffect(() => {
-    (async () => {
-      setModel(
-        await getOrCreateMonacoModel(path, async () => (await runtime.getFile(path)).content)
-      );
-    })();
-  }, [path]);
+    setDims(() => ({ left, center: 100 - left, right: 0 }));
+    return () => setDims(() => ({ left, right, center }));
+  }, []);
 
   return <>
-    <Header>
-      <Button onClick={() => path && evaluate(path)}>evaluate</Button>
-    </Header>
+    <Header />
     <div className="Editor">
       <Grid
-        initialDims={{
-          left: 15,
-          center: 55,
-          right: 30
-        }}
-        left={width => <Navigation style={{ flexBasis: width }} />}
-        center={width => <Editor model={model} style={{ width }}
-          onChange={(value => {
-            (async () => {
-              await runtime.setFile(path, value);
-            })();
-          })}
-        />}
-        right={width => evaluating
-          ? <div className="CanvasPreview" style={{ width }}><LoadingGear /></div>
-          : <Canvas output={output} path={path} width={width} />
+        left={
+          ({ left }) => <Navigation style={{ flexBasis: vw(left) }} />
         }
+        center={
+          ({ center }) => <Monaco model={model} style={{ width: vw(center) }} />
+        }
+        right={() => <></>}
       />
     </div>
+
   </>;
+};
+
+const Core: FunctionComponent = () => {
+  const { pathname: path } = useLocation();
+  const { models, setModel, delModel } = useModelCtx();
+  const model = path ? models[path] : null;
+
+  useEffect(() => {
+    if (!model)
+      runtime.getFile(path).then(
+        file => setModel(path, createModel(path, file.content))
+      );
+    return () => { if (model) delModel(path); };
+  }, [path]);
+
+  return <CoreBase model={model} />;
 };
 
 export default Core;

@@ -1,47 +1,71 @@
-import { GEN_START, InterpretResp, abs } from '@nat-lang/nat';
+import { GEN_START, NatResp } from '@nat-lang/nat';
 import runtime from '../service/nat/client';
 import * as nls from '../service/nls/client';
 import { useState } from 'react';
 
-import { Natput, TypesetNatput } from '../types';
 import { v4 } from 'uuid';
+import useRuntimeCtx from '../context/runtime';
+import useFileCtx from '../context/file';
+import useCanvasCtx from '../context/canvas';
+import { StampedAnchorResp, StampedNatResp, StampedTexResp } from '../types';
 
 export const useRuntime = () => {
   const [evaluating, setEvaluating] = useState<boolean>(false);
   const [rendering, setRendering] = useState<boolean>(false);
-  const [output, setOutput] = useState<(TypesetNatput | Natput)[]>([]);
+  const { initialized } = useRuntimeCtx();
+  const { addObj, delObjs } = useCanvasCtx();
+
   const [stdout, setStdout] = useState<string[]>([]);
   const [stderr, setStderr] = useState<string[]>([]);
   const [_, setErrors] = useState<string | null>(null);
+
+  const fileCtx = useFileCtx();
+  const canEvaluate = initialized && fileCtx.filesLoaded() && !evaluating && !rendering;
+
   let order = 0;
 
-  const process = async (intptResp: InterpretResp) => {
-    if (!intptResp.success || !intptResp.out) return;
+  const render = (tex: string) => new Promise<string>(
+    (resolve, reject) => nls.render(tex).then(resp => {
+      if (resp.success && resp.pdf)
+        resolve(resp.pdf)
+      else if (resp.errors)
+        reject(resp.errors);
+      else
+        reject(["Empty resp."]);
+    })
+  );
+
+  const process = async (path: string, resp: NatResp) => {
+    if (!resp.success || !resp.out) return;
 
     order = order + 1;
-    const iIntptResp = { id: v4(), order, ...intptResp };
+    const stampedResp: StampedNatResp = { id: v4(), order, ...resp };
 
-    if (intptResp.type == "tex") {
-      setRendering(true);
-      try {
-        const resp = await nls.render(intptResp.out)
-        if (resp.success && resp.pdf)
-          setOutput(out => [{ pdf: resp.pdf!, ...iIntptResp }, ...out]);
-        else if (resp.errors)
-          setErrors(resp.errors);
-      } finally {
-        setRendering(false);
+    switch (stampedResp.type) {
+      case "tex":
+        render((resp as StampedTexResp).out)
+          .then(pdf => addObj(path, { pdf, ...stampedResp }))
+          .catch(setErrors)
+        break;
+      case "anchor": {
+        render((resp as StampedAnchorResp).out.tex)
+          .then(pdf => addObj(path, { pdf, ...stampedResp }))
+          .catch(setErrors)
+        break;
       }
-    } else {
-      setOutput(out => [iIntptResp, ...out]);
+      case "codeblock":
+        addObj(path, stampedResp);
+        break;
+      default:
+        console.log(stampedResp)
+        throw new Error(`Unexpected resp type: '${stampedResp.type}'`);
     }
   }
 
   const evaluate = async (path: string) => {
-    setOutput([]);
+    delObjs(path);
     setStdout([]);
     setStderr([]);
-
     setEvaluating(true);
 
     const disposables = [
@@ -52,21 +76,34 @@ export const useRuntime = () => {
         out => setStderr(prev => [...prev, out])
       ),
     ];
+
     try {
-      const resp = await runtime.interpret(abs(path));
+      const resp = await runtime.interpret(path);
+
       if (resp.out === GEN_START) {
-        const genResp = runtime.generate(abs(path));
+        const genResp = runtime.generate(path);
+
+        setRendering(true);
+        const futures = [];
         for await (const resp of genResp)
-          process(resp);
+          futures.push(process(path, resp));
+        Promise.all(futures).finally(() => setRendering(false));
       } else {
-        process(resp);
+        setRendering(true);
+        process(path, resp).finally(() => setRendering(false));
       }
     } finally {
-      await runtime.free();
       disposables.forEach(x => x());
       setEvaluating(false);
     }
   }
 
-  return { evaluate, evaluating, rendering, output, stdout, stderr };
+  return {
+    evaluate,
+    canEvaluate,
+    evaluating,
+    rendering,
+    stdout,
+    stderr
+  };
 };
