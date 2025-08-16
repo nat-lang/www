@@ -95,8 +95,13 @@ button:active {
   display: block;
 }
 
-.Header .Button.Button--disabled .Button-text {
+.Header .Button.Button--inflight .Button-text {
   visibility: hidden;
+}
+
+.Header .Button.Button--disabled .Button-text {
+  opacity: 0.5;
+  cursor: auto;
 }
 
 .Header .Button svg {
@@ -131,44 +136,89 @@ button:active {
   padding-top: 10px;
 }
 
-.Editor.Docs .Canvas {
-  display: flex;
-  flex-direction: column;
-  overflow-y: scroll;
-
-  padding: 100px;
-  box-sizing: border-box;
+.Editor .Page {
+  position: relative;
 }
 
-.Editor.Docs .Canvas .Codeblock {
+.Editor .Page:hover .SnapIcon {
+  display: block;
+}
+
+.Editor .SnapIcon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0.5;
+  display: none;
+  cursor: pointer;
+}
+
+.Editor .SnapIcon:hover {
+  opacity: 0.75;
+}
+
+.Editor .SnapIcon.SnapIcon-close {
+  width: 19px;
+  height: 19px;
+  top: 13px;
+  opacity: 0.4;
+}
+
+.Editor .SnapIcon.SnapIcon-close:hover {
+  opacity: 0.65;
+}
+
+.Editor .PageScrollguard {
+  overflow-x: scroll;
+  overflow-y: scroll;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.Editor .Page .Canvas {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height));
+  padding-top: 100px;
+  padding-bottom: 100px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.Editor .Page .Canvas .FauxAnchor {
+  position: absolute;
+  top: 0px;
+}
+
+.Editor .Page .Canvas .Codeblock {
   margin-left: 10px;
 }
 
-.Editor.Docs .Canvas .Canvas-item:not(:last-child) {
+.Editor .Page .Canvas .Canvas-item:not(:last-child) {
   margin-bottom: 22px;
 }
 
-.Editor.Docs .Canvas .Monaco .margin {
+.Editor .Page .Canvas .Canvas-item:last-child {
+  padding-bottom: 100px;
+}
+
+.Editor .Page .Canvas .Monaco .margin {
   width: 0px !important;
 }
 
-.Editor.Docs .Canvas .Monaco .monaco-scrollable-element {
+.Editor .Page .Canvas .Monaco .monaco-scrollable-element {
   left: 0px !important;
 }
 
-.Editor.Docs .Canvas .Monaco .decorationsOverviewRuler {
+.Editor .Page .Canvas .Monaco .decorationsOverviewRuler {
   display: none !important;
 }
 
-.Editor.Docs .Canvas .react-pdf__Page {
+.Editor .Page .Canvas .react-pdf__Page {
   justify-content: left;
 }
-
-.Editor .Canvas {
-  flex-shrink: 0;
-  overflow-y: scroll;
-}
-
 
 .Editor .CanvasPreview {
   display: flex;
@@ -176,6 +226,6 @@ button:active {
   align-items: center;
 }
 
-.Editor .FilePane {
-  position: absolute;
+.FilePane {
+  position: fixed;
 }

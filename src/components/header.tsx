@@ -17,7 +17,7 @@ const Header: FunctionComponent<HeaderOps> = ({ children }) => {
   const handleLogoutClick = () => setToken("");
 
   return <div className="Header">
-    <Link className="root-link" to="/">natlang online</Link>
+    <Link className="HeaderRootLink" to="/">natlang online</Link>
     <div className="HeaderLinks">
       {children}
       {token ? <Button onClick={handleLogoutClick}>logout</Button> : <Link to="/login">login</Link>}

@@ -2,10 +2,12 @@
 import { FunctionComponent } from "react";
 import "./navigation.css";
 import { RepoFile } from "../types";
-import { useNavigate, useParams } from "react-router-dom";
-import { DOC_PATH } from "../config";
+import { useParams } from "react-router-dom";
+import { CORE_PATH, DOC_PATH, LIB_PATH } from "../config";
 import useFileCtx from "../context/file";
 import FileTree from "./filetree";
+import { useNavigation } from "../hooks/useNavigation";
+
 
 type NavigationProps = {
   className?: string;
@@ -13,34 +15,45 @@ type NavigationProps = {
 }
 
 const Navigation: FunctionComponent<NavigationProps> = (({ style, className = "" }) => {
-  const navigate = useNavigate();
+
   const params = useParams();
-  const root = params.root;
-  const path = params["*"] ? `${root}/${params["*"]}` : root;
+  const path = params["*"];
   const { docTree, libTree, coreTree } = useFileCtx();
-  const handleFileClick = async (file: RepoFile) => {
-    if (!file.path) throw Error("Can't navigate to pathless file.");
+  const { navigate } = useNavigation();
 
-    navigate(`/${file.path}`);
-  };
+  const onFileClick = (fn: (file: RepoFile) => string) => (file: RepoFile) => {
+    if (!file.path)
+      throw Error(`Missing path for file ${file}`);
+    navigate(fn(file));
+  }
 
-  const handleDocFileClick = async (file: RepoFile) => {
-    if (!file.path) throw Error("Can't navigate to pathless file.");
-
-    navigate(`/${DOC_PATH}/${file.path}`);
-  };
   return <div className={`Navigation ${className}`} style={style}>
     <div className="NavigationPane">
       <div className="NavigationSecTitle">guide</div>
-      {docTree.length && <FileTree files={docTree} onFileClick={handleDocFileClick} activeFilePath={path} />}
+      {docTree.length && <FileTree
+        activeFilePath={path}
+        files={docTree}
+        onFileClick={onFileClick(file => `/${DOC_PATH}/${file.path}`)}
+        root={DOC_PATH}
+      />}
     </div>
     <div className="NavigationPane">
       <div className="NavigationSecTitle">library</div>
-      {libTree.length && <FileTree files={libTree} onFileClick={handleFileClick} activeFilePath={path} />}
+      {libTree.length && <FileTree
+        activeFilePath={path}
+        files={libTree}
+        onFileClick={onFileClick(file => `/${file.path}`)}
+        root={LIB_PATH}
+      />}
     </div>
     <div className="NavigationPane">
       <div className="NavigationSecTitle">core</div>
-      {coreTree.length && <FileTree files={coreTree} onFileClick={handleFileClick} open={false} activeFilePath={path} />}
+      {coreTree.length && <FileTree
+        activeFilePath={path}
+        files={coreTree}
+        onFileClick={onFileClick(file => `/${CORE_PATH}/${file.path}`)}
+        open={false}
+      />}
     </div>
   </div>;
 });

@@ -1,43 +1,6 @@
 .Standalone {
   position: relative;
-  display: flex;
-}
-
-.Standalone-scrollguard {
-  overflow-y: scroll;
-  width: 100%;
-}
-
-.Standalone-toolbar {
-  position: absolute;
-
-  right: 20px;
-  top: 10px;
-  display: flex;
-  flex-direction: row;
-  z-index: 1;
-
-  opacity: 0;
-}
-
-.Standalone-toolbar:hover {
-  opacity: 1;
-}
-
-.Standalone .Standalone-zoom-in {
-  width: 12px;
-  height: 20px;
-  cursor: pointer;
-  margin-right: 10px;
-}
-
-.Standalone .Standalone-zoom-out {
-  width: 15px;
-  height: 20px;
-  cursor: pointer;
-  vertical-align: middle;
-  fill: currentColor;
-  overflow: hidden;
+  scroll-margin-top: 100px;
 }
 
 .Standalone.centered .react-pdf__Page {
