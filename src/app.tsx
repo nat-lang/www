@@ -1,7 +1,7 @@
 import "./app.css"
-import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, } from "react-router-dom";
 import Login from "./routes/login";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Git, { DOC_REPO, LIB_REPO } from "./service/git";
 import useFileCtx from "./context/file";
 import runtime from "./service/nat/client";
@@ -19,13 +19,12 @@ import Edit from "./routes/edit";
 import Create from "./routes/create";
 import useCreateCtx from "./context/create";
 import useCanvasCtx from "./context/canvas";
-import { useRuntime } from "./hooks/useRuntime";
 
 const EditorCommands = {
   CmdEnter: "CmdEnter"
 };
 
-let rc = 0;
+
 const App = () => {
   const [git, setGit] = useState<Git | null>(null);
   const githubAuth = useAuthCtx(state => state.token);

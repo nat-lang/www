@@ -1,5 +1,5 @@
 import "./codeblock.css";
-import { FunctionComponent, forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { CodeblockResp } from '@nat-lang/nat';
 import Editor from './monaco';
 import Button from './button';

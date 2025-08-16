@@ -1,5 +1,5 @@
 import { useState, useEffect, FunctionComponent } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Header from '../components/header';
 import Button from '../components/button';
 import Git, { Repo } from '../service/git';
