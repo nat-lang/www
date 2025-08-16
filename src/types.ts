@@ -12,9 +12,10 @@ export type StampedCodeblockResp = Stamped<CodeblockResp>;
 
 export type StampedNatResp = Stamped<NatResp>;
 
-export type TypesetTexResp = StampedTexResp & { pdf: string; };
-export type TypesetAnchorResp = StampedAnchorResp & { pdf: string; };
 
 type Typeset<T> = T & { pdf: string; };
+
+export type TypesetTexResp = Typeset<StampedTexResp>;
+export type TypesetAnchorResp = Typeset<StampedAnchorResp>;
 
 export type TypesetResp = Typeset<StampedTexResp> | Typeset<StampedAnchorResp>;
