@@ -10,7 +10,6 @@ export type Dims = {
 
 type DimsCtx = Dims & {
   scale: number;
-  canvas: () => number;
   maxPdfWidth?: number;
   setDims: (fn: ((dims: Dims) => Dims)) => void,
   setScale: (fn: ((scale: number) => number)) => void,
@@ -19,7 +18,7 @@ type DimsCtx = Dims & {
 
 const useDimsCtx = create<DimsCtx>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       left: 15,
       center: 84,
       right: 1,
@@ -27,7 +26,6 @@ const useDimsCtx = create<DimsCtx>()(
       maxPdfWidth: undefined,
       setDims: fn => set(({ left, center, right }) => fn({ left, center, right })),
       setScale: fn => set(({ scale }) => ({ scale: fn(scale) })),
-      canvas: () => vw2px(get().center) * 0.667,
       setMaxPdfWidth: (width) => set(state => ({
         maxPdfWidth: !state.maxPdfWidth
           ? width
@@ -38,7 +36,7 @@ const useDimsCtx = create<DimsCtx>()(
     }),
     {
       name: 'dims',
-      partialize: ({ left, center, right, scale }) => ({ left, center, right, scale })
+      partialize: ({ left, center, right }) => ({ left, center, right })
     },
   )
 );

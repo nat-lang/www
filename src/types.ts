@@ -12,7 +12,6 @@ export type StampedCodeblockResp = Stamped<CodeblockResp>;
 
 export type StampedNatResp = Stamped<NatResp>;
 
-
 type Typeset<T> = T & { pdf: string; };
 
 export type TypesetTexResp = Typeset<StampedTexResp>;
