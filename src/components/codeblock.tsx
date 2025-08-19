@@ -7,6 +7,8 @@ import { useRuntime } from '../hooks/useRuntime';
 import runtime from '../service/nat/client';
 import Play from "../icons/play";
 import useModelCtx, { useModel } from "../context/monaco";
+import useDimsCtx from "../context/dims";
+import { useShallow } from "zustand/react/shallow";
 
 type CodeblockProps = {
   parent: string;
@@ -18,7 +20,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
   ({ parent, block, className = "" }, ref) => {
     const [fileLoaded, setFileLoaded] = useState<boolean>(false);
     const { evaluate, stdout } = useRuntime();
-
+    const { maxPdfWidth } = useDimsCtx(useShallow(({ maxPdfWidth }) => ({ maxPdfWidth })));
     const dir = `${parent}-codeblocks`;
     const path = `${dir}/${block.id}`;
     const { delModel } = useModelCtx();
@@ -41,7 +43,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
       };
     }, [path, fileLoaded]);
 
-    return <div className={`Codeblock ${className}`} ref={ref}>
+    return <div className={`Codeblock ${className}`} style={{ maxWidth: maxPdfWidth ?? undefined }} ref={ref} >
       <div className="Codeblock-row flex-row">
         <div className="Codeblock-margin Codeblock-outer-margin" />
         <div className="Codeblock-space" />

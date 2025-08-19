@@ -9,7 +9,7 @@ import useAuthCtx from "./context/auth";
 import { RepoFile } from "./types";
 import { DOC_PATH, LIB_PATH } from "./config";
 import Core, { CoreBase } from "./routes/core";
-import { px2pt, sortObjs } from "./utilities";
+import { px2pt, sortObjs, vw2px } from "./utilities";
 import useDimsCtx from "./context/dims";
 import useModelCtx, { createModel } from "./context/monaco";
 import * as monaco from 'monaco-editor';
@@ -19,6 +19,7 @@ import Edit from "./routes/edit";
 import Create from "./routes/create";
 import useCreateCtx from "./context/create";
 import useCanvasCtx from "./context/canvas";
+import { useShallow } from "zustand/react/shallow";
 
 const EditorCommands = {
   CmdEnter: "CmdEnter"
@@ -37,7 +38,8 @@ const App = () => {
     setCtxLoaded,
     lib, docs
   } = useFileCtx();
-  const { canvas } = useDimsCtx();
+  const { center } = useDimsCtx(useShallow(({ center }) => ({ center })));
+
   const runtimeCtx = useRuntimeCtx();
   const { pageRef, anchorRefs, setObserver, setAnchorRefInView } = useCanvasCtx();
   const createCtx = useCreateCtx();
@@ -47,7 +49,8 @@ const App = () => {
 
   const ctxPath = "/core/online.nat";
   const ctxModel = models[ctxPath];
-  const ctx = () => `let window = {"center": "${px2pt(canvas())}pt"};
+
+  const ctx = () => `let window = {"center": "${px2pt(vw2px(center * 0.667))}pt"};
 let host = "${window.location.protocol}//${window.location.host}";
 let path = "${location.pathname}";
   `;

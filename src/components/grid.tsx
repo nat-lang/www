@@ -5,6 +5,7 @@ import { px2vw } from "../utilities";
 import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 import Draggable from "./draggable";
 import useDimsCtx, { Dims } from "../context/dims";
+import { useShallow } from "zustand/react/shallow";
 
 export const MIN_COL_VW = 1;
 
@@ -20,7 +21,7 @@ type GridProps = {
 }
 
 const Grid: FunctionComponent<GridProps> = ({ left, center, right }) => {
-  const { setDims, ...dims } = useDimsCtx();
+  const { setDims, ...dims } = useDimsCtx(useShallow(({ setDims, left, right, center }) => ({ setDims, left, right, center })));
   const [leftColDragging, setleftColDragging] = useState<boolean>(false);
   const [rightColDragging, setrightColDragging] = useState<boolean>(false);
   const [prevDrag, setPrevDragEvent] = useState<DragMoveEvent | null>(null);

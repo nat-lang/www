@@ -10,6 +10,7 @@ import useDimsCtx, { Dims } from '../context/dims';
 import { editor } from 'monaco-editor';
 import Canvas from './canvas';
 import useCanvasCtx from '../context/canvas';
+import { useShallow } from 'zustand/react/shallow';
 
 type PageProps = {
   evaluating: boolean;
@@ -23,8 +24,8 @@ type PageProps = {
 const Page: FunctionComponent<PageProps> = ({ evaluating, fsPath, urlPath, model, className = "", orientation }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const canvasCtx = useCanvasCtx();
-  const { setDims } = useDimsCtx();
-  const Nav = ({ left }: Dims) => <Navigation style={{ flexBasis: vw(left) }} />;
+  const { setDims } = useDimsCtx(useShallow(({ setDims }) => ({ setDims })));
+
   const Editor = (pane: keyof Dims) => (dims: Dims) => <Monaco model={model} style={{ width: vw(dims[pane]) }} />;
   const Output = (pane: keyof Dims) => (dims: Dims) => <div className="Page" style={{ width: vw(dims[pane]) }} >
     {evaluating
@@ -55,13 +56,13 @@ const Page: FunctionComponent<PageProps> = ({ evaluating, fsPath, urlPath, model
       switch (orientation) {
         case "OE":
           return <Grid
-            left={Nav}
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
             center={Output("center")}
             right={Editor("right")}
           />
         case "EO":
           return <Grid
-            left={Nav}
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
             center={Editor("center")}
             right={Output("right")}
           />

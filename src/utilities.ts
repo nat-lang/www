@@ -6,7 +6,7 @@ const context = canvas.getContext("2d")
 export const vw = (v: number) => `${v}vw`;
 export const px2vw = (px: number) => (px / window.innerWidth) * 100;
 export const vw2px = (vw: number) => (vw * window.innerWidth) / 100
-export const pt2Px = (pt: number) => pt * (96 / 72);
+export const pt2px = (pt: number) => pt * (96 / 72);
 export const px2pt = (px: number) => px * (72 / 96);
 
 export const getOrCreateMonacoModel = async (

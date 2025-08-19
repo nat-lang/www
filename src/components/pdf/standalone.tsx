@@ -1,9 +1,10 @@
 
 
-import { CSSProperties, forwardRef, useState } from "react";
+import { CSSProperties, forwardRef, useEffect, useState } from "react";
 import { Document, Page } from "react-pdf";
 import "./standalone.css";
 import useDimsCtx from "../../context/dims";
+import { useShallow } from "zustand/react/shallow";
 
 export type StandaloneProps = {
   file?: string;
@@ -13,13 +14,21 @@ export type StandaloneProps = {
 }
 
 const Standalone = forwardRef<HTMLDivElement, StandaloneProps>(({ file, style, path, className = "" }, ref) => {
-  const { scale } = useDimsCtx();
+  const { scale, setMaxPdfWidth } = useDimsCtx(useShallow(({ scale, setMaxPdfWidth }) => ({ scale, setMaxPdfWidth })));
   const [pages, setPages] = useState(0);
-  const pageIndices: number[] = Array(pages).fill(0).reduce((cum, _, idx) => [...cum, idx + 1], []);
+
+  const handlePageRef = (node: HTMLCanvasElement) => {
+    if (!node) return;
+    setMaxPdfWidth(node.offsetWidth);
+  }
+
+  useEffect(() => {
+    if (pages > 1) throw new Error(`Standalone PDF expects a single page document; got ${pages} pages.`);
+  }, [pages]);
 
   return <div className={`Standalone ${className}`} style={style} ref={ref} data-path={path}>
     {file && <Document file={`data:application/pdf;base64,${file}`} onLoadSuccess={({ numPages }) => setPages(numPages)}>
-      {pageIndices.map(idx => <Page key={idx} pageNumber={idx} renderTextLayer={false} scale={scale} />)}
+      <Page pageNumber={1} canvasRef={handlePageRef} renderTextLayer={false} scale={scale} />
     </Document>}
   </div>
 });
