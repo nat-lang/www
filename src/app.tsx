@@ -9,7 +9,7 @@ import useAuthCtx from "./context/auth";
 import { RepoFile } from "./types";
 import { DOC_PATH, LIB_PATH } from "./config";
 import Core, { CoreBase } from "./routes/core";
-import { pt2px, px2pt, sortObjs, vw2px } from "./utilities";
+import { px2pt, sortObjs, vw2px } from "./utilities";
 import useDimsCtx from "./context/dims";
 import useModelCtx, { createModel } from "./context/monaco";
 import * as monaco from 'monaco-editor';

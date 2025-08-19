@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { vw2px } from '../utilities';
 
 export type Dims = {
   left: number;
