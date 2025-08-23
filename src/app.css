@@ -226,6 +226,18 @@ button:active {
   align-items: center;
 }
 
+.Editor .Page .CodeblockCanvas {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Editor .Page .CodeblockCanvas .CodeblockCanvas-item {
+  margin-top: 22px;
+}
+
+
 .FilePane {
   position: fixed;
 }

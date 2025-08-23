@@ -9,6 +9,8 @@ import Play from "../icons/play";
 import useModelCtx, { useModel } from "../context/monaco";
 import useDimsCtx from "../context/dims";
 import { useShallow } from "zustand/react/shallow";
+import useCanvasCtx from "../context/canvas";
+import CodeblockCanvas from "./codeblockcanvas";
 
 type CodeblockProps = {
   parent: string;
@@ -20,9 +22,10 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
   ({ parent, block, className = "" }, ref) => {
     const [fileLoaded, setFileLoaded] = useState<boolean>(false);
     const { evaluate, stdout } = useRuntime();
+    const { objects } = useCanvasCtx();
     const { maxPdfWidth } = useDimsCtx(useShallow(({ maxPdfWidth }) => ({ maxPdfWidth })));
     const dir = `${parent}-codeblocks`;
-    const path = `${dir}/${block.id}`;
+    const path = `/${dir}/${block.id}`;
     const { delModel } = useModelCtx();
     const model = useModel(path, block.out.text);
 
@@ -65,6 +68,8 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
               scrollBeyondLastLine: false
             }}
           />
+
+          {objects[path]?.length > 0 && <CodeblockCanvas fsPath={path} />}
 
           {stdout.length > 0 && <div className="Codeblock-out flex-row">
             <div className="Codeblock-margin Codeblock-inner-margin" />

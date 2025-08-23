@@ -190,6 +190,7 @@ let path = "${location.pathname}";
 
     (async () => {
       await runtime.mkDir(DOC_PATH);
+      console.log("setting runtime files");
       await setRuntimeFiles(git, DOC_REPO, docTree, setDocFile, DOC_PATH);
       setDocsLoaded();
     })();
