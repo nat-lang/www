@@ -1,7 +1,7 @@
 import "./codeblock.css";
 import { forwardRef, useEffect, useState } from "react";
 import { CodeblockResp } from '@nat-lang/nat';
-import Editor from './monaco';
+import Monaco from './monaco';
 import Button from './button';
 import { useRuntime } from '../hooks/useRuntime';
 import runtime from '../service/nat/client';
@@ -32,6 +32,8 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
     }, [model]);
 
     useEffect(() => {
+      if (fileLoaded) return;
+
       runtime.mkDir(dir)
         .then(() => runtime.setFile(path, block.out.text))
         .then(() => setFileLoaded(true));
@@ -48,7 +50,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         <div className="Codeblock-margin Codeblock-outer-margin" />
         <div className="Codeblock-space" />
         <div className="Codeblock-col flex-col" >
-          <Editor
+          <Monaco
             model={model}
             fitHeightToContent
             options={{

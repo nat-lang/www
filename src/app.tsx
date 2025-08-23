@@ -228,8 +228,10 @@ let path = "${location.pathname}";
         for (const entry of entries) {
           const target = entry.target as HTMLDivElement
 
-          if (target.dataset.path)
+          if (target.dataset.path) {
+            console.log("intersection:", target.dataset.path, entry.isIntersecting)
             setAnchorRefInView(target.dataset.path, entry.isIntersecting);
+          }
           if (target.dataset.path === scrollTarget && entry.isIntersecting)
             setScrollTarget(null);
         }

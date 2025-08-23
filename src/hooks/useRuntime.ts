@@ -29,7 +29,7 @@ export const useRuntime = () => {
       if (resp.success && resp.pdf)
         resolve(resp.pdf)
       else if (resp.errors)
-        reject(resp.errors);
+        setErrors(resp.errors);
       else
         reject(["Empty resp."]);
     })
@@ -42,15 +42,14 @@ export const useRuntime = () => {
     const stampedResp: StampedNatResp = { id: v4(), order, ...resp };
 
     switch (stampedResp.type) {
-      case "tex":
-        render((resp as StampedTexResp).out)
-          .then(pdf => addObj(path, { pdf, ...stampedResp }))
-          .catch(setErrors)
+      case "tex": {
+        const pdf = await render((resp as StampedTexResp).out);
+        addObj(path, { pdf, ...stampedResp });
         break;
+      }
       case "anchor": {
-        render((resp as StampedAnchorResp).out.tex)
-          .then(pdf => addObj(path, { pdf, ...stampedResp }))
-          .catch(setErrors)
+        const pdf = await render((resp as StampedAnchorResp).out.tex);
+        addObj(path, { pdf, ...stampedResp });
         break;
       }
       case "codeblock":

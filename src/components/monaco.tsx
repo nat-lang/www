@@ -14,9 +14,10 @@ const Monaco: FunctionComponent<MonacoProps> = ({ model, style, fitHeightToConte
   const [height, setHeight] = useState<number | null>(null);
 
   useEffect(() => {
+    if (!editorRef.current) return;
     setEditor((editor) => {
       if (editor) return editor;
-      if (!editorRef.current) return editor;
+      if (!editorRef.current) return null;
 
       const newEditor = monaco.editor.create(editorRef.current, {
         model: null,
