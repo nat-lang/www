@@ -79,7 +79,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
           />
 
           {objects[path]?.length > 0 && <div className="Codeblock-out flex-row">
-            <div className="Codeblock-margin Codeblock-inner-margin" />
+            <div className="Codeblock-margin" />
             <div className="Codeblock-space" />
             <div className="CodeblockCanvas">
               {sortObjs(objects[path] ?? []).map(
@@ -92,7 +92,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
                         file={obj.pdf}
                       />
                     case "string":
-                      return <div className="Codeblock-str-out" key={obj.id}>{obj.out}</div>
+                      return <div className="CodeblockCanvas-item" key={obj.id}>{obj.out}</div>
                     default:
                       return undefined;
                   }
@@ -102,9 +102,9 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
           </div>}
 
           {stdout.length > 0 && <div className="Codeblock-out flex-row">
-            <div className="Codeblock-margin Codeblock-inner-margin" />
+            <div className="Codeblock-margin" />
             <div className="Codeblock-space" />
-            <div className="Codeblock-stdout flex-col">
+            <div className="flex-col">
               {stdout.map(
                 (x, idx) => <div key={idx}>{x}</div>
               )}
@@ -112,9 +112,9 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
           </div>}
 
           {stderr.length > 0 && <div className="Codeblock-out flex-row">
-            <div className="Codeblock-margin Codeblock-inner-margin err" />
+            <div className="Codeblock-margin err" />
             <div className="Codeblock-space" />
-            <div className="Codeblock-stderr flex-col">
+            <div className="flex-col">
               {stderr.map(
                 (x, idx) => <div key={idx}>{x}</div>
               )}

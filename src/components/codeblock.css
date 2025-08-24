@@ -52,12 +52,16 @@
 }
 
 .Codeblock .CodeblockCanvas {
+  flex-grow: 1;
+}
+
+.Codeblock .CodeblockCanvas-item {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: start;
 }
 
-.Codeblock .CodeblockCanvas .CodeblockCanvas-item {
-  margin-top: 22px;
+.Codeblock .CodeblockCanvas-item.Standalone {
+  align-items: center;
 }
