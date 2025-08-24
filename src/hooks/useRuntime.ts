@@ -53,6 +53,7 @@ export const useRuntime = () => {
         break;
       }
       case "codeblock":
+      case "string":
         addObj(path, stampedResp);
         break;
       default:

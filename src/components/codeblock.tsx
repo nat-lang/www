@@ -10,7 +10,8 @@ import useModelCtx, { useModel } from "../context/monaco";
 import useDimsCtx from "../context/dims";
 import { useShallow } from "zustand/react/shallow";
 import useCanvasCtx from "../context/canvas";
-import CodeblockCanvas from "./codeblockcanvas";
+import { sortObjs } from "../utilities";
+import StandalonePDF from "./pdf/standalone";
 
 type CodeblockProps = {
   parent: string;
@@ -21,13 +22,22 @@ type CodeblockProps = {
 const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
   ({ parent, block, className = "" }, ref) => {
     const [fileLoaded, setFileLoaded] = useState<boolean>(false);
-    const { evaluate, stdout } = useRuntime();
+    const { evaluate, stdout, stderr } = useRuntime();
     const { objects } = useCanvasCtx();
-    const { maxPdfWidth } = useDimsCtx(useShallow(({ maxPdfWidth }) => ({ maxPdfWidth })));
+    const maxPdfWidth = useDimsCtx(useShallow(state => state.maxPdfWidth));
     const dir = `${parent}-codeblocks`;
     const path = `/${dir}/${block.id}`;
     const { delModel } = useModelCtx();
     const model = useModel(path, block.out.text);
+
+    const handleEval = async () => {
+      if (!fileLoaded) return;
+
+      const file = await runtime.getFile(path);
+      await runtime.setFile(path, `use ../.common\n${file.content}`);
+
+      evaluate(path)
+    }
 
     useEffect(() => {
       if (model)
@@ -50,9 +60,8 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
 
     return <div className={`Codeblock ${className}`} style={{ maxWidth: maxPdfWidth ?? undefined }} ref={ref} >
       <div className="Codeblock-row flex-row">
-        <div className="Codeblock-margin Codeblock-outer-margin" />
         <div className="Codeblock-space" />
-        <div className="Codeblock-col flex-col" >
+        <div className="flex-col flex-grow" >
           <Monaco
             model={model}
             fitHeightToContent
@@ -69,14 +78,45 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
             }}
           />
 
-          {objects[path]?.length > 0 && <CodeblockCanvas fsPath={path} />}
+          {objects[path]?.length > 0 && <div className="Codeblock-out flex-row">
+            <div className="Codeblock-margin Codeblock-inner-margin" />
+            <div className="Codeblock-space" />
+            <div className="CodeblockCanvas">
+              {sortObjs(objects[path] ?? []).map(
+                obj => {
+                  switch (obj.type) {
+                    case "tex":
+                      return <StandalonePDF
+                        className="CodeblockCanvas-item"
+                        key={obj.id}
+                        file={obj.pdf}
+                      />
+                    case "string":
+                      return <div className="Codeblock-str-out" key={obj.id}>{obj.out}</div>
+                    default:
+                      return undefined;
+                  }
+                }
+              )}
+            </div>
+          </div>}
 
           {stdout.length > 0 && <div className="Codeblock-out flex-row">
             <div className="Codeblock-margin Codeblock-inner-margin" />
             <div className="Codeblock-space" />
             <div className="Codeblock-stdout flex-col">
               {stdout.map(
-                (x, idx) => <div key={idx} className="Codeblock-stdout-line">{x}</div>
+                (x, idx) => <div key={idx}>{x}</div>
+              )}
+            </div>
+          </div>}
+
+          {stderr.length > 0 && <div className="Codeblock-out flex-row">
+            <div className="Codeblock-margin Codeblock-inner-margin err" />
+            <div className="Codeblock-space" />
+            <div className="Codeblock-stderr flex-col">
+              {stderr.map(
+                (x, idx) => <div key={idx}>{x}</div>
               )}
             </div>
           </div>}
@@ -85,7 +125,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
       <Button
         className="Button-eval"
         disabled={!fileLoaded}
-        onClick={() => fileLoaded && evaluate(path)}
+        onClick={handleEval}
       >
         <Play />
       </Button>

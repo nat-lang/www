@@ -190,7 +190,6 @@ let path = "${location.pathname}";
 
     (async () => {
       await runtime.mkDir(DOC_PATH);
-      console.log("setting runtime files");
       await setRuntimeFiles(git, DOC_REPO, docTree, setDocFile, DOC_PATH);
       setDocsLoaded();
     })();
@@ -229,10 +228,8 @@ let path = "${location.pathname}";
         for (const entry of entries) {
           const target = entry.target as HTMLDivElement
 
-          if (target.dataset.path) {
-            console.log("intersection:", target.dataset.path, entry.isIntersecting)
+          if (target.dataset.path)
             setAnchorRefInView(target.dataset.path, entry.isIntersecting);
-          }
           if (target.dataset.path === scrollTarget && entry.isIntersecting)
             setScrollTarget(null);
         }

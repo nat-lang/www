@@ -30,29 +30,34 @@
 
 .Codeblock .Codeblock-margin {
   width: 3px;
-}
-
-.Codeblock .Codeblock-outer-margin {
-  display: none;
-  background-color: #feee87;
-}
-
-.Codeblock .Codeblock-inner-margin {
   background-color: #3cb042;
+}
+
+.Codeblock .Codeblock-margin.err {
+  background-color: #dc362e;
 }
 
 .Codeblock .Codeblock-space {
   width: 10px;
 }
 
-.Codeblock .Codeblock-col {
-  flex-grow: 1;
+.Codeblock .Codeblock-margin,
+.Codeblock .Codeblock-space {
+  flex-shrink: 0;
 }
 
 .Codeblock-out {
   padding-top: 5px;
+  font-size: 12px;
 }
 
-.Codeblock-stdout {
-  font-size: 12px;
+.Codeblock .CodeblockCanvas {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Codeblock .CodeblockCanvas .CodeblockCanvas-item {
+  margin-top: 22px;
 }

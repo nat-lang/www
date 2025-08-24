@@ -10,19 +10,26 @@ const useAnchor = ({ path, order }: UseAnchorProps) => {
   const { setAnchorRef, delAnchorRef, observer } = useCanvasCtx();
 
   useEffect(() => {
+    setAnchorRef(path, { ...ref, path, order, inView: false });
+
+    return () => {
+      delAnchorRef(path);
+    }
+  }, [path]);
+
+
+  useEffect(() => {
     if (!ref.current) return;
     if (!observer) return;
 
-    setAnchorRef(path, { ...ref, path, order, inView: false });
     observer.observe(ref.current)
 
     return () => {
       if (observer && ref.current) {
         observer.unobserve(ref.current);
-        delAnchorRef(path);
       }
     }
-  }, [path, observer, ref.current]);
+  }, [observer, ref.current]);
 
   return ref;
 };

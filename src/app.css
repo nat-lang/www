@@ -74,6 +74,10 @@ button:active {
   flex-direction: column;
 }
 
+.flex-grow {
+  flex-grow: 1;
+}
+
 .flex-center {
   justify-content: center;
   align-items: center;
@@ -225,18 +229,6 @@ button:active {
   justify-content: center;
   align-items: center;
 }
-
-.Editor .Page .CodeblockCanvas {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.Editor .Page .CodeblockCanvas .CodeblockCanvas-item {
-  margin-top: 22px;
-}
-
 
 .FilePane {
   position: fixed;
