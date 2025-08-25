@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - run: npm build
+      - run: npm run build
       - run: aws s3 sync ./dist s3://www-natlang
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
