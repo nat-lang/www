@@ -22,7 +22,7 @@
 }
 
 .Check.progress,
-.Check.complete {
+.Check.flourish {
   display: block;
 }
 
@@ -43,7 +43,7 @@
   opacity: 0;
 }
 
-.Check.complete #tick {
+.Check.flourish #tick {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: draw 8s ease-out forwards;
@@ -56,7 +56,7 @@
   animation: spin 3s linear infinite;
 }
 
-.Check.complete #circle {
+.Check.flourish #circle {
   stroke-dashoffset: 66;
   stroke: #63bc01;
 }

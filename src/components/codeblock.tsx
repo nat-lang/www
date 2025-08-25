@@ -32,7 +32,6 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
     const { delModel } = useModelCtx();
     const model = useModel(path, block.out.text);
     const [dirty, setDirty] = useState(false);
-    const [mouseOverButton, setMouseOverButton] = useState(false);
     const [animateCompletion, setAnimateCompletion] = useState(false);
 
     const handleEval = async () => {
@@ -71,6 +70,8 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         return () => clearTimeout(timeout);
       }
     }, [evaluating, rendering]);
+
+    console.log(dirty);
 
     return <div className={`Codeblock ${className}`} style={{ maxWidth: maxPdfWidth ?? undefined }} ref={ref} >
       <div className="Codeblock-row flex-row">
@@ -137,20 +138,13 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         </div>
       </div>
       <Button
-        className={`Button-eval ${evaluating || rendering ? "progress" : ""}`}
+        className={`Button-eval ${evaluating || rendering ? "progress" : animateCompletion ? "flourish" : dirty ? "complete" : ""}`}
         disabled={!fileLoaded}
         onClick={handleEval}
-        onMouseEnter={() => setMouseOverButton(true)}
-        onMouseLeave={() => setMouseOverButton(false)}
       >
-        {evaluating || rendering
-          ? <LoadingGear className="progress" />
-          : dirty
-            ? mouseOverButton && !animateCompletion
-              ? <Play />
-              : <Check className={animateCompletion ? "complete" : ""} />
-            : <Play />}
-
+        <Play />
+        <LoadingGear />
+        <Check className={animateCompletion ? "flourish" : ""} />
       </Button>
     </div>
   }
