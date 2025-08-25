@@ -14,6 +14,7 @@ import StandalonePDF from "./pdf/standalone";
 import Check from "../icons/check";
 import LoadingGear from "../icons/loadingGear";
 import { StampedCodeblockResp } from "../types";
+import Exclaim from "../icons/exclaim";
 
 type CodeblockProps = {
   parent: string;
@@ -70,8 +71,6 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         return () => clearTimeout(timeout);
       }
     }, [evaluating, rendering]);
-
-    console.log(dirty);
 
     return <div className={`Codeblock ${className}`} style={{ maxWidth: maxPdfWidth ?? undefined }} ref={ref} >
       <div className="Codeblock-row flex-row">
@@ -138,13 +137,23 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         </div>
       </div>
       <Button
-        className={`Button-eval ${evaluating || rendering ? "progress" : animateCompletion ? "flourish" : dirty ? "complete" : ""}`}
+        className={`Button-eval ${stderr.length > 0 ? "err" :
+          evaluating || rendering
+            ? "progress"
+            : animateCompletion
+              ? "flourish"
+              : dirty
+                ? "complete"
+                : "steady"
+          }`
+        }
         disabled={!fileLoaded}
         onClick={handleEval}
       >
         <Play />
         <LoadingGear />
         <Check className={animateCompletion ? "flourish" : ""} />
+        <Exclaim />
       </Button>
     </div>
   }
