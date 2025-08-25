@@ -13,14 +13,6 @@
   font-size: 14px;
 }
 
-.Codeblock:hover .Button-eval svg {
-  display: block;
-}
-
-.Codeblock .Button-eval svg:hover {
-  opacity: 1;
-}
-
 .Codeblock .Button-eval svg {
   height: 20px;
   width: 20px;
@@ -28,19 +20,39 @@
   display: none;
 }
 
-.Codeblock .Button-eval.progress {
-  right: 6px;
-  top: -6px;
-}
-
 .Codeblock .Button-eval svg.LoadingGear {
   width: 28px;
   height: 28px;
 }
 
-.Codeblock .Button-eval svg.Check,
-.Codeblock .Button-eval svg.progress {
+.Codeblock:hover .Button-eval:not(.progress, .complete, .flourish) svg.Play {
   display: block;
+}
+
+.Codeblock .Button-eval.Play:hover svg {
+  opacity: 1;
+}
+
+.Codeblock .Button-eval.progress {
+  right: 6px;
+  top: -6px;
+}
+
+.Codeblock .Button-eval.progress svg.LoadingGear {
+  display: block;
+}
+
+.Codeblock .Button-eval.flourish svg.Check,
+.Codeblock .Button-eval.complete svg.Check {
+  display: block;
+}
+
+.Codeblock .Button-eval.complete:hover svg.Play {
+  display: block;
+}
+
+.Codeblock .Button-eval.complete:hover svg.Check {
+  display: none;
 }
 
 .Codeblock .Codeblock-margin {
