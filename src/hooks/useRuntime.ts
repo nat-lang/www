@@ -57,7 +57,6 @@ export const useRuntime = () => {
         addObj(path, stampedResp);
         break;
       default:
-        console.log(stampedResp)
         throw new Error(`Unexpected resp type: '${stampedResp.type}'`);
     }
   }

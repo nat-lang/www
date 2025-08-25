@@ -1,52 +1,61 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useRef } from "react";
 import Codeblock from "./codeblock";
 import StandalonePDF from "./pdf/standalone";
 import AnchorPDF from "./pdf/anchor";
-import useCanvasCtx from "../context/canvas";
+import useCanvasCtx, { CanvasObj } from "../context/canvas";
 import { sortObjs } from "../utilities";
 import FauxAnchor from "./fauxanchor";
 
 type CanvasOps = {
   fsPath: string;
+  objects: CanvasObj[],
   urlPath?: string;
   style?: React.CSSProperties;
 }
 
-const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, urlPath = fsPath, style = {} }) => {
-  const { objects } = useCanvasCtx();
+const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, objects, urlPath = fsPath, style = {} }) => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const canvasCtx = useCanvasCtx();
 
-  return <div className="Canvas" style={style}>
-    <FauxAnchor path={"/" + urlPath} order={0} />
+  useEffect(() => {
+    canvasCtx.setPageRef(ref);
+    return canvasCtx.delPageRef;
+  }, []);
 
-    {sortObjs(objects[fsPath] ?? []).map(
-      obj => {
-        switch (obj.type) {
-          case "tex":
-            return <StandalonePDF
-              className="Canvas-item"
-              key={obj.id}
-              file={obj.pdf}
-            />
-          case "codeblock":
-            return <Codeblock
-              className="Canvas-item"
-              key={obj.id}
-              block={obj}
-              parent={fsPath}
-            />
-          case "anchor":
-            return <AnchorPDF
-              className="Canvas-item"
-              key={obj.id}
-              path={`${obj.out.path}#${obj.out.title}`}
-              file={obj.pdf}
-              order={obj.order}
-            />
-          default:
-            return undefined;
+  return <div className="Canvas" ref={ref}>
+    <div className="CanvasPane" style={style}>
+      <FauxAnchor path={"/" + urlPath} order={0} />
+
+      {sortObjs(objects).map(
+        obj => {
+          switch (obj.type) {
+            case "tex":
+              return <StandalonePDF
+                className="Canvas-item"
+                key={obj.id}
+                file={obj.pdf}
+              />
+            case "codeblock":
+              return <Codeblock
+                className="Canvas-item"
+                key={obj.id}
+                block={obj}
+                parent={fsPath}
+              />
+            case "anchor":
+              return <AnchorPDF
+                className="Canvas-item"
+                key={obj.id}
+                path={`${obj.out.path}#${obj.out.title}`}
+                file={obj.pdf}
+                order={obj.order}
+              />
+            default:
+              return undefined;
+          }
         }
-      }
-    )}
+      )}
+    </div>
   </div>;
 };
 

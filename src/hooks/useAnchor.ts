@@ -22,14 +22,16 @@ const useAnchor = ({ path, order }: UseAnchorProps) => {
     if (!ref.current) return;
     if (!observer) return;
 
+    // setAnchorRef(path, { ...ref, path, order, inView: false });
     observer.observe(ref.current)
 
     return () => {
       if (observer && ref.current) {
         observer.unobserve(ref.current);
+        // delAnchorRef(path);
       }
     }
-  }, [observer, ref.current]);
+  }, [path, observer, ref.current]);
 
   return ref;
 };

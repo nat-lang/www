@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig, searchForWorkspaceRoot } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
@@ -13,6 +14,15 @@ export default defineConfig({
         searchForWorkspaceRoot(process.cwd()),
         // 
         '/Users/alex/natlang/natc/wasm',
+      ],
+    },
+  },
+  test: {
+    browser: {
+      enabled: true,
+      provider: 'playwright',
+      instances: [
+        { browser: 'chromium' },
       ],
     },
   },

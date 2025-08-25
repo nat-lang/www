@@ -36,8 +36,8 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
       const file = await runtime.getFile(path);
       await runtime.setFile(path, `use ../.common\n${file.content}`);
 
-      evaluate(path)
-    }
+      evaluate(path);
+    };
 
     useEffect(() => {
       if (model)

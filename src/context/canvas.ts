@@ -10,7 +10,7 @@ type AnchorRef = Ref & {
   inView: boolean;
 };
 
-interface CanvasCtx {
+export interface CanvasCtx {
   objects: Record<string, CanvasObj[]>;
   observer: IntersectionObserver | null;
   pageRef: Ref | null;
