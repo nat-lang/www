@@ -25,7 +25,11 @@
   height: 28px;
 }
 
-.Codeblock:hover .Button-eval:not(.progress, .complete, .flourish) svg.Play {
+.Codeblock .Button-eval svg.Exclaim {
+  fill: #dc362e;
+}
+
+.Codeblock:hover .Button-eval.steady svg.Play {
   display: block;
 }
 
@@ -36,6 +40,10 @@
 .Codeblock .Button-eval.progress {
   right: 6px;
   top: -6px;
+}
+
+.Codeblock .Button-eval.err svg.Exclaim {
+  display: block;
 }
 
 .Codeblock .Button-eval.progress svg.LoadingGear {
