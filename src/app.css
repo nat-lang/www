@@ -74,6 +74,10 @@ button:active {
   flex-direction: column;
 }
 
+.flex-grow {
+  flex-grow: 1;
+}
+
 .flex-center {
   justify-content: center;
   align-items: center;
@@ -168,7 +172,7 @@ button:active {
   opacity: 0.65;
 }
 
-.Editor .PageScrollguard {
+.Editor .Page .Canvas {
   overflow-x: scroll;
   overflow-y: scroll;
   width: 100%;
@@ -177,7 +181,7 @@ button:active {
   align-items: center;
 }
 
-.Editor .Page .Canvas {
+.Editor .Page .Canvas .CanvasPane {
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--header-height));

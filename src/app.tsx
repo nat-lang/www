@@ -8,8 +8,8 @@ import runtime from "./service/nat/client";
 import useAuthCtx from "./context/auth";
 import { RepoFile } from "./types";
 import { DOC_PATH, LIB_PATH } from "./config";
-import Core, { CoreBase } from "./routes/core";
-import { px2pt, sortObjs, vw2px } from "./utilities";
+import Core from "./routes/core";
+import { px2pt, vw2px } from "./utilities";
 import useDimsCtx from "./context/dims";
 import useModelCtx, { createModel } from "./context/monaco";
 import * as monaco from 'monaco-editor';
@@ -18,13 +18,12 @@ import { useNavigation } from "./hooks/useNavigation";
 import Edit from "./routes/edit";
 import Create from "./routes/create";
 import useCreateCtx from "./context/create";
-import useCanvasCtx from "./context/canvas";
 import { useShallow } from "zustand/react/shallow";
+import CoreBase from "./routes/core/base";
 
 const EditorCommands = {
   CmdEnter: "CmdEnter"
 };
-
 
 const App = () => {
   const [git, setGit] = useState<Git | null>(null);
@@ -41,7 +40,6 @@ const App = () => {
   const { center } = useDimsCtx(useShallow(({ center }) => ({ center })));
 
   const runtimeCtx = useRuntimeCtx();
-  const { pageRef, anchorRefs, setObserver, setAnchorRefInView } = useCanvasCtx();
   const createCtx = useCreateCtx();
   const { models, setModel, delModel } = useModelCtx();
   const location = useLocation();
@@ -52,11 +50,8 @@ const App = () => {
 
   const ctx = () => `let window = {"center": "${px2pt(vw2px(center * 0.667))}pt"};
 let host = "${window.location.protocol}//${window.location.host}";
-let path = "${location.pathname}";
+let path = "${window.location.pathname}";
   `;
-
-  const [scrollTarget, setScrollTarget] = useState<string | null>(null);
-  const [noScroll, setNoScroll] = useState<boolean>(false);
 
   const setRuntimeDirs = (
     files: RepoFile[],
@@ -198,67 +193,6 @@ let path = "${location.pathname}";
 
   // anchor management.
   // -------------------------------------
-
-  // set a scroll target if it's in the url.
-  useEffect(() => {
-    if (noScroll) {
-      setNoScroll(false);
-      return;
-    }
-    if (scrollTarget) return;
-    setScrollTarget(location.pathname + location.hash);
-  }, [location]);
-
-  // scroll to target.
-  useEffect(() => {
-    const scrollTargetRef = scrollTarget ? anchorRefs[scrollTarget] : null;
-    if (!scrollTargetRef?.current) return;
-    if (scrollTargetRef.inView) return;
-    scrollTargetRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [scrollTarget, anchorRefs]);
-
-  // track two things:
-  // a) whether anchor elements are in view, and
-  // b) whether we've arrived at a scroll target.
-  useEffect(() => {
-    if (!pageRef?.current) return;
-
-    const io = new IntersectionObserver(
-      entries => {
-        for (const entry of entries) {
-          const target = entry.target as HTMLDivElement
-
-          if (target.dataset.path)
-            setAnchorRefInView(target.dataset.path, entry.isIntersecting);
-          if (target.dataset.path === scrollTarget && entry.isIntersecting)
-            setScrollTarget(null);
-        }
-      },
-      { root: pageRef.current }
-    );
-
-    setObserver(io);
-
-    return () => {
-      io.disconnect();
-      setObserver(null);
-    };
-  }, [pageRef, scrollTarget]);
-
-  const firstAnchorInView = sortObjs(Object.values(anchorRefs)).find(ref => ref.inView);
-
-  // update the url if an anchor scrolls into view.
-  useEffect(() => {
-    // we're scrolling programatically; nothing to do.
-    if (scrollTarget) return;
-    // no anchor in view.
-    if (!firstAnchorInView) return;
-    // we're already at the ref's url.
-    if (firstAnchorInView.path === location.pathname + location.hash) return;
-    // update the url without setting a new scroll target.
-    setNoScroll(true);
-    navigate(firstAnchorInView.path);
-  }, [firstAnchorInView, scrollTarget]);
 
   return <>
     <Routes>

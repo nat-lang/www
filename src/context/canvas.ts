@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { StampedCodeblockResp, TypesetResp } from '../types';
+import { StampedCodeblockResp, StampedTextResp, TypesetResp } from '../types';
 import { RefObject } from 'react';
 
-export type CanvasObj = TypesetResp | StampedCodeblockResp;
+export type CanvasObj = TypesetResp | StampedCodeblockResp | StampedTextResp;
 type Ref = RefObject<HTMLDivElement | null | undefined>;
 type AnchorRef = Ref & {
   path: string;
@@ -10,7 +10,7 @@ type AnchorRef = Ref & {
   inView: boolean;
 };
 
-interface CanvasCtx {
+export interface CanvasCtx {
   objects: Record<string, CanvasObj[]>;
   observer: IntersectionObserver | null;
   pageRef: Ref | null;

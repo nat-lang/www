@@ -128,7 +128,7 @@ const FileTree = <T extends IFile,>({ onFileClick, open = false, files, activeFi
             onClick={() => navigate(`${location.pathname === anchor.out.path ? "" : anchor.out.path}#${anchor.out.title}`)}
           >
             <div className="FileTreeAnchorTitle">
-              <span>{anchor.out.title}</span>
+              <span data-order={anchor.order}>{anchor.out.title}</span>
             </div>
           </div>
         )}

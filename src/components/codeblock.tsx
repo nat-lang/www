@@ -1,7 +1,7 @@
 import "./codeblock.css";
 import { forwardRef, useEffect, useState } from "react";
 import { CodeblockResp } from '@nat-lang/nat';
-import Editor from './monaco';
+import Monaco from './monaco';
 import Button from './button';
 import { useRuntime } from '../hooks/useRuntime';
 import runtime from '../service/nat/client';
@@ -9,6 +9,9 @@ import Play from "../icons/play";
 import useModelCtx, { useModel } from "../context/monaco";
 import useDimsCtx from "../context/dims";
 import { useShallow } from "zustand/react/shallow";
+import useCanvasCtx from "../context/canvas";
+import { sortObjs } from "../utilities";
+import StandalonePDF from "./pdf/standalone";
 
 type CodeblockProps = {
   parent: string;
@@ -19,12 +22,22 @@ type CodeblockProps = {
 const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
   ({ parent, block, className = "" }, ref) => {
     const [fileLoaded, setFileLoaded] = useState<boolean>(false);
-    const { evaluate, stdout } = useRuntime();
-    const { maxPdfWidth } = useDimsCtx(useShallow(({ maxPdfWidth }) => ({ maxPdfWidth })));
+    const { evaluate, stdout, stderr } = useRuntime();
+    const { objects } = useCanvasCtx();
+    const maxPdfWidth = useDimsCtx(useShallow(state => state.maxPdfWidth));
     const dir = `${parent}-codeblocks`;
-    const path = `${dir}/${block.id}`;
+    const path = `/${dir}/${block.id}`;
     const { delModel } = useModelCtx();
     const model = useModel(path, block.out.text);
+
+    const handleEval = async () => {
+      if (!fileLoaded) return;
+
+      const file = await runtime.getFile(path);
+      await runtime.setFile(path, `use ../.common\n${file.content}`);
+
+      evaluate(path);
+    };
 
     useEffect(() => {
       if (model)
@@ -32,6 +45,8 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
     }, [model]);
 
     useEffect(() => {
+      if (fileLoaded) return;
+
       runtime.mkDir(dir)
         .then(() => runtime.setFile(path, block.out.text))
         .then(() => setFileLoaded(true));
@@ -45,10 +60,9 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
 
     return <div className={`Codeblock ${className}`} style={{ maxWidth: maxPdfWidth ?? undefined }} ref={ref} >
       <div className="Codeblock-row flex-row">
-        <div className="Codeblock-margin Codeblock-outer-margin" />
         <div className="Codeblock-space" />
-        <div className="Codeblock-col flex-col" >
-          <Editor
+        <div className="flex-col flex-grow" >
+          <Monaco
             model={model}
             fitHeightToContent
             options={{
@@ -64,12 +78,45 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
             }}
           />
 
-          {stdout.length > 0 && <div className="Codeblock-out flex-row">
-            <div className="Codeblock-margin Codeblock-inner-margin" />
+          {objects[path]?.length > 0 && <div className="Codeblock-out flex-row">
+            <div className="Codeblock-margin" />
             <div className="Codeblock-space" />
-            <div className="Codeblock-stdout flex-col">
+            <div className="CodeblockCanvas">
+              {sortObjs(objects[path] ?? []).map(
+                obj => {
+                  switch (obj.type) {
+                    case "tex":
+                      return <StandalonePDF
+                        className="CodeblockCanvas-item"
+                        key={obj.id}
+                        file={obj.pdf}
+                      />
+                    case "string":
+                      return <div className="CodeblockCanvas-item" key={obj.id}>{obj.out}</div>
+                    default:
+                      return undefined;
+                  }
+                }
+              )}
+            </div>
+          </div>}
+
+          {stdout.length > 0 && <div className="Codeblock-out flex-row">
+            <div className="Codeblock-margin" />
+            <div className="Codeblock-space" />
+            <div className="flex-col">
               {stdout.map(
-                (x, idx) => <div key={idx} className="Codeblock-stdout-line">{x}</div>
+                (x, idx) => <div key={idx}>{x}</div>
+              )}
+            </div>
+          </div>}
+
+          {stderr.length > 0 && <div className="Codeblock-out flex-row">
+            <div className="Codeblock-margin err" />
+            <div className="Codeblock-space" />
+            <div className="flex-col">
+              {stderr.map(
+                (x, idx) => <div key={idx}>{x}</div>
               )}
             </div>
           </div>}
@@ -78,7 +125,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
       <Button
         className="Button-eval"
         disabled={!fileLoaded}
-        onClick={() => fileLoaded && evaluate(path)}
+        onClick={handleEval}
       >
         <Play />
       </Button>
