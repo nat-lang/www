@@ -28,6 +28,21 @@
   display: none;
 }
 
+.Codeblock .Button-eval.progress {
+  right: 6px;
+  top: -6px;
+}
+
+.Codeblock .Button-eval svg.LoadingGear {
+  width: 28px;
+  height: 28px;
+}
+
+.Codeblock .Button-eval svg.Check,
+.Codeblock .Button-eval svg.progress {
+  display: block;
+}
+
 .Codeblock .Codeblock-margin {
   width: 3px;
   background-color: #3cb042;

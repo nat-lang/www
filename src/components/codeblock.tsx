@@ -1,6 +1,5 @@
 import "./codeblock.css";
 import { forwardRef, useEffect, useState } from "react";
-import { CodeblockResp } from '@nat-lang/nat';
 import Monaco from './monaco';
 import Button from './button';
 import { useRuntime } from '../hooks/useRuntime';
@@ -12,23 +11,29 @@ import { useShallow } from "zustand/react/shallow";
 import useCanvasCtx from "../context/canvas";
 import { sortObjs } from "../utilities";
 import StandalonePDF from "./pdf/standalone";
+import Check from "../icons/check";
+import LoadingGear from "../icons/loadingGear";
+import { StampedCodeblockResp } from "../types";
 
 type CodeblockProps = {
   parent: string;
-  block: CodeblockResp & { id: string };
+  block: StampedCodeblockResp;
   className?: string;
 }
 
 const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
   ({ parent, block, className = "" }, ref) => {
     const [fileLoaded, setFileLoaded] = useState<boolean>(false);
-    const { evaluate, stdout, stderr } = useRuntime();
+    const { evaluate, evaluating, rendering, stdout, stderr } = useRuntime();
     const { objects } = useCanvasCtx();
     const maxPdfWidth = useDimsCtx(useShallow(state => state.maxPdfWidth));
     const dir = `${parent}-codeblocks`;
     const path = `/${dir}/${block.id}`;
     const { delModel } = useModelCtx();
     const model = useModel(path, block.out.text);
+    const [dirty, setDirty] = useState(false);
+    const [mouseOverButton, setMouseOverButton] = useState(false);
+    const [animateCompletion, setAnimateCompletion] = useState(false);
 
     const handleEval = async () => {
       if (!fileLoaded) return;
@@ -36,7 +41,8 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
       const file = await runtime.getFile(path);
       await runtime.setFile(path, `use ../.common\n${file.content}`);
 
-      evaluate(path);
+      await evaluate(path);
+      setDirty(true);
     };
 
     useEffect(() => {
@@ -57,6 +63,14 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         );
       };
     }, [path, fileLoaded]);
+
+    useEffect(() => {
+      if (!evaluating && !rendering) {
+        setAnimateCompletion(true);
+        const timeout = setTimeout(() => setAnimateCompletion(false), 1000);
+        return () => clearTimeout(timeout);
+      }
+    }, [evaluating, rendering]);
 
     return <div className={`Codeblock ${className}`} style={{ maxWidth: maxPdfWidth ?? undefined }} ref={ref} >
       <div className="Codeblock-row flex-row">
@@ -123,11 +137,20 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         </div>
       </div>
       <Button
-        className="Button-eval"
+        className={`Button-eval ${evaluating || rendering ? "progress" : ""}`}
         disabled={!fileLoaded}
         onClick={handleEval}
+        onMouseEnter={() => setMouseOverButton(true)}
+        onMouseLeave={() => setMouseOverButton(false)}
       >
-        <Play />
+        {evaluating || rendering
+          ? <LoadingGear className="progress" />
+          : dirty
+            ? mouseOverButton && !animateCompletion
+              ? <Play />
+              : <Check className={animateCompletion ? "complete" : ""} />
+            : <Play />}
+
       </Button>
     </div>
   }
