@@ -1,5 +1,5 @@
 import "./app.css"
-import { BrowserRouter, Navigate, Route, Routes, useLocation, } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, } from "react-router-dom";
 import Login from "./routes/login";
 import { useEffect, useState } from "react";
 import Git, { DOC_REPO, LIB_REPO } from "./service/git";

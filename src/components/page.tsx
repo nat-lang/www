@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useRef } from 'react';
+import { FunctionComponent } from 'react';
 import Grid, { MIN_COL_VW } from './grid';
 import Navigation from './navigation';
 import LoadingGear from '../icons/loadingGear';
@@ -12,7 +12,6 @@ import Canvas from './canvas';
 import useCanvasCtx from '../context/canvas';
 import { useShallow } from 'zustand/react/shallow';
 import ScrollManager from './scrollmanager';
-import { useNavigation } from '../hooks/useNavigation';
 
 type PageProps = {
   evaluating: boolean;
