@@ -14,15 +14,12 @@ type FTreeOps = {
 
 const FTree: FunctionComponent<FTreeOps> = ({ node, title, depth, open: _open = false }) => {
   const location = useLocation();
-  // console.log(node, location);
   const [open, setOpen] = useState(_open);
 
   const onTitleClick = () => setOpen(!open);
 
   useEffect(() => {
-    console.log("revise", location.pathname.startsWith("/" + node.path))
-    setOpen(location.pathname.startsWith("/" + node.path));
-
+    setOpen(location.pathname.startsWith(node.path));
   }, [location]);
 
   return <div className={`FileTreeFolder ${!open ? "FileTreeFolder--closed" : ""}`}>

@@ -15,22 +15,19 @@ import ScrollManager from './scrollmanager';
 
 type PageProps = {
   evaluating: boolean;
-  fsPath: string;
-  urlPath?: string;
   model: editor.ITextModel | null;
   className?: string;
   orientation: "OE" | "EO"
 }
 
-const Page: FunctionComponent<PageProps> = ({ evaluating, fsPath, urlPath, model, className = "", orientation }) => {
+const Page: FunctionComponent<PageProps> = ({ evaluating, model, className = "", orientation }) => {
   const { setDims } = useDimsCtx(useShallow(({ setDims }) => ({ setDims })));
-  const { objects } = useCanvasCtx();
 
   const Editor = (pane: keyof Dims) => (dims: Dims) => <Monaco model={model} style={{ width: vw(dims[pane]) }} />;
   const Output = (pane: keyof Dims) => (dims: Dims) => <div className="Page" style={{ width: vw(dims[pane]) }} >
     {evaluating
       ? <div className="CanvasPreview" style={{ width: vw(dims[pane]) }}><LoadingGear /></div>
-      : <Canvas fsPath={fsPath} objects={objects[fsPath] ?? []} urlPath={urlPath} />
+      : <Canvas />
     }
 
     {dims.right > MIN_COL_VW

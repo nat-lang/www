@@ -1,5 +1,5 @@
 import { useState, useEffect, FunctionComponent } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import Header from '../components/header';
 import Button from '../components/button';
 import Git from '../service/git';
@@ -11,25 +11,21 @@ import LoadingGear from '../icons/loadingGear';
 import useCmdKeys from '../hooks/useCmdKeys';
 import { useModel } from '../context/monaco';
 import Page from '../components/page';
-import { useNavigation } from '../hooks/useNavigation';
 import useCanvasCtx from '../context/canvas';
 
 type EditProps = {
   git: Git | null;
   fileMap: FileMap;
   onNew: () => void;
-  fsRoot: string;
-  relPath?: boolean;
 }
 
-const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, fileMap, relPath = false }) => {
-  const params = useParams();
-  const { navigate } = useNavigation();
+const Edit: FunctionComponent<EditProps> = ({ git, onNew, fileMap }) => {
+  const path = useLocation().pathname;
   const githubAuth = useAuthCtx(state => state.token);
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-  const path = params["*"];
-  const fsPath = `${fsRoot}/${path}`;
-  const model = useModel(fsPath, fileMap[fsPath]);
+
+  console.log(path, fileMap);
+  const model = useModel(path, fileMap[path]);
   const { evaluate, evaluating, rendering, canEvaluate } = useRuntime();
   const { objects } = useCanvasCtx();
   const [saving, setSaving] = useState(false);
@@ -45,16 +41,15 @@ const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, fileMap, relPa
   const handleSave = async (form: FilePaneFieldValues) => {
     setOpenFilePane(false);
     await save(form);
-    navigate(relPath && path ? path : `/${fsPath}`);
   };
 
   useEffect(() => {
-    if (!fsPath) return;
+    if (!path) return;
     if (!canEvaluate) return;
-    if (objects[fsPath]) return;
+    if (objects[path]) return;
 
-    evaluate(fsPath);
-  }, [canEvaluate, fsPath, objects[fsPath]]);
+    evaluate(path);
+  }, [canEvaluate, path, objects[path]]);
 
   useCmdKeys({
     onS: () => {
@@ -62,9 +57,9 @@ const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, fileMap, relPa
       save({ path });
     },
     onEnter: () => {
-      fsPath && canEvaluate && evaluate(fsPath);
+      path && canEvaluate && evaluate(path);
     }
-  }, [fsPath, save]);
+  }, [path, save]);
 
   return <>
     <Header>
@@ -72,14 +67,14 @@ const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, fileMap, relPa
         <LoadingGear />
         <div className="Button-text">save</div>
       </Button>}
-      <Button disabled={!canEvaluate} inflight={evaluating || rendering} className="EvalButton" onClick={() => fsPath && canEvaluate && evaluate(fsPath)}>
+      <Button disabled={!canEvaluate} inflight={evaluating || rendering} className="EvalButton" onClick={() => path && canEvaluate && evaluate(path)}>
         <LoadingGear />
         <div className="Button-text">evaluate</div>
       </Button>
 
       <Button onClick={onNew}>new</Button>
     </Header>
-    <Page evaluating={evaluating} fsPath={fsPath} urlPath={relPath ? path : undefined} model={model} orientation="OE" />
+    <Page evaluating={evaluating} path={path} model={model} orientation="OE" />
     {openFilePane && <FilePane onSubmit={handleSave} path={path} />}
   </>;
 };

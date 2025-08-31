@@ -11,9 +11,9 @@ type FBlobOps = {
 
 const FBlob: FunctionComponent<FBlobOps> = ({ node, title, depth }) => {
   const location = useLocation();
-  const active = location.pathname === "/" + node.path;
-  console.log(location, node.path, active);
-  return <Link to={"/" + node.path}><div
+  const active = location.pathname === node.path;
+
+  return <Link to={node.path}><div
     className={`FileTreeFile ${active ? "FileTreeFile--active" : ""}`}
     style={{ paddingLeft: iconWidth + 5 * depth }}
   >

@@ -2,20 +2,20 @@ import { FunctionComponent, useEffect, useRef } from "react";
 import Codeblock from "./codeblock";
 import StandalonePDF from "./pdf/standalone";
 import AnchorPDF from "./pdf/anchor";
-import useCanvasCtx, { CanvasObj } from "../context/canvas";
+import useCanvasCtx from "../context/canvas";
 import { sortObjs } from "../utilities";
 import FauxAnchor from "./fauxanchor";
+import { useLocation } from "react-router-dom";
 
 type CanvasOps = {
-  fsPath: string;
-  objects: CanvasObj[],
-  urlPath?: string;
   style?: React.CSSProperties;
 }
 
-const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, objects, urlPath = fsPath, style = {} }) => {
+const Canvas: FunctionComponent<CanvasOps> = ({ style = {} }) => {
   const ref = useRef<HTMLDivElement | null>(null);
+  const path = useLocation().pathname;
   const canvasCtx = useCanvasCtx();
+  const objects = canvasCtx.objects[path] ?? [];
 
   useEffect(() => {
     canvasCtx.setPageRef(ref);
@@ -24,7 +24,7 @@ const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, objects, urlPath = fsPat
 
   return <div className="Canvas" ref={ref}>
     <div className="CanvasPane" style={style}>
-      <FauxAnchor path={"/" + urlPath} order={0} />
+      <FauxAnchor path={path} order={0} />
 
       {sortObjs(objects).map(
         obj => {
@@ -40,7 +40,7 @@ const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, objects, urlPath = fsPat
                 className="Canvas-item"
                 key={obj.id}
                 block={obj}
-                parent={fsPath}
+                parent={path}
               />
             case "anchor":
               return <AnchorPDF

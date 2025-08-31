@@ -136,7 +136,13 @@ let path = "${window.location.pathname}";
     (async () => {
       if (!git) return;
 
-      const repo = (await git.getRepo()).data.tree;
+      let repo = (await git.getRepo()).data.tree;
+
+      // make pathnames absolute for consistency with location.pathnam
+      // and fs paths.
+      repo = repo.map(
+        file => ({ ...file, path: "/" + file.path })
+      );
 
       await Promise.all(
         repo.filter(file => file.type === "tree" && !!file.path).map(
@@ -219,7 +225,6 @@ let path = "${window.location.pathname}";
         element={
           <Edit
             git={git}
-            fsRoot={DOC_PATH}
             fileMap={repoMap}
             onNew={() => navigate("/guide/new")}
           />
@@ -248,10 +253,8 @@ let path = "${window.location.pathname}";
         element={
           <Edit
             git={git}
-            fsRoot={LIB_PATH}
             fileMap={repoMap}
             onNew={() => navigate("/lib/new")}
-            relPath
           />
         }
       />

@@ -1,14 +1,10 @@
 
 import { FunctionComponent } from "react";
 import "./navigation.css";
-import { RepoFile } from "../types";
-import { useParams } from "react-router-dom";
-import { CORE_PATH } from "../config";
 import useFileCtx from "../context/file";
-import FileTree from "./filetree";
-import { useNavigation } from "../hooks/useNavigation";
 import FBlob from "./filetree/FBlob";
 import FArray from "./filetree/FArray";
+import { trimPrefix } from "../utilities";
 
 
 type NavigationProps = {
@@ -19,13 +15,12 @@ type NavigationProps = {
 const Navigation: FunctionComponent<NavigationProps> = (({ style, className = "" }) => {
   const { repo, core } = useFileCtx();
 
-  // console.log(core);
   return <div className={`Navigation ${className}`} style={style}>
     {repo.map(node => {
       switch (node.type) {
         case "tree":
           return <div key={node.path} className="NavigationPane">
-            <div className="NavigationSecTitle">{node.path}</div>
+            <div className="NavigationSecTitle">{trimPrefix(node.path, "/")}</div>
             <FArray nodes={node.children ?? []} depth={0} parent={node} />
           </div>
         case "blob":
