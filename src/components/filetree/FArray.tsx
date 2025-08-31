@@ -1,13 +1,12 @@
 import { FunctionComponent } from "react";
-import { RepoFileTree } from "../../context/file";
-import Caret from "../../icons/caret";
-import FTree from "./FTree";
+import { FileTree } from "../../context/file";
 import FBlob from "./FBlob";
 import { fmtTitle } from "./conf";
+import FTree from "./FTree";
 
 type FArrayOps = {
-  parent: RepoFileTree;
-  nodes: RepoFileTree[];
+  parent: FileTree;
+  nodes: FileTree[];
   depth: number;
 }
 

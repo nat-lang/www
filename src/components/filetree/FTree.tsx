@@ -1,14 +1,14 @@
 import { FunctionComponent } from "react";
-import { RepoFileTree } from "../../context/file";
+import { FileTree } from "../../context/file";
 import Caret from "../../icons/caret";
 import FArray from "./FArray";
 
 type FTreeOps = {
-  node: RepoFileTree;
+  node: FileTree;
   title: string;
   open: boolean;
   depth: number;
-  parent: RepoFileTree;
+  parent: FileTree;
 }
 
 const FTree: FunctionComponent<FTreeOps> = ({ node, title, depth, open = false }) => {

@@ -1,10 +1,10 @@
 import { FunctionComponent } from "react";
-import { RepoFileTree } from "../../context/file";
+import { FileTree } from "../../context/file";
 import { iconWidth } from "./conf";
 import { Link } from "react-router-dom";
 
 type FBlobOps = {
-  node: RepoFileTree;
+  node: FileTree;
   title: string;
   depth: number;
 }

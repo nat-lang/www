@@ -4,12 +4,13 @@ import { CoreFile } from '@nat-lang/nat';
 
 export type FileMap = Record<string, string | undefined>;
 
-export type RepoFileTree = Omit<RepoFile, "path"> & {
-  children?: RepoFileTree[];
+export type FileTree = {
+  children?: FileTree[];
   path: string;
+  type: string;
 }
 
-export const repoArrayToTree = (repo: RepoFileArray): RepoFileTree[] => {
+export const repoArrayToTree = (repo: RepoFileArray): FileTree[] => {
   const trees = [];
 
   for (let i = 0; i < repo.length; i++) {
@@ -26,22 +27,22 @@ export const repoArrayToTree = (repo: RepoFileArray): RepoFileTree[] => {
 
       }
 
-      (node as RepoFileTree).children = repoArrayToTree(slice);
+      (node as FileTree).children = repoArrayToTree(slice);
       trees.push(node);
     } else {
       trees.push(node);
     }
   }
 
-  return trees as RepoFileTree[];
+  return trees as FileTree[];
 }
 
 interface FileCtx {
-  repo: RepoFileTree[];
+  repo: FileTree[];
   core: CoreFile[];
   repoMap: FileMap;
 
-  setRepo: (tree: RepoFileTree[]) => void;
+  setRepo: (tree: FileTree[]) => void;
   setCore: (tree: CoreFile[]) => void;
   setRepoFile: (path: string, content: string) => void;
 
