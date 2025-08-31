@@ -10,28 +10,28 @@ export type FileTree = {
   type: string;
 }
 
-export const repoArrayToTree = (repo: RepoFileArray): FileTree[] => {
+export const fileArrayToTree = (repo: RepoFileArray): FileTree[] => {
   const trees = [];
 
   for (let i = 0; i < repo.length; i++) {
-    const node = repo[i];
+    if (!repo[i].path) continue;
+    if (!repo[i].type) continue;
 
-
-    if (!node.path) continue;
+    const node: FileTree = { ...repo[i], path: repo[i].path!, type: repo[i].type!, children: [] };
 
     if (node.type === "tree") {
+      console.log("ndoe tree", node);
       const slice = [];
-
+      console.log(repo.length, repo[i + 1]);
       while (i + 1 < repo.length && repo[i + 1].path && repo[i + 1].path!.startsWith(node.path)) {
         slice.push(repo[++i]);
 
       }
-
-      (node as FileTree).children = repoArrayToTree(slice);
-      trees.push(node);
-    } else {
-      trees.push(node);
+      console.log("node slice", slice);
+      node.children = fileArrayToTree(slice);
     }
+
+    trees.push(node);
   }
 
   return trees as FileTree[];
@@ -39,11 +39,11 @@ export const repoArrayToTree = (repo: RepoFileArray): FileTree[] => {
 
 interface FileCtx {
   repo: FileTree[];
-  core: CoreFile[];
+  core: FileTree[];
   repoMap: FileMap;
 
   setRepo: (tree: FileTree[]) => void;
-  setCore: (tree: CoreFile[]) => void;
+  setCore: (tree: FileTree[]) => void;
   setRepoFile: (path: string, content: string) => void;
 
   repoLoaded: boolean;

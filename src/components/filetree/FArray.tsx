@@ -11,13 +11,11 @@ type FArrayOps = {
 }
 
 const FArray: FunctionComponent<FArrayOps> = ({ nodes, depth, parent }) => {
-  console.log(nodes);
-
   return nodes.map(
     node => node.type === "tree"
-      ? <FTree node={node} title={fmtTitle(node.path, parent.path)} open depth={depth} parent={parent} />
+      ? <FTree key={node.path} node={node} title={fmtTitle(node.path, parent.path)} open depth={depth} parent={parent} />
       : node.type === "blob"
-        ? <FBlob node={node} title={fmtTitle(node.path, parent.path)} depth={depth} />
+        ? <FBlob key={node.path} node={node} title={fmtTitle(node.path, parent.path)} depth={depth} />
         : undefined
   );
 

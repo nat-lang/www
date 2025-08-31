@@ -12,9 +12,8 @@ type FTreeOps = {
 }
 
 const FTree: FunctionComponent<FTreeOps> = ({ node, title, depth, open = false }) => {
-  console.log(node);
   return <div className={`FileTreeFolder ${!open ? "FileTreeFolder--closed" : ""}`}>
-    <div className="FileTreeFileTitle flex">
+    <div className="FileTreeFileTitle flex flex-align">
       <Caret className="icon" /> {title}
     </div>
     <FArray nodes={node.children ?? []} depth={depth + 1} parent={node} />

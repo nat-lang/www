@@ -28,27 +28,24 @@ const Navigation: FunctionComponent<NavigationProps> = (({ style, className = ""
     navigate(fn(file));
   };
 
+
+  // console.log(core);
   return <div className={`Navigation ${className}`} style={style}>
     {repo.map(node => {
       switch (node.type) {
         case "tree":
-          return <div className="NavigationPane">
+          return <div key={node.path} className="NavigationPane">
             <div className="NavigationSecTitle">{node.path}</div>
             <FArray nodes={node.children ?? []} depth={0} parent={node} />
           </div>
         case "blob":
-          return <FBlob node={node} title={node.path} depth={0} />
+          return <FBlob key={node.path} node={node} title={node.path} depth={0} />
       }
     })}
 
     <div className="NavigationPane">
       <div className="NavigationSecTitle">core</div>
-      {core.length && <FileTree
-        activeFilePath={path}
-        files={core}
-        onFileClick={onFileClick(file => `/${CORE_PATH}/${file.path}`)}
-        open={false}
-      />}
+      <FArray nodes={core} depth={0} parent={{ type: "tree", path: "core" }} />
     </div>
   </div>;
 });

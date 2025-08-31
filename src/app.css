@@ -8,6 +8,7 @@ html {
 
 a {
   color: black;
+  text-decoration: none;
 }
 
 *,
@@ -86,8 +87,7 @@ button:active {
   flex-grow: 1;
 }
 
-.flex-center {
-  justify-content: center;
+.flex-align {
   align-items: center;
 }
 

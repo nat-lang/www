@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation, } from "react-router-dom";
 import Login from "./routes/login";
 import { useEffect, useState } from "react";
 import Git from "./service/git";
-import useFileCtx, { repoArrayToTree } from "./context/file";
+import useFileCtx, { fileArrayToTree } from "./context/file";
 import runtime from "./service/nat/client";
 import useAuthCtx from "./context/auth";
 import { RepoFile } from "./types";
@@ -56,7 +56,7 @@ let path = "${window.location.pathname}";
   // -------------------------------------
 
   useEffect(() => {
-    runtime.getCoreFiles().then(setCore);
+    runtime.getCoreFiles().then(fileArrayToTree).then(setCore);
     runtime.init().then(runtimeCtx.setInitialized);
   }, []);
 
@@ -152,7 +152,7 @@ let path = "${window.location.pathname}";
         }
       }));
 
-      setRepo(repoArrayToTree(repo));
+      setRepo(fileArrayToTree(repo));
       setRepoLoaded();
     })();
   }, [git]);
