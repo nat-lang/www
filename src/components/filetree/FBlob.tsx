@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { FileTree } from "../../context/file";
 import { iconWidth } from "./conf";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 type FBlobOps = {
   node: FileTree;
@@ -10,8 +10,11 @@ type FBlobOps = {
 }
 
 const FBlob: FunctionComponent<FBlobOps> = ({ node, title, depth }) => {
+  const location = useLocation();
+  const active = location.pathname === "/" + node.path;
+  console.log(location, node.path, active);
   return <Link to={"/" + node.path}><div
-    className={`FileTreeFile`}
+    className={`FileTreeFile ${active ? "FileTreeFile--active" : ""}`}
     style={{ paddingLeft: iconWidth + 5 * depth }}
   >
     <div className="FileTreeFileTitle">

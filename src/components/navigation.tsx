@@ -17,17 +17,7 @@ type NavigationProps = {
 }
 
 const Navigation: FunctionComponent<NavigationProps> = (({ style, className = "" }) => {
-  const params = useParams();
-  const path = params["*"];
   const { repo, core } = useFileCtx();
-  const { navigate } = useNavigation();
-
-  const onFileClick = (fn: (file: RepoFile) => string) => (file: RepoFile) => {
-    if (!file.path)
-      throw Error(`Missing path for file ${file}`);
-    navigate(fn(file));
-  };
-
 
   // console.log(core);
   return <div className={`Navigation ${className}`} style={style}>

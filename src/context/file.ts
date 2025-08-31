@@ -20,14 +20,9 @@ export const fileArrayToTree = (repo: RepoFileArray): FileTree[] => {
     const node: FileTree = { ...repo[i], path: repo[i].path!, type: repo[i].type!, children: [] };
 
     if (node.type === "tree") {
-      console.log("ndoe tree", node);
       const slice = [];
-      console.log(repo.length, repo[i + 1]);
-      while (i + 1 < repo.length && repo[i + 1].path && repo[i + 1].path!.startsWith(node.path)) {
+      while (i + 1 < repo.length && repo[i + 1].path && repo[i + 1].path!.startsWith(node.path))
         slice.push(repo[++i]);
-
-      }
-      console.log("node slice", slice);
       node.children = fileArrayToTree(slice);
     }
 

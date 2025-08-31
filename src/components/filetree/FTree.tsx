@@ -1,7 +1,8 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { FileTree } from "../../context/file";
 import Caret from "../../icons/caret";
 import FArray from "./FArray";
+import { useLocation } from "react-router-dom";
 
 type FTreeOps = {
   node: FileTree;
@@ -11,12 +12,24 @@ type FTreeOps = {
   parent: FileTree;
 }
 
-const FTree: FunctionComponent<FTreeOps> = ({ node, title, depth, open = false }) => {
+const FTree: FunctionComponent<FTreeOps> = ({ node, title, depth, open: _open = false }) => {
+  const location = useLocation();
+  // console.log(node, location);
+  const [open, setOpen] = useState(_open);
+
+  const onTitleClick = () => setOpen(!open);
+
+  useEffect(() => {
+    console.log("revise", location.pathname.startsWith("/" + node.path))
+    setOpen(location.pathname.startsWith("/" + node.path));
+
+  }, [location]);
+
   return <div className={`FileTreeFolder ${!open ? "FileTreeFolder--closed" : ""}`}>
-    <div className="FileTreeFileTitle flex flex-align">
+    <div className="FileTreeFileTitle flex flex-align" onClick={onTitleClick}>
       <Caret className="icon" /> {title}
     </div>
-    <FArray nodes={node.children ?? []} depth={depth + 1} parent={node} />
+    {open && <FArray nodes={node.children ?? []} depth={depth + 1} parent={node} />}
   </div>
 };
 
