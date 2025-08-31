@@ -2,8 +2,8 @@ import "./app.css"
 import { Navigate, Route, Routes, useLocation, } from "react-router-dom";
 import Login from "./routes/login";
 import { useEffect, useState } from "react";
-import Git, { DOC_REPO, LIB_REPO } from "./service/git";
-import useFileCtx from "./context/file";
+import Git from "./service/git";
+import useFileCtx, { repoArrayToTree } from "./context/file";
 import runtime from "./service/nat/client";
 import useAuthCtx from "./context/auth";
 import { RepoFile } from "./types";
@@ -29,13 +29,12 @@ const App = () => {
   const [git, setGit] = useState<Git | null>(null);
   const githubAuth = useAuthCtx(state => state.token);
   const {
-    docTree, setDocTree,
-    libTree, setLibTree,
-    setCoreTree,
-    setDocFile, setLibFile,
-    setDocsLoaded, setLibLoaded,
+    setRepo,
+    setCore,
+    setRepoFile,
+    setRepoLoaded,
     setCtxLoaded,
-    lib, docs
+    repoMap
   } = useFileCtx();
   const { center } = useDimsCtx(useShallow(({ center }) => ({ center })));
 
@@ -53,36 +52,11 @@ let host = "${window.location.protocol}//${window.location.host}";
 let path = "${window.location.pathname}";
   `;
 
-  const setRuntimeDirs = (
-    files: RepoFile[],
-    root: string
-  ) => Promise.all(
-    files.filter(file => file.type === "tree" && !!file.path).map(
-      async file => await runtime.mkDir(`${root}/${file.path!}`)
-    )
-  );
-
-  const setRuntimeFiles = (
-    git: Git,
-    repo: string,
-    files: RepoFile[],
-    cb: (path: string, content: string) => void,
-    root: string
-  ) => setRuntimeDirs(files, root).then(
-    () => Promise.all(files.map(async file => {
-      if (file.path && file.type !== "tree") {
-        const path = `${root}/${file.path}`;
-        const content = await git.getContent(repo, file.path);
-        await runtime.setFile(path, content);
-        cb(path, content);
-      }
-    })));
-
   // init.
   // -------------------------------------
 
   useEffect(() => {
-    runtime.getCoreFiles().then(setCoreTree);
+    runtime.getCoreFiles().then(setCore);
     runtime.init().then(runtimeCtx.setInitialized);
   }, []);
 
@@ -159,14 +133,54 @@ let path = "${window.location.pathname}";
   // -------------------------------------
 
   useEffect(() => {
-    if (!git) return;
-    git.getTree(LIB_REPO).then(
-      resp => setLibTree(resp.data.tree)
-    );
-    git.getTree(DOC_REPO).then(
-      resp => setDocTree(resp.data.tree)
-    );
-  }, [git, setLibTree, setDocTree]);
+    (async () => {
+      if (!git) return;
+
+      const repo = (await git.getRepo()).data.tree;
+
+      await Promise.all(
+        repo.filter(file => file.type === "tree" && !!file.path).map(
+          async file => await runtime.mkDir(file.path!)
+        )
+      );
+
+      await Promise.all(repo.map(async file => {
+        if (file.path && file.type !== "tree") {
+          const content = await git.getContent(file.path);
+          await runtime.setFile(file.path, content);
+          setRepoFile(file.path, content);
+        }
+      }));
+
+      setRepo(repoArrayToTree(repo));
+      setRepoLoaded();
+    })();
+  }, [git]);
+
+  /*
+  const setRuntimeDirs = (
+    files: RepoFile[],
+    root: string
+  ) => Promise.all(
+    files.filter(file => file.type === "tree" && !!file.path).map(
+      async file => await runtime.mkDir(`${root}/${file.path!}`)
+    )
+  );
+
+  const setRuntimeFiles = (
+    git: Git,
+    files: RepoFile[],
+    cb: (path: string, content: string) => void,
+    root: string
+  ) => setRuntimeDirs(files, root).then(
+    () => Promise.all(files.map(async file => {
+      if (file.path && file.type !== "tree") {
+        const path = `${root}/${file.path}`;
+        const content = await git.getContent(file.path);
+        await runtime.setFile(path, content);
+        cb(path, content);
+      }
+    })));
 
   useEffect(() => {
     if (!git) return;
@@ -190,6 +204,7 @@ let path = "${window.location.pathname}";
     })();
 
   }, [git, docTree]);
+  */
 
   // anchor management.
   // -------------------------------------
@@ -204,9 +219,8 @@ let path = "${window.location.pathname}";
         element={
           <Edit
             git={git}
-            repo={DOC_REPO}
             fsRoot={DOC_PATH}
-            fileMap={docs}
+            fileMap={repoMap}
             onNew={() => navigate("/guide/new")}
           />
         }
@@ -216,8 +230,6 @@ let path = "${window.location.pathname}";
         element={
           <Create
             git={git}
-            repo={DOC_REPO}
-            tree={docTree}
             ctx={{ content: createCtx.doc, path: createCtx.docPath }}
             onCreate={path => navigate(`/guide/${path}`)} />
         }
@@ -227,8 +239,6 @@ let path = "${window.location.pathname}";
         element={
           <Create
             git={git}
-            repo={LIB_REPO}
-            tree={libTree}
             ctx={{ content: createCtx.lib, path: createCtx.libPath }}
             onCreate={path => navigate(`/${path}`)} />
         }
@@ -238,9 +248,8 @@ let path = "${window.location.pathname}";
         element={
           <Edit
             git={git}
-            repo={LIB_REPO}
             fsRoot={LIB_PATH}
-            fileMap={lib}
+            fileMap={repoMap}
             onNew={() => navigate("/lib/new")}
             relPath
           />

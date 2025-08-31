@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import "./filetree.css";
 import Caret from "../icons/caret";
-import { pathBits, sysFile } from "../utilities";
+import { pathBits, sysFile, trimPrefix } from "../utilities";
 import { useLocation } from "react-router-dom";
 import { useNavigation } from "../hooks/useNavigation";
 import { TypesetAnchorResp } from "../types";
@@ -17,7 +17,8 @@ type FileTreeOps<T extends IFile> = {
   activeFilePath?: string;
   open?: boolean;
   onFileClick: (file: T) => void;
-  root?: string;
+  root?: T;
+  dir?: T;
 }
 
 const EXT = "nat";
@@ -46,22 +47,23 @@ const formatFile = (file: IFile, parent?: IFile) => {
 
 type MinMap = { [key: string]: boolean };
 
-const FileTree = <T extends IFile,>({ onFileClick, open = false, files, activeFilePath, root }: FileTreeOps<T>) => {
+const FileTree = <T extends IFile,>({ onFileClick, open = false, files, activeFilePath, root, dir }: FileTreeOps<T>) => {
   const canvasCtx = useCanvasCtx();
   const { navigate } = useNavigation();
   const location = useLocation();
+
   const [minMap, setMinMap] = useState<MinMap>(
     files.reduce((acc, file) => {
       if (!file.path) return acc;
       if (file.type === "tree")
-        acc[file.path] = open || (activeFilePath ? pathBits(activeFilePath)[0] === file.path : false)
+        acc[file.path] = open || pathBits(trimPrefix(location.pathname, "/"))[0] === file.path
       return acc;
     }, {} as MinMap)
   );
 
   const toggle = (path: string) => setMinMap(minMap => ({ ...minMap, [path]: !minMap[path] }));
   const iconWidth = 15;
-  const dirs: T[] = [];
+  const dirs: T[] = dir ? [dir] : [];
   const qualify = (file: T) => root && file.path ? `${root}/${file.path}` : file.path!;
 
   let activeAnchor: TypesetAnchorResp | undefined;
@@ -81,7 +83,7 @@ const FileTree = <T extends IFile,>({ onFileClick, open = false, files, activeFi
     }
   }
 
-  return files.filter(file => file.path && !sysFile(file.path)).map(file => {
+  return files.filter(file => file.path && !sysFile(file.path) && file.path !== dir?.path).map(file => {
     let parent = dirs[dirs.length - 1];
 
     if (file.type == "tree") {
@@ -101,6 +103,7 @@ const FileTree = <T extends IFile,>({ onFileClick, open = false, files, activeFi
         </div>
       </div>;
     } else if (file.type == "blob") {
+
       if (file?.path && parent?.path && !file.path?.includes(parent.path))
         dirs.pop();
       else if (parent?.path && !minMap[parent.path])

@@ -2,7 +2,7 @@ import { useState, useEffect, FunctionComponent } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../components/header';
 import Button from '../components/button';
-import Git, { Repo } from '../service/git';
+import Git from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import useAuthCtx from '../context/auth';
 import { FileMap } from '../context/file';
@@ -16,14 +16,13 @@ import useCanvasCtx from '../context/canvas';
 
 type EditProps = {
   git: Git | null;
-  repo: Repo;
   fileMap: FileMap;
   onNew: () => void;
   fsRoot: string;
   relPath?: boolean;
 }
 
-const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, repo, fileMap, relPath = false }) => {
+const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, fileMap, relPath = false }) => {
   const params = useParams();
   const { navigate } = useNavigation();
   const githubAuth = useAuthCtx(state => state.token);
@@ -39,7 +38,7 @@ const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, repo, fileMap,
     if (!git) return;
     if (!model) return;
     setSaving(true);
-    await git.commitFileChange(form.path, model.getValue(), form.repo, import.meta.env.VITE_GITHUB_BRANCH);
+    await git.commitFileChange(form.path, model.getValue(), import.meta.env.VITE_GITHUB_BRANCH);
     setSaving(false);
   };
 
@@ -60,7 +59,7 @@ const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, repo, fileMap,
   useCmdKeys({
     onS: () => {
       if (!path) return;
-      save({ repo, path });
+      save({ path });
     },
     onEnter: () => {
       fsPath && canEvaluate && evaluate(fsPath);
@@ -81,7 +80,7 @@ const Edit: FunctionComponent<EditProps> = ({ git, fsRoot, onNew, repo, fileMap,
       <Button onClick={onNew}>new</Button>
     </Header>
     <Page evaluating={evaluating} fsPath={fsPath} urlPath={relPath ? path : undefined} model={model} orientation="OE" />
-    {openFilePane && <FilePane onSubmit={handleSave} repo={repo} path={path} />}
+    {openFilePane && <FilePane onSubmit={handleSave} path={path} />}
   </>;
 };
 

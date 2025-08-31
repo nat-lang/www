@@ -64,6 +64,10 @@ button:active {
   transform: translateY(1px);
 }
 
+.flex {
+  display: flex;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;
