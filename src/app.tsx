@@ -1,5 +1,5 @@
 import "./app.css"
-import { Navigate, Route, Routes, useLocation, } from "react-router-dom";
+import { Navigate, Route, Routes, useBlocker, useLocation, } from "react-router-dom";
 import Login from "./routes/login";
 import { useEffect, useState } from "react";
 import Git from "./service/git";
@@ -93,18 +93,19 @@ let path = "${window.location.pathname}";
   // manage the context file we expose to nat code.
   // -------------------------------------
 
+
   useEffect(() => {
     if (!repoLoaded) return;
 
-    const disposeBeforeNavigate = beforeNavigate(
-      async () => setCtxLoaded(false)
-    );
+    // const disposeBeforeNavigate = beforeNavigate(
+    //   async () => setCtxLoaded(false)
+    // );
     const model = createModel(ctxPath, "", () => setCtxLoaded(true));
 
     setModel(ctxPath, model);
 
     return () => {
-      disposeBeforeNavigate();
+      // disposeBeforeNavigate();
       delModel(ctxPath);
     }
   }, [repoLoaded]);

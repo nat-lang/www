@@ -1,9 +1,10 @@
 import { FunctionComponent } from "react";
 import { FileTree } from "../../context/file";
 import { iconWidth } from "./conf";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { TypesetAnchorResp } from "../../types";
 import useCanvasCtx from "../../context/canvas";
+import Link from "../link";
 
 type FBlobOps = {
   node: FileTree;
@@ -16,15 +17,10 @@ const FBlob: FunctionComponent<FBlobOps> = ({ node, title, depth }) => {
   const canvasCtx = useCanvasCtx();
   const objs = canvasCtx.objects[node.path] ?? [];
 
-  let activeAnchor: TypesetAnchorResp | undefined;
-  let anchors: TypesetAnchorResp[] = [];
-
-  for (const obj of objs) {
-    if (obj.type !== "anchor") continue;
-    anchors.push(obj);
-    if (`${location.pathname}${location.hash}` === `${obj.out.path}#${obj.out.title}`)
-      activeAnchor = obj;
-  }
+  const anchors = objs.filter(obj => obj.type === "anchor") as TypesetAnchorResp[];
+  const activeAnchor = anchors.find(
+    obj => `${location.pathname}${location.hash}` === `${obj.out.path}#${obj.out.title}`
+  );
 
   console.log(activeAnchor)
 
