@@ -15,10 +15,10 @@ const Create: FunctionComponent<CreateProps> = () => {
   const { git } = useGitCtx();
   const navigate = useNavigate();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-  const { doc: content, docPath: path } = useCreateCtx();
+  const { content, path } = useCreateCtx();
   const model = useModel(path, content);
   const { evaluate, evaluating, canEvaluate } = useRuntime();
-
+  console.log(canEvaluate);
   const handleSave = async (form: FilePaneFieldValues) => {
     if (!git) return;
     if (!model) return;
@@ -31,7 +31,7 @@ const Create: FunctionComponent<CreateProps> = () => {
   return <>
     <Header>
       <Button onClick={() => setOpenFilePane(true)}>save</Button>
-      <Button disabled={canEvaluate} onClick={() => path && evaluate(path)}>evaluate</Button>
+      <Button disabled={!canEvaluate} onClick={() => path && evaluate(path)}>evaluate</Button>
     </Header>
     <Page evaluating={evaluating} model={model} orientation="EO" />
 

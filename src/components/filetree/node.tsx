@@ -1,10 +1,10 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { FileTree } from "../../context/file";
 import Caret from "../../icons/caret";
-import FArray from "./FArray";
+import Array from "./array";
 import { useLocation } from "react-router-dom";
 
-type FTreeOps = {
+type FileTreeNodeOps = {
   node: FileTree;
   title: string;
   open: boolean;
@@ -12,7 +12,7 @@ type FTreeOps = {
   parent: FileTree;
 }
 
-const FTree: FunctionComponent<FTreeOps> = ({ node, title, depth, open: _open = false }) => {
+const FileTreeNode: FunctionComponent<FileTreeNodeOps> = ({ node, title, depth, open: _open = false }) => {
   const location = useLocation();
   const [open, setOpen] = useState(_open);
 
@@ -26,8 +26,8 @@ const FTree: FunctionComponent<FTreeOps> = ({ node, title, depth, open: _open = 
     <div className="FileTreeFileTitle flex flex-align" onClick={onTitleClick}>
       <Caret className="icon" /> {title}
     </div>
-    {open && <FArray nodes={node.children ?? []} depth={depth + 1} parent={node} />}
+    {open && <Array nodes={node.children ?? []} depth={depth + 1} parent={node} />}
   </div>
 };
 
-export default FTree;
+export default FileTreeNode;

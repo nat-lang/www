@@ -5,13 +5,13 @@ import { Link, useLocation } from "react-router-dom";
 import { TypesetAnchorResp } from "../../types";
 import useCanvasCtx from "../../context/canvas";
 
-type FBlobOps = {
+type FileTreeLeafOps = {
   node: FileTree;
   title: string;
   depth: number;
 }
 
-const FBlob: FunctionComponent<FBlobOps> = ({ node, title, depth }) => {
+const FileTreeLeaf: FunctionComponent<FileTreeLeafOps> = ({ node, title, depth }) => {
   const location = useLocation();
   const canvasCtx = useCanvasCtx();
   const objs = canvasCtx.objects[node.path] ?? [];
@@ -52,4 +52,4 @@ const FBlob: FunctionComponent<FBlobOps> = ({ node, title, depth }) => {
   </>
 };
 
-export default FBlob;
+export default FileTreeLeaf;

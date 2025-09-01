@@ -18,9 +18,10 @@ const useModelCtx = create<ModelCtx>()(set => ({
   delModel: (path) => {
     set(({ models }) => {
       const model = models[path];
+      console.log("dispose", path)
       model.dispose();
-      delete models[path];
-      return { models };
+      const { [path]: _, ...newModels } = models;
+      return { models: newModels };
     })
   }
 }));
@@ -30,6 +31,7 @@ export const createModel = (path: string, content: string, onDidChangeContent = 
   const model = monaco.editor.createModel(content, 'nat', uri);
   model.onDidChangeContent(_ => {
     const v = model.getValue();
+    console.log("setting file", path, v)
     runtime.setFile(path, v);
     onDidChangeContent();
   });

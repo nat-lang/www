@@ -1,4 +1,4 @@
-import "./app.css"
+import "./root.css"
 import { Outlet, useBlocker, useLocation, } from "react-router-dom";
 import { useEffect } from "react";
 import Git from "./service/git";
@@ -10,10 +10,10 @@ import useDimsCtx from "./context/dims";
 import useModelCtx, { createModel } from "./context/monaco";
 import * as monaco from 'monaco-editor';
 import useRuntimeCtx from "./context/runtime";
-import useCreateCtx from "./context/create";
 import { useShallow } from "zustand/react/shallow";
 import useGitCtx from "./context/git";
 import useScrollManager from "./components/scrollmanager";
+import { OutletContext } from "./types";
 
 const EditorCommands = {
   CmdEnter: "CmdEnter"
@@ -159,7 +159,7 @@ let path = "${location.pathname}";
   // -------------------------------------
   useScrollManager();
 
-  return <Outlet />
+  return <Outlet context={{ ctxModel } satisfies OutletContext} />
 };
 
 export default App;

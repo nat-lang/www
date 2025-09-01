@@ -2,8 +2,8 @@
 import { FunctionComponent } from "react";
 import "./navigation.css";
 import useFileCtx from "../context/file";
-import FBlob from "./filetree/FBlob";
-import FArray from "./filetree/FArray";
+import FileTreeLeaf from "./filetree/leaf";
+import FileTreeArray from "./filetree/array";
 import { trimPrefix } from "../utilities";
 
 
@@ -21,16 +21,16 @@ const Navigation: FunctionComponent<NavigationProps> = (({ style, className = ""
         case "tree":
           return <div key={node.path} className="NavigationPane">
             <div className="NavigationSecTitle">{trimPrefix(node.path, "/")}</div>
-            <FArray nodes={node.children ?? []} depth={0} parent={node} />
+            <FileTreeArray nodes={node.children ?? []} depth={0} parent={node} />
           </div>
         case "blob":
-          return <FBlob key={node.path} node={node} title={node.path} depth={0} />
+          return <FileTreeLeaf key={node.path} node={node} title={node.path} depth={0} />
       }
     })}
 
     <div className="NavigationPane">
       <div className="NavigationSecTitle">core</div>
-      <FArray nodes={core} depth={0} parent={{ type: "tree", path: "core" }} />
+      <FileTreeArray nodes={core} depth={0} parent={{ type: "tree", path: "core" }} />
     </div>
   </div>;
 });

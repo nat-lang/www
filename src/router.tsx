@@ -4,6 +4,7 @@ import Create from './routes/create';
 import Edit from './routes/edit';
 import Login from './routes/login';
 import Core from './routes/core';
+import EditContext from './routes/edit/context';
 
 export const router = createBrowserRouter([
   {
@@ -24,7 +25,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'online/context',
-        element: <Edit />
+        element: <EditContext />
       },
       {
         path: 'core/*',

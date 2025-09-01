@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { RepoFile, RepoFileArray } from '../types';
-import { CoreFile } from '@nat-lang/nat';
+import { RepoFileArray } from '../types';
 
 export type FileMap = Record<string, string | undefined>;
 
