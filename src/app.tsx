@@ -34,7 +34,8 @@ const App = () => {
     setRepoFile,
     setRepoLoaded,
     setCtxLoaded,
-    repoMap
+    repoMap,
+    repoLoaded
   } = useFileCtx();
   const { center } = useDimsCtx(useShallow(({ center }) => ({ center })));
 
@@ -44,7 +45,7 @@ const App = () => {
   const location = useLocation();
   const { navigate, beforeNavigate } = useNavigation();
 
-  const ctxPath = "/core/online.nat";
+  const ctxPath = "/online/context";
   const ctxModel = models[ctxPath];
 
   const ctx = () => `let window = {"center": "${px2pt(vw2px(center * 0.667))}pt"};
@@ -93,6 +94,8 @@ let path = "${window.location.pathname}";
   // -------------------------------------
 
   useEffect(() => {
+    if (!repoLoaded) return;
+
     const disposeBeforeNavigate = beforeNavigate(
       async () => setCtxLoaded(false)
     );
@@ -104,7 +107,7 @@ let path = "${window.location.pathname}";
       disposeBeforeNavigate();
       delModel(ctxPath);
     }
-  }, []);
+  }, [repoLoaded]);
 
   useEffect(() => {
     if (!ctxModel) return;
@@ -163,62 +166,10 @@ let path = "${window.location.pathname}";
     })();
   }, [git]);
 
-  /*
-  const setRuntimeDirs = (
-    files: RepoFile[],
-    root: string
-  ) => Promise.all(
-    files.filter(file => file.type === "tree" && !!file.path).map(
-      async file => await runtime.mkDir(`${root}/${file.path!}`)
-    )
-  );
-
-  const setRuntimeFiles = (
-    git: Git,
-    files: RepoFile[],
-    cb: (path: string, content: string) => void,
-    root: string
-  ) => setRuntimeDirs(files, root).then(
-    () => Promise.all(files.map(async file => {
-      if (file.path && file.type !== "tree") {
-        const path = `${root}/${file.path}`;
-        const content = await git.getContent(file.path);
-        await runtime.setFile(path, content);
-        cb(path, content);
-      }
-    })));
-
-  useEffect(() => {
-    if (!git) return;
-    if (libTree.length === 0) return;
-    (async () => {
-      await runtime.mkDir(LIB_PATH);
-      await setRuntimeFiles(git, LIB_REPO, libTree, setLibFile, LIB_PATH);
-      setLibLoaded();
-    })();
-
-  }, [git, libTree]);
-
-  useEffect(() => {
-    if (!git) return;
-    if (docTree.length === 0) return;
-
-    (async () => {
-      await runtime.mkDir(DOC_PATH);
-      await setRuntimeFiles(git, DOC_REPO, docTree, setDocFile, DOC_PATH);
-      setDocsLoaded();
-    })();
-
-  }, [git, docTree]);
-  */
-
-  // anchor management.
-  // -------------------------------------
-
   return <>
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/core/online.nat" element={<CoreBase model={ctxModel} />} />
+      <Route path="/online/context" element={<CoreBase model={ctxModel} />} />
       <Route path="/core/*" element={<Core />} />
       <Route
         path="/guide/*"

@@ -73,7 +73,7 @@ const Edit: FunctionComponent<EditProps> = ({ git, onNew, fileMap }) => {
 
       <Button onClick={onNew}>new</Button>
     </Header>
-    <Page evaluating={evaluating} path={path} model={model} orientation="OE" />
+    <Page evaluating={evaluating} model={model} orientation="OE" />
     {openFilePane && <FilePane onSubmit={handleSave} path={path} />}
   </>;
 };
