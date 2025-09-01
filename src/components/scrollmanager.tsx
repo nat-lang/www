@@ -1,8 +1,7 @@
 import { FunctionComponent, ReactNode, useEffect, useState } from "react";
 import useCanvasCtx from "../context/canvas";
 import { sortObjs } from "../utilities";
-import { useNavigation } from "../hooks/useNavigation";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type ScrollManagerProps = {
   children: ReactNode;
@@ -12,7 +11,7 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
   const { pageRef, anchorRefs, setObserver, setAnchorRefInView } = useCanvasCtx();
   const [scrollTarget, setScrollTarget] = useState<string | null>(null);
   const [noScroll, setNoScroll] = useState<boolean>(false);
-  const { navigate } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
 
   // set a scroll target if it's in the url.

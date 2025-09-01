@@ -2,8 +2,7 @@ import { Fragment, useState } from "react";
 import "./filetree.css";
 import Caret from "../icons/caret";
 import { pathBits, sysFile, trimPrefix } from "../utilities";
-import { useLocation } from "react-router-dom";
-import { useNavigation } from "../hooks/useNavigation";
+import { useLocation, useNavigate } from "react-router-dom";
 import { TypesetAnchorResp } from "../types";
 import useCanvasCtx from "../context/canvas";
 
@@ -49,7 +48,7 @@ type MinMap = { [key: string]: boolean };
 
 const FileTree = <T extends IFile,>({ onFileClick, open = false, files, activeFilePath, root, dir }: FileTreeOps<T>) => {
   const canvasCtx = useCanvasCtx();
-  const { navigate } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [minMap, setMinMap] = useState<MinMap>(

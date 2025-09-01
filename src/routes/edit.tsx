@@ -1,11 +1,11 @@
 import { useState, useEffect, FunctionComponent } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import Header from '../components/header';
 import Button from '../components/button';
 import Git from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import useAuthCtx from '../context/auth';
-import { FileMap } from '../context/file';
+import useFileCtx from '../context/file';
 import { useRuntime } from '../hooks/useRuntime';
 import LoadingGear from '../icons/loadingGear';
 import useCmdKeys from '../hooks/useCmdKeys';
@@ -13,18 +13,18 @@ import { useModel } from '../context/monaco';
 import Page from '../components/page';
 import useCanvasCtx from '../context/canvas';
 import { trimPrefix } from '../utilities';
+import useGitCtx from '../context/git';
 
 type EditProps = {
-  git: Git | null;
-  fileMap: FileMap;
-  onNew: () => void;
 }
 
-const Edit: FunctionComponent<EditProps> = ({ git, onNew, fileMap }) => {
+const Edit: FunctionComponent<EditProps> = ({ }) => {
+  const { git } = useGitCtx();
+  const { repoMap } = useFileCtx();
   const path = useLocation().pathname;
   const githubAuth = useAuthCtx(state => state.token);
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-  const model = useModel(path, fileMap[path]);
+  const model = useModel(path, repoMap[path]);
   const { evaluate, evaluating, rendering, canEvaluate } = useRuntime();
   const { objects } = useCanvasCtx();
   const [saving, setSaving] = useState(false);
@@ -71,7 +71,7 @@ const Edit: FunctionComponent<EditProps> = ({ git, onNew, fileMap }) => {
         <div className="Button-text">evaluate</div>
       </Button>
 
-      <Button onClick={onNew}>new</Button>
+      <Link to="/new"><Button>new</Button></Link>
     </Header>
     <Page evaluating={evaluating} model={model} orientation="OE" />
     {openFilePane && <FilePane onSubmit={handleSave} path={path} />}

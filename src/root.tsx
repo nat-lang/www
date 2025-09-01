@@ -1,32 +1,25 @@
 import "./app.css"
-import { Navigate, Route, Routes, useBlocker, useLocation, } from "react-router-dom";
-import Login from "./routes/login";
-import { useEffect, useState } from "react";
+import { Outlet, useBlocker, useLocation, } from "react-router-dom";
+import { useEffect } from "react";
 import Git from "./service/git";
 import useFileCtx, { fileArrayToTree } from "./context/file";
 import runtime from "./service/nat/client";
 import useAuthCtx from "./context/auth";
-import { RepoFile } from "./types";
-import { DOC_PATH, LIB_PATH } from "./config";
-import Core from "./routes/core";
 import { px2pt, vw2px } from "./utilities";
 import useDimsCtx from "./context/dims";
 import useModelCtx, { createModel } from "./context/monaco";
 import * as monaco from 'monaco-editor';
 import useRuntimeCtx from "./context/runtime";
-import { useNavigation } from "./hooks/useNavigation";
-import Edit from "./routes/edit";
-import Create from "./routes/create";
 import useCreateCtx from "./context/create";
 import { useShallow } from "zustand/react/shallow";
-import CoreBase from "./routes/core/base";
+import useGitCtx from "./context/git";
 
 const EditorCommands = {
   CmdEnter: "CmdEnter"
 };
 
 const App = () => {
-  const [git, setGit] = useState<Git | null>(null);
+  const { git, setGit } = useGitCtx();
   const githubAuth = useAuthCtx(state => state.token);
   const {
     setRepo,
@@ -34,7 +27,6 @@ const App = () => {
     setRepoFile,
     setRepoLoaded,
     setCtxLoaded,
-    repoMap,
     repoLoaded
   } = useFileCtx();
   const { center } = useDimsCtx(useShallow(({ center }) => ({ center })));
@@ -43,7 +35,6 @@ const App = () => {
   const createCtx = useCreateCtx();
   const { models, setModel, delModel } = useModelCtx();
   const location = useLocation();
-  const { navigate, beforeNavigate } = useNavigation();
 
   const ctxPath = "/online/context";
   const ctxModel = models[ctxPath];
@@ -93,21 +84,18 @@ let path = "${window.location.pathname}";
   // manage the context file we expose to nat code.
   // -------------------------------------
 
+  useBlocker(() => {
+    setCtxLoaded(false);
+    return false;
+  })
 
   useEffect(() => {
     if (!repoLoaded) return;
 
-    // const disposeBeforeNavigate = beforeNavigate(
-    //   async () => setCtxLoaded(false)
-    // );
     const model = createModel(ctxPath, "", () => setCtxLoaded(true));
-
     setModel(ctxPath, model);
 
-    return () => {
-      // disposeBeforeNavigate();
-      delModel(ctxPath);
-    }
+    return () => delModel(ctxPath);
   }, [repoLoaded]);
 
   useEffect(() => {
@@ -167,52 +155,7 @@ let path = "${window.location.pathname}";
     })();
   }, [git]);
 
-  return <>
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/online/context" element={<CoreBase model={ctxModel} />} />
-      <Route path="/core/*" element={<Core />} />
-      <Route
-        path="/guide/*"
-        element={
-          <Edit
-            git={git}
-            fileMap={repoMap}
-            onNew={() => navigate("/guide/new")}
-          />
-        }
-      />
-      <Route
-        path="/guide/new"
-        element={
-          <Create
-            git={git}
-            ctx={{ content: createCtx.doc, path: createCtx.docPath }}
-            onCreate={path => navigate(`/guide/${path}`)} />
-        }
-      />
-      <Route
-        path="/lib/new"
-        element={
-          <Create
-            git={git}
-            ctx={{ content: createCtx.lib, path: createCtx.libPath }}
-            onCreate={path => navigate(`/${path}`)} />
-        }
-      />
-      <Route
-        path="/*"
-        element={
-          <Edit
-            git={git}
-            fileMap={repoMap}
-            onNew={() => navigate("/lib/new")}
-          />
-        }
-      />
-      <Route index element={<Navigate replace to="/guide/introduction" />} />
-    </Routes>
-  </>
+  return <Outlet />
 };
 
 export default App;
