@@ -4,7 +4,7 @@ import { RefObject } from 'react';
 
 export type CanvasObj = TypesetResp | StampedCodeblockResp | StampedTextResp;
 type Ref = RefObject<HTMLDivElement | null | undefined>;
-type AnchorRef = Ref & {
+export type AnchorRef = Ref & {
   path: string;
   order: number;
   inView: boolean;

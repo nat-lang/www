@@ -10,17 +10,13 @@ type ScrollManagerProps = {
 const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
   const { pageRef, anchorRefs, setObserver, setAnchorRefInView } = useCanvasCtx();
   const [scrollTarget, setScrollTarget] = useState<string | null>(null);
-  const [noScroll, setNoScroll] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   // set a scroll target if it's in the url.
   useEffect(() => {
-    if (noScroll) {
-      setNoScroll(false);
-      return;
-    }
     if (scrollTarget) return;
+    if (location.state?.noScroll) return;
 
     setScrollTarget(location.pathname + location.hash);
   }, [location]);
@@ -41,12 +37,15 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
 
     const io = new IntersectionObserver(
       entries => {
+        if (!pageRef.current) return;
         for (const entry of entries) {
 
           const target = entry.target as HTMLDivElement
 
-          if (target.dataset.path)
+          if (target.dataset.path) {
+            console.log("set ", target.dataset.path, entry.isIntersecting ? "inView" : "outOfView")
             setAnchorRefInView(target.dataset.path, entry.isIntersecting);
+          }
           if (target.dataset.path === scrollTarget && entry.isIntersecting)
             setScrollTarget(null);
         }
@@ -73,8 +72,8 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
     // we're already at the ref's url.
     if (firstAnchorInView.path === location.pathname + location.hash) return;
     // update the url without setting a new scroll target.
-    setNoScroll(true);
-    navigate(firstAnchorInView.path);
+    // setNoScroll(true);
+    navigate(firstAnchorInView.path, { state: { noScroll: true } });
   }, [firstAnchorInView, scrollTarget]);
 
   return children;

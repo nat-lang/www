@@ -1,10 +1,9 @@
 import { FunctionComponent } from "react";
 import { FileTree } from "../../context/file";
 import { iconWidth } from "./conf";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { TypesetAnchorResp } from "../../types";
 import useCanvasCtx from "../../context/canvas";
-import Link from "../link";
 
 type FBlobOps = {
   node: FileTree;

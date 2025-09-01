@@ -47,6 +47,7 @@ const Edit: FunctionComponent<EditProps> = ({ }) => {
     if (!canEvaluate) return;
     if (objects[path]) return;
 
+    console.log("evaluating", path)
     evaluate(path);
   }, [canEvaluate, path, objects[path]]);
 
@@ -71,7 +72,7 @@ const Edit: FunctionComponent<EditProps> = ({ }) => {
         <div className="Button-text">evaluate</div>
       </Button>
 
-      <Link to="/new"><Button>new</Button></Link>
+      <Button><Link to="/new">new</Link></Button>
     </Header>
     <Page evaluating={evaluating} model={model} orientation="OE" />
     {openFilePane && <FilePane onSubmit={handleSave} path={path} />}
