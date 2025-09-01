@@ -12,6 +12,7 @@ import useCmdKeys from '../hooks/useCmdKeys';
 import { useModel } from '../context/monaco';
 import Page from '../components/page';
 import useCanvasCtx from '../context/canvas';
+import { trimPrefix } from '../utilities';
 
 type EditProps = {
   git: Git | null;
@@ -23,8 +24,6 @@ const Edit: FunctionComponent<EditProps> = ({ git, onNew, fileMap }) => {
   const path = useLocation().pathname;
   const githubAuth = useAuthCtx(state => state.token);
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-
-  console.log(path, fileMap);
   const model = useModel(path, fileMap[path]);
   const { evaluate, evaluating, rendering, canEvaluate } = useRuntime();
   const { objects } = useCanvasCtx();
@@ -34,7 +33,7 @@ const Edit: FunctionComponent<EditProps> = ({ git, onNew, fileMap }) => {
     if (!git) return;
     if (!model) return;
     setSaving(true);
-    await git.commitFileChange(form.path, model.getValue(), import.meta.env.VITE_GITHUB_BRANCH);
+    await git.commitFileChange(trimPrefix(form.path, "/"), model.getValue(), import.meta.env.VITE_GITHUB_BRANCH);
     setSaving(false);
   };
 

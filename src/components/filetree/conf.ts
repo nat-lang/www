@@ -1,4 +1,5 @@
 import { EXT } from "@nat-lang/nat";
+import { trimPrefix } from "../../utilities";
 
 export const iconWidth = 13;
 
@@ -10,4 +11,12 @@ const stripExt = (str: string) => {
 };
 
 
-export const fmtTitle = (path: string, parentPath: string) => stripExt(path.replace(`${parentPath}/`, ""));
+export const fmtTitle = (path: string, parentPath: string) => {
+  let formatted = path;
+
+  formatted = path.replace(`${parentPath}/`, "");
+  formatted = stripExt(formatted);
+  formatted = trimPrefix(formatted, "/");
+
+  return formatted;
+} 
