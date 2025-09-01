@@ -1,17 +1,14 @@
-import { FunctionComponent, ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useCanvasCtx from "../context/canvas";
-import { sortObjs } from "../utilities";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useShallow } from "zustand/react/shallow";
 
-type ScrollManagerProps = {
-  children: ReactNode;
-}
-
-const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
-  const { pageRef, anchorRefs, setObserver, setAnchorRefInView } = useCanvasCtx();
+const useScrollManager = () => {
+  const [pageRef, anchorRefs, getFirstAnchorInView, setObserver, setAnchorRefInView] = useCanvasCtx(useShallow(state => [state.pageRef, state.anchorRefs, state.firstAnchorInView, state.setObserver, state.setAnchorRefInView]));
   const [scrollTarget, setScrollTarget] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const firstAnchorInView = getFirstAnchorInView();
 
   // set a scroll target if it's in the url.
   useEffect(() => {
@@ -37,15 +34,12 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
 
     const io = new IntersectionObserver(
       entries => {
-        if (!pageRef.current) return;
         for (const entry of entries) {
-
           const target = entry.target as HTMLDivElement
 
-          if (target.dataset.path) {
-            console.log("set ", target.dataset.path, entry.isIntersecting ? "inView" : "outOfView")
+          if (target.dataset.path)
             setAnchorRefInView(target.dataset.path, entry.isIntersecting);
-          }
+
           if (target.dataset.path === scrollTarget && entry.isIntersecting)
             setScrollTarget(null);
         }
@@ -61,22 +55,17 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
     };
   }, [pageRef, scrollTarget]);
 
-  const firstAnchorInView = sortObjs(Object.values(anchorRefs)).find(ref => ref.inView);
-
   // update the url if an anchor scrolls into view.
   useEffect(() => {
     // we're scrolling programatically; nothing to do.
     if (scrollTarget) return;
     // no anchor in view.
-    if (!firstAnchorInView) return;
+    if (!firstAnchorInView?.current) return;
     // we're already at the ref's url.
     if (firstAnchorInView.path === location.pathname + location.hash) return;
     // update the url without setting a new scroll target.
-    // setNoScroll(true);
     navigate(firstAnchorInView.path, { state: { noScroll: true } });
   }, [firstAnchorInView, scrollTarget]);
-
-  return children;
 };
 
-export default ScrollManager;
+export default useScrollManager;

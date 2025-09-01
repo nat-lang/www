@@ -13,6 +13,7 @@ import useRuntimeCtx from "./context/runtime";
 import useCreateCtx from "./context/create";
 import { useShallow } from "zustand/react/shallow";
 import useGitCtx from "./context/git";
+import useScrollManager from "./components/scrollmanager";
 
 const EditorCommands = {
   CmdEnter: "CmdEnter"
@@ -32,7 +33,6 @@ const App = () => {
   const { center } = useDimsCtx(useShallow(({ center }) => ({ center })));
 
   const runtimeCtx = useRuntimeCtx();
-  const createCtx = useCreateCtx();
   const { models, setModel, delModel } = useModelCtx();
   const location = useLocation();
 
@@ -41,7 +41,7 @@ const App = () => {
 
   const ctx = () => `let window = {"center": "${px2pt(vw2px(center * 0.667))}pt"};
 let host = "${window.location.protocol}//${window.location.host}";
-let path = "${window.location.pathname}";
+let path = "${location.pathname}";
   `;
 
   // init.
@@ -84,11 +84,6 @@ let path = "${window.location.pathname}";
   // manage the context file we expose to nat code.
   // -------------------------------------
 
-  useBlocker(() => {
-    setCtxLoaded(false);
-    return false;
-  })
-
   useEffect(() => {
     if (!repoLoaded) return;
 
@@ -97,6 +92,12 @@ let path = "${window.location.pathname}";
 
     return () => delModel(ctxPath);
   }, [repoLoaded]);
+
+  // flip this flag before each navigation.
+  useBlocker(() => {
+    setCtxLoaded(false);
+    return false;
+  });
 
   useEffect(() => {
     if (!ctxModel) return;
@@ -154,6 +155,9 @@ let path = "${window.location.pathname}";
       setRepoLoaded();
     })();
   }, [git]);
+
+  // -------------------------------------
+  useScrollManager();
 
   return <Outlet />
 };

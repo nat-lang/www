@@ -21,8 +21,6 @@ const FBlob: FunctionComponent<FBlobOps> = ({ node, title, depth }) => {
     obj => `${location.pathname}${location.hash}` === `${obj.out.path}#${obj.out.title}`
   );
 
-  console.log(activeAnchor)
-
   const active = location.pathname === node.path && !activeAnchor;
   const paddingLeft = iconWidth + 5 * depth;
 

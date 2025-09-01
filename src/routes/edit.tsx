@@ -46,8 +46,6 @@ const Edit: FunctionComponent<EditProps> = ({ }) => {
     if (!path) return;
     if (!canEvaluate) return;
     if (objects[path]) return;
-
-    console.log("evaluating", path)
     evaluate(path);
   }, [canEvaluate, path, objects[path]]);
 

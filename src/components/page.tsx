@@ -42,24 +42,22 @@ const Page: FunctionComponent<PageProps> = ({ evaluating, model, className = "",
   </div>;
 
   return <div className={`Editor ${className}`}>
-    <ScrollManager>
-      {(() => {
-        switch (orientation) {
-          case "OE":
-            return <Grid
-              left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
-              center={Output("center")}
-              right={Editor("right")}
-            />
-          case "EO":
-            return <Grid
-              left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
-              center={Editor("center")}
-              right={Output("right")}
-            />
-        }
-      })()}
-    </ScrollManager>
+    {(() => {
+      switch (orientation) {
+        case "OE":
+          return <Grid
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
+            center={Output("center")}
+            right={Editor("right")}
+          />
+        case "EO":
+          return <Grid
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
+            center={Editor("center")}
+            right={Output("right")}
+          />
+      }
+    })()}
   </div>;
 };
 
