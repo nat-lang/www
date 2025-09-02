@@ -5,16 +5,16 @@ import AnchorPDF from "./pdf/anchor";
 import useCanvasCtx, { CanvasObj } from "../context/canvas";
 import { sortObjs } from "../utilities";
 import FauxAnchor from "./fauxanchor";
+import { useLocation } from "react-router-dom";
 
 type CanvasOps = {
-  fsPath: string;
-  objects: CanvasObj[],
-  urlPath?: string;
   style?: React.CSSProperties;
+  objects: CanvasObj[];
 }
 
-const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, objects, urlPath = fsPath, style = {} }) => {
+const Canvas: FunctionComponent<CanvasOps> = ({ objects, style = {} }) => {
   const ref = useRef<HTMLDivElement | null>(null);
+  const path = useLocation().pathname;
   const canvasCtx = useCanvasCtx();
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, objects, urlPath = fsPat
 
   return <div className="Canvas" ref={ref}>
     <div className="CanvasPane" style={style}>
-      <FauxAnchor path={"/" + urlPath} order={0} />
+      <FauxAnchor path={path} order={0} />
 
       {sortObjs(objects).map(
         obj => {
@@ -40,7 +40,7 @@ const Canvas: FunctionComponent<CanvasOps> = ({ fsPath, objects, urlPath = fsPat
                 className="Canvas-item"
                 key={obj.id}
                 block={obj}
-                parent={fsPath}
+                parent={path}
               />
             case "anchor":
               return <AnchorPDF

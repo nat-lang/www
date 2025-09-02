@@ -11,26 +11,26 @@ import { editor } from 'monaco-editor';
 import Canvas from './canvas';
 import useCanvasCtx from '../context/canvas';
 import { useShallow } from 'zustand/react/shallow';
-import ScrollManager from './scrollmanager';
+import { useLocation } from 'react-router-dom';
 
 type PageProps = {
   evaluating: boolean;
-  fsPath: string;
-  urlPath?: string;
   model: editor.ITextModel | null;
   className?: string;
   orientation: "OE" | "EO"
 }
 
-const Page: FunctionComponent<PageProps> = ({ evaluating, fsPath, urlPath, model, className = "", orientation }) => {
+const Page: FunctionComponent<PageProps> = ({ evaluating, model, className = "", orientation }) => {
   const { setDims } = useDimsCtx(useShallow(({ setDims }) => ({ setDims })));
-  const { objects } = useCanvasCtx();
+  const path = useLocation().pathname;
+  const canvasCtx = useCanvasCtx();
+  const objects = canvasCtx.objects[path] ?? [];
 
   const Editor = (pane: keyof Dims) => (dims: Dims) => <Monaco model={model} style={{ width: vw(dims[pane]) }} />;
   const Output = (pane: keyof Dims) => (dims: Dims) => <div className="Page" style={{ width: vw(dims[pane]) }} >
     {evaluating
       ? <div className="CanvasPreview" style={{ width: vw(dims[pane]) }}><LoadingGear /></div>
-      : <Canvas fsPath={fsPath} objects={objects[fsPath] ?? []} urlPath={urlPath} />
+      : <Canvas objects={objects} />
     }
 
     {dims.right > MIN_COL_VW
@@ -45,24 +45,22 @@ const Page: FunctionComponent<PageProps> = ({ evaluating, fsPath, urlPath, model
   </div>;
 
   return <div className={`Editor ${className}`}>
-    <ScrollManager>
-      {(() => {
-        switch (orientation) {
-          case "OE":
-            return <Grid
-              left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
-              center={Output("center")}
-              right={Editor("right")}
-            />
-          case "EO":
-            return <Grid
-              left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
-              center={Editor("center")}
-              right={Output("right")}
-            />
-        }
-      })()}
-    </ScrollManager>
+    {(() => {
+      switch (orientation) {
+        case "OE":
+          return <Grid
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
+            center={Output("center")}
+            right={Editor("right")}
+          />
+        case "EO":
+          return <Grid
+            left={({ left }) => <Navigation style={{ flexBasis: vw(left) }} />}
+            center={Editor("center")}
+            right={Output("right")}
+          />
+      }
+    })()}
   </div>;
 };
 

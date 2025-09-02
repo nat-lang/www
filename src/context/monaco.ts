@@ -18,20 +18,21 @@ const useModelCtx = create<ModelCtx>()(set => ({
   delModel: (path) => {
     set(({ models }) => {
       const model = models[path];
+      console.log("dispose", path)
       model.dispose();
-      delete models[path];
-      return { models };
+      const { [path]: _, ...newModels } = models;
+      return { models: newModels };
     })
   }
 }));
 
-export const createModel = (path: string, content: string, onDidChangeContent = () => { }) => {
+export const createModel = (path: string, content: string, onDidChangeContent: ((v: string) => void) = () => { }) => {
   const uri = monaco.Uri.file(path);
   const model = monaco.editor.createModel(content, 'nat', uri);
   model.onDidChangeContent(_ => {
     const v = model.getValue();
     runtime.setFile(path, v);
-    onDidChangeContent();
+    onDidChangeContent(v);
   });
   return model;
 };

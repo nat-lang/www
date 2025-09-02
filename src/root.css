@@ -6,6 +6,11 @@ html {
   box-sizing: border-box;
 }
 
+a {
+  color: black;
+  text-decoration: none;
+}
+
 *,
 *:before,
 *:after {
@@ -64,6 +69,10 @@ button:active {
   transform: translateY(1px);
 }
 
+.flex {
+  display: flex;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -78,8 +87,7 @@ button:active {
   flex-grow: 1;
 }
 
-.flex-center {
-  justify-content: center;
+.flex-align {
   align-items: center;
 }
 
@@ -232,4 +240,44 @@ button:active {
 
 .FilePane {
   position: fixed;
+}
+
+.FileTreeFolder,
+.FileTreeFile,
+.FileTreeAnchor {
+  cursor: pointer;
+  overflow-x: hidden;
+}
+
+.FileTreeAnchorTitle span,
+.FileTreeFileTitle span {
+  padding-left: 5px;
+  text-indent: -5px;
+  display: inline-block;
+}
+
+.FileTreeAnchor--active .FileTreeAnchorTitle span,
+.FileTreeFile--active .FileTreeFileTitle span {
+  background-color: #bedffc;
+  border-radius: 3px;
+  padding-left: 10px;
+  margin-left: -5px;
+  padding-right: 5px;
+  margin-right: -5px;
+}
+
+.FileTreeFolder {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.FileTreeFolder .icon {
+  margin-top: 3.5px;
+  min-width: 10px;
+  min-height: 10px;
+}
+
+.FileTreeFolder.FileTreeFolder--closed .icon {
+  transform: rotate(-90deg);
 }

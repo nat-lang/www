@@ -1,54 +1,67 @@
 import { create } from 'zustand';
-import { RepoFileTree } from '../types';
-import { CoreFile } from '@nat-lang/nat';
+import { RepoFileArray } from '../types';
 
 export type FileMap = Record<string, string | undefined>;
 
+export type FileTree = {
+  children?: FileTree[];
+  path: string;
+  type: string;
+}
+
+export const fileArrayToTree = (repo: RepoFileArray): FileTree[] => {
+  const trees = [];
+
+  for (let i = 0; i < repo.length; i++) {
+    if (!repo[i].path) continue;
+    if (!repo[i].type) continue;
+
+    const node: FileTree = { ...repo[i], path: repo[i].path!, type: repo[i].type!, children: [] };
+
+    if (node.type === "tree") {
+      const slice = [];
+      while (i + 1 < repo.length && repo[i + 1].path && repo[i + 1].path!.startsWith(node.path))
+        slice.push(repo[++i]);
+      node.children = fileArrayToTree(slice);
+    }
+
+    trees.push(node);
+  }
+
+  return trees as FileTree[];
+}
+
 interface FileCtx {
-  docTree: RepoFileTree;
-  libTree: RepoFileTree;
-  coreTree: CoreFile[];
+  repo: FileTree[];
+  core: FileTree[];
+  repoMap: FileMap;
 
-  docs: FileMap;
-  lib: FileMap;
+  setRepo: (tree: FileTree[]) => void;
+  setCore: (tree: FileTree[]) => void;
+  setRepoFile: (path: string, content: string) => void;
 
-  setDocTree: (docTree: RepoFileTree) => void;
-  setLibTree: (libTree: RepoFileTree) => void;
-  setCoreTree: (coreTree: CoreFile[]) => void;
-
-  setDocFile: (path: string, content: string) => void;
-  setLibFile: (path: string, content: string) => void;
-
-  docsLoaded: boolean;
-  libLoaded: boolean;
+  repoLoaded: boolean;
   ctxLoaded: boolean;
   filesLoaded: () => boolean;
 
-  setLibLoaded: () => void;
-  setDocsLoaded: () => void;
+  setRepoLoaded: () => void;
   setCtxLoaded: (v: boolean) => void;
 }
 
 const useFileCtx = create<FileCtx>()((set, get) => ({
-  docTree: [],
-  libTree: [],
-  coreTree: [],
-  docs: {},
-  lib: {},
+  repo: [],
+  core: [],
+  repoMap: {},
   anchors: {},
   canvasRefs: {},
-  docsLoaded: false,
-  libLoaded: false,
+  repoLoaded: false,
   ctxLoaded: false,
-  setDocTree: docTree => set(_ => ({ docTree })),
-  setLibTree: libTree => set(_ => ({ libTree })),
-  setCoreTree: coreTree => set(_ => ({ coreTree })),
-  setDocFile: (path, content) => set(state => ({ docs: { ...state.docs, [path]: content, } })),
-  setLibFile: (path, content) => set(state => ({ lib: { ...state.lib, [path]: content, } })),
-  setDocsLoaded: () => set(_ => ({ docsLoaded: true })),
-  setLibLoaded: () => set(_ => ({ libLoaded: true })),
+  setRepo: repo => set(_ => ({ repo })),
+  setCore: core => set(_ => ({ core })),
+  setRepoFile: (path, content) => set(state => ({ repoMap: { ...state.repoMap, [path]: content, } })),
+  setRepoLoaded: () => set(_ => ({ repoLoaded: true })),
   setCtxLoaded: v => set(_ => ({ ctxLoaded: v })),
-  filesLoaded: () => get().docsLoaded && get().libLoaded && get().ctxLoaded
+  filesLoaded: () => get().repoLoaded && get().ctxLoaded
 }));
 
 export default useFileCtx;

@@ -1,8 +1,9 @@
 import { AnchorResp, CodeblockResp, TexResp, NatResp, TextResp } from "@nat-lang/nat";
 import { Endpoints as OctoEndpoints } from "@octokit/types";
+import { editor } from "monaco-editor";
 
-export type RepoFileTree = OctoEndpoints["GET /repos/{owner}/{repo}/git/trees/{tree_sha}"]["response"]["data"]["tree"];
-export type RepoFile = RepoFileTree[0];
+export type RepoFileArray = OctoEndpoints["GET /repos/{owner}/{repo}/git/trees/{tree_sha}"]["response"]["data"]["tree"];
+export type RepoFile = RepoFileArray[0];
 
 type Stamped<T> = T & { id: string; order: number; };
 
@@ -19,3 +20,5 @@ export type TypesetTexResp = Typeset<StampedTexResp>;
 export type TypesetAnchorResp = Typeset<StampedAnchorResp>;
 
 export type TypesetResp = Typeset<StampedTexResp> | Typeset<StampedAnchorResp>;
+
+export type OutletContext = { ctxModel: editor.ITextModel | null };

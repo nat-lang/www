@@ -5,7 +5,7 @@ import { Document, Page } from "react-pdf";
 import "./standalone.css";
 import useDimsCtx from "../../context/dims";
 import { useShallow } from "zustand/react/shallow";
-import { useNavigation } from "../../hooks/useNavigation";
+import { useNavigate } from "react-router-dom";
 
 export type StandaloneProps = {
   file?: string;
@@ -17,7 +17,7 @@ export type StandaloneProps = {
 const Standalone = forwardRef<HTMLDivElement, StandaloneProps>(({ file, style, path, className = "" }, ref) => {
   const { scale, setMaxPdfWidth } = useDimsCtx(useShallow(({ scale, setMaxPdfWidth }) => ({ scale, setMaxPdfWidth })));
   const [pages, setPages] = useState(0);
-  const { navigate } = useNavigation();
+  const navigate = useNavigate();
 
   const handlePageRef = (node: HTMLCanvasElement) => {
     if (!node) return;

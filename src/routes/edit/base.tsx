@@ -1,18 +1,16 @@
 import { useState, useEffect, FunctionComponent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Header from '../components/header';
-import Button from '../components/button';
-import FilePane, { FilePaneFieldValues } from '../components/filepane';
-import useAuthCtx from '../context/auth';
-import useFileCtx from '../context/file';
-import { useRuntime } from '../hooks/useRuntime';
-import LoadingGear from '../icons/loadingGear';
-import useCmdKeys from '../hooks/useCmdKeys';
-import { useModel } from '../context/monaco';
-import Page from '../components/page';
-import useCanvasCtx from '../context/canvas';
-import { trimPrefix } from '../utilities';
-import useGitCtx from '../context/git';
+import Header from '../../components/header';
+import Button from '../../components/button';
+import FilePane, { FilePaneFieldValues } from '../../components/filepane';
+import useAuthCtx from '../../context/auth';
+import { useRuntime } from '../../hooks/useRuntime';
+import LoadingGear from '../../icons/loadingGear';
+import useCmdKeys from '../../hooks/useCmdKeys';
+import Page from '../../components/page';
+import useCanvasCtx from '../../context/canvas';
+import { trimPrefix } from '../../utilities';
+import useGitCtx from '../../context/git';
 import { editor } from 'monaco-editor';
 
 type BaseEditProps = {
@@ -76,11 +74,4 @@ const BaseEdit: FunctionComponent<BaseEditProps> = ({ model }) => {
   </>;
 };
 
-const Edit = () => {
-  const { repoMap } = useFileCtx();
-  const path = useLocation().pathname;
-  const model = useModel(path, repoMap[path]);
-  return <BaseEdit model={model} />
-}
-
-export default Edit;
+export default BaseEdit;

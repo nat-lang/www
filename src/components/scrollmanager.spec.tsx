@@ -71,99 +71,107 @@ afterEach(() => {
 });
 
 describe("ScrollManager", () => {
-  it('scrolls to hash anchor on render', async () => {
-    currentLocation = {
-      pathname: '/foo',
-      hash: '#bam',
-      key: 'key',
-      search: '',
-      state: null,
-    };
+  describe("when rendered with a hash in the url", () => {
+    it('scrolls to the corresponding anchor', async () => {
+      currentLocation = {
+        pathname: '/foo',
+        hash: '#bam',
+        key: 'key',
+        search: '',
+        state: null,
+      };
 
-    const { getByPath } = render(
-      <BrowserRouter>
-        <ScrollManager>
-          <AnchorPDF style={{ height: "1px", width: "100%", backgroundColor: "red" }} path="/foo#bar" order={1} />
-          <div style={{ height: "1000px" }}></div>
-          <AnchorPDF style={{ height: "1px", width: "100%", backgroundColor: "red" }} path="/foo#bam" order={2} />
-        </ScrollManager>
-      </BrowserRouter>
-    );
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    expect(isInViewport(getByPath('/foo#bar').element())).toBe(false);
-    expect(isInViewport(getByPath('/foo#bam').element())).toBe(true);
-  })
-
-  it('updates hash when anchor is in view', async () => {
-    vi.stubGlobal('IntersectionObserver', intersectionObserverMock);
-
-    currentLocation = {
-      pathname: '/foo',
-      hash: '',
-      key: 'key',
-      search: '',
-      state: null,
-    };
-    mockNavigate = vi.fn();
-
-    const { getByPath } = render(
-      <BrowserRouter>
-        <ScrollManager>
-          <Canvas fsPath="foo" objects={[
-            {
-              type: "anchor",
-              success: true,
-              pdf,
-              out: {
-                title: "anchor",
-                tex: "\bf{anchor}",
-                path: "/foo"
-              },
-              id: "1",
-              order: 1,
-            } as TypesetAnchorResp,
-          ]} />
-        </ScrollManager>
-      </BrowserRouter>
-    );
-
-    const fauxAnchor = getByPath('/foo').element();
-    const anchor = getByPath('/foo#anchor').element();
-
-    const instances = intersectionObserverMock.mock.instances;
-    expect(instances.length).toBe(1);
-
-    const instance = instances[0];
-    const calls = intersectionObserverMock.mock.calls;
-    expect(calls.length).toBe(1);
-
-    const firstCall = calls[0];
-    expect(firstCall.length).toBe(2);
-
-    const callback = (firstCall as unknown as [IntersectionObserverCallback, IntersectionObserverInit])[0];
-    const triggerIntersection = (target: Element, isIntersecting: boolean) =>
-      callback(
-        [{
-          target,
-          isIntersecting,
-          intersectionRatio: 1,
-          boundingClientRect: new DOMRectReadOnly(),
-          intersectionRect: new DOMRectReadOnly(),
-          rootBounds: null,
-          time: Date.now(),
-        }],
-        instance
+      const { getByPath } = render(
+        <BrowserRouter>
+          <ScrollManager>
+            <AnchorPDF style={{ height: "1px", width: "100%", backgroundColor: "red" }} path="/foo#bar" order={1} />
+            <div style={{ height: "1000px" }}></div>
+            <AnchorPDF style={{ height: "1px", width: "100%", backgroundColor: "red" }} path="/foo#bam" order={2} />
+          </ScrollManager>
+        </BrowserRouter>
       );
 
-    // discharge the first target.
-    triggerIntersection(fauxAnchor, true);
-    // move it out of view.
-    triggerIntersection(fauxAnchor, false);
-    // now move the anchor into view.
-    triggerIntersection(anchor, true);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    expect(mockNavigate).toHaveBeenCalledWith("/foo#anchor");
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      expect(isInViewport(getByPath('/foo#bar').element())).toBe(false);
+      expect(isInViewport(getByPath('/foo#bam').element())).toBe(true);
+    });
   })
+
+  describe("when the users scrolls an anchor into view", () => {
+    it('updates the hash in the url', async () => {
+      vi.stubGlobal('IntersectionObserver', intersectionObserverMock);
+
+      currentLocation = {
+        pathname: '/foo',
+        hash: '',
+        key: 'key',
+        search: '',
+        state: null,
+      };
+      mockNavigate = vi.fn();
+
+      const { getByPath } = render(
+        <BrowserRouter>
+          <ScrollManager>
+            <Canvas objects={[
+              {
+                type: "anchor",
+                success: true,
+                pdf,
+                out: {
+                  title: "anchor",
+                  tex: "\bf{anchor}",
+                  path: "/foo"
+                },
+                id: "1",
+                order: 1,
+              } as TypesetAnchorResp,
+            ]} />
+          </ScrollManager>
+        </BrowserRouter>
+      );
+
+      const fauxAnchor = getByPath('/foo').element();
+      const anchor = getByPath('/foo#anchor').element();
+
+      const instances = intersectionObserverMock.mock.instances;
+      expect(instances.length).toBe(1);
+
+      const instance = instances[0];
+      const calls = intersectionObserverMock.mock.calls;
+      expect(calls.length).toBe(1);
+
+      const firstCall = calls[0];
+      expect(firstCall.length).toBe(2);
+
+      const callback = (firstCall as unknown as [IntersectionObserverCallback, IntersectionObserverInit])[0];
+      const triggerIntersection = (target: Element, isIntersecting: boolean) =>
+        callback(
+          [{
+            target,
+            isIntersecting,
+            intersectionRatio: 1,
+            boundingClientRect: new DOMRectReadOnly(),
+            intersectionRect: new DOMRectReadOnly(),
+            rootBounds: null,
+            time: Date.now(),
+          }],
+          instance
+        );
+
+      // discharge the first target.
+      triggerIntersection(fauxAnchor, true);
+      // move it out of view.
+      triggerIntersection(fauxAnchor, false);
+      // now move the anchor into view.
+      triggerIntersection(anchor, true);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      expect(mockNavigate).toHaveBeenCalledWith("/foo#anchor", {
+        state: {
+          noScroll: true,
+        },
+      })
+    })
+  });
 });

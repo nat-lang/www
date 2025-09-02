@@ -29,7 +29,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
     const { objects } = useCanvasCtx();
     const maxPdfWidth = useDimsCtx(useShallow(state => state.maxPdfWidth));
     const dir = `${parent}-codeblocks`;
-    const path = `/${dir}/${block.id}`;
+    const path = `${dir}/${block.id}`;
     const { delModel } = useModelCtx();
     const model = useModel(path, block.out.text);
     const [dirty, setDirty] = useState(false);
@@ -39,7 +39,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
       if (!fileLoaded) return;
 
       const file = await runtime.getFile(path);
-      await runtime.setFile(path, `use ../.common\n${file.content}`);
+      await runtime.setFile(path, `use ../../online/common\n${file.content}`);
 
       await evaluate(path);
       setDirty(true);
