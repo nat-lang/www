@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import { StampedCodeblockResp, StampedTextResp, TypesetResp } from '../types';
+import { StampedAnchorResp, StampedCodeblockResp, StampedMarkdownResp, StampedPdfResp, StampedTextResp } from '../types';
 import { RefObject } from 'react';
 import { sortObjs } from '../utilities';
 
-export type CanvasObj = TypesetResp | StampedCodeblockResp | StampedTextResp;
+export type CanvasObj = StampedPdfResp | StampedMarkdownResp | StampedAnchorResp | StampedCodeblockResp | StampedTextResp;
 type Ref = RefObject<HTMLDivElement | null | undefined>;
 export type AnchorRef = Ref & {
   path: string;

@@ -8,7 +8,7 @@ import Monaco from './monaco';
 import { vw } from '../utilities';
 import useDimsCtx, { Dims } from '../context/dims';
 import { editor } from 'monaco-editor';
-import Canvas from './canvas';
+import Canvas from './canvas/canvas';
 import useCanvasCtx from '../context/canvas';
 import { useShallow } from 'zustand/react/shallow';
 import { useLocation } from 'react-router-dom';
@@ -27,10 +27,10 @@ const Page: FunctionComponent<PageProps> = ({ evaluating, model, className = "",
   const objects = canvasCtx.objects[path] ?? [];
 
   const Editor = (pane: keyof Dims) => (dims: Dims) => <Monaco model={model} style={{ width: vw(dims[pane]) }} />;
-  const Output = (pane: keyof Dims) => (dims: Dims) => <div className="Page" style={{ width: vw(dims[pane]) }} >
+  const Output = (pane: keyof Dims) => (dims: Dims) => <div className="Output" style={{ width: vw(dims[pane]) }} >
     {evaluating
       ? <div className="CanvasPreview" style={{ width: vw(dims[pane]) }}><LoadingGear /></div>
-      : <Canvas objects={objects} />
+      : <Canvas objects={objects} width={dims[pane]} />
     }
 
     {dims.right > MIN_COL_VW
@@ -44,7 +44,7 @@ const Page: FunctionComponent<PageProps> = ({ evaluating, model, className = "",
       />}
   </div>;
 
-  return <div className={`Editor ${className}`}>
+  return <div className={`Page ${className}`}>
     {(() => {
       switch (orientation) {
         case "OE":

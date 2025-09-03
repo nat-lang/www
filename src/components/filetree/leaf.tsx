@@ -2,7 +2,7 @@ import { FunctionComponent } from "react";
 import { FileTree } from "../../context/file";
 import { iconWidth } from "./conf";
 import { Link, useLocation } from "react-router-dom";
-import { TypesetAnchorResp } from "../../types";
+import { StampedAnchorResp } from "../../types";
 import useCanvasCtx from "../../context/canvas";
 
 type FileTreeLeafOps = {
@@ -16,7 +16,7 @@ const FileTreeLeaf: FunctionComponent<FileTreeLeafOps> = ({ node, title, depth }
   const canvasCtx = useCanvasCtx();
   const objs = canvasCtx.objects[node.path] ?? [];
 
-  const anchors = objs.filter(obj => obj.type === "anchor") as TypesetAnchorResp[];
+  const anchors = objs.filter(obj => obj.type === "anchor") as StampedAnchorResp[];
   const activeAnchor = anchors.find(
     obj => `${location.pathname}${location.hash}` === `${obj.out.path}#${obj.out.title}`
   );
@@ -25,7 +25,7 @@ const FileTreeLeaf: FunctionComponent<FileTreeLeafOps> = ({ node, title, depth }
   const paddingLeft = iconWidth + 5 * depth;
 
   return <>
-    <Link to={node.path}><div
+    <Link to={node.path} preventScrollReset={true}><div
       className={`FileTreeFile ${active ? "FileTreeFile--active" : ""}`}
       style={{ paddingLeft }}
     >
@@ -37,6 +37,7 @@ const FileTreeLeaf: FunctionComponent<FileTreeLeafOps> = ({ node, title, depth }
       anchor => <Link
         key={`${node.path}-${anchor.out.title}`}
         to={`${location.pathname === anchor.out.path ? "" : anchor.out.path}#${anchor.out.title}`}
+        preventScrollReset={true}
       >
         <div
           className={`FileTreeAnchor ${activeAnchor && activeAnchor.out === anchor.out ? "FileTreeAnchor--active" : ""}`}

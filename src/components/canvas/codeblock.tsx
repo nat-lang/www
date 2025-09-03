@@ -1,33 +1,32 @@
 import "./codeblock.css";
 import { forwardRef, useEffect, useState } from "react";
-import Monaco from './monaco';
-import Button from './button';
-import { useRuntime } from '../hooks/useRuntime';
-import runtime from '../service/nat/client';
-import Play from "../icons/play";
-import useModelCtx, { useModel } from "../context/monaco";
-import useDimsCtx from "../context/dims";
-import { useShallow } from "zustand/react/shallow";
-import useCanvasCtx from "../context/canvas";
-import { sortObjs } from "../utilities";
+import Monaco from '../monaco';
+import Button from '../button';
+import { useRuntime } from '../../hooks/useRuntime';
+import runtime from '../../service/nat/client';
+import Play from "../../icons/play";
+import useModelCtx, { useModel } from "../../context/monaco";
+import useCanvasCtx from "../../context/canvas";
+import { sortObjs, vw2px } from "../../utilities";
 import StandalonePDF from "./pdf/standalone";
-import Check from "../icons/check";
-import LoadingGear from "../icons/loadingGear";
-import { StampedCodeblockResp } from "../types";
-import Exclaim from "../icons/exclaim";
+import Check from "../../icons/check";
+import LoadingGear from "../../icons/loadingGear";
+import { StampedCodeblockResp } from "../../types";
+import Exclaim from "../../icons/exclaim";
+import { CANVAS_MARGIN } from "../../config";
 
 type CodeblockProps = {
   parent: string;
   block: StampedCodeblockResp;
   className?: string;
+  width: number;
 }
 
 const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
-  ({ parent, block, className = "" }, ref) => {
+  ({ parent, block, width, className = "" }, ref) => {
     const [fileLoaded, setFileLoaded] = useState<boolean>(false);
     const { evaluate, evaluating, rendering, stdout, stderr } = useRuntime();
     const { objects } = useCanvasCtx();
-    const maxPdfWidth = useDimsCtx(useShallow(state => state.maxPdfWidth));
     const dir = `${parent}-codeblocks`;
     const path = `${dir}/${block.id}`;
     const { delModel } = useModelCtx();
@@ -72,11 +71,12 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
       }
     }, [evaluating, rendering]);
 
-    return <div className={`Codeblock ${className}`} style={{ maxWidth: maxPdfWidth ?? undefined }} ref={ref} >
+    return <div className={`Codeblock ${className}`} ref={ref} >
       <div className="Codeblock-row flex-row">
         <div className="Codeblock-space" />
-        <div className="flex-col flex-grow" >
+        <div className="Membrane flex-col" >
           <Monaco
+            style={{ width: vw2px(width) - CANVAS_MARGIN * 2 }}
             model={model}
             fitHeightToContent
             options={{

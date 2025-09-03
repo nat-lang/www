@@ -12,7 +12,6 @@ import * as monaco from 'monaco-editor';
 import useRuntimeCtx from "./context/runtime";
 import { useShallow } from "zustand/react/shallow";
 import useGitCtx from "./context/git";
-import useScrollManager from "./components/scrollmanager";
 import { OutletContext } from "./types";
 import ScrollManager from "./components/scrollmanager";
 

@@ -3,7 +3,7 @@
 import { CSSProperties, forwardRef, useEffect, useState } from "react";
 import { Document, Page } from "react-pdf";
 import "./standalone.css";
-import useDimsCtx from "../../context/dims";
+import useDimsCtx from "../../../context/dims";
 import { useShallow } from "zustand/react/shallow";
 import { useNavigate } from "react-router-dom";
 
@@ -15,14 +15,9 @@ export type StandaloneProps = {
 }
 
 const Standalone = forwardRef<HTMLDivElement, StandaloneProps>(({ file, style, path, className = "" }, ref) => {
-  const { scale, setMaxPdfWidth } = useDimsCtx(useShallow(({ scale, setMaxPdfWidth }) => ({ scale, setMaxPdfWidth })));
+  const { scale } = useDimsCtx(useShallow(({ scale }) => ({ scale })));
   const [pages, setPages] = useState(0);
   const navigate = useNavigate();
-
-  const handlePageRef = (node: HTMLCanvasElement) => {
-    if (!node) return;
-    setMaxPdfWidth(node.offsetWidth);
-  };
 
   const handlePageClick = (e: MouseEvent) => {
     if (!e.target) return;
@@ -43,7 +38,7 @@ const Standalone = forwardRef<HTMLDivElement, StandaloneProps>(({ file, style, p
 
   return <div className={`Standalone ${className}`} style={style} ref={ref} data-path={path}>
     {file && <Document file={`data:application/pdf;base64,${file}`} onLoadSuccess={({ numPages }) => setPages(numPages)}>
-      <Page onClick={handlePageClick} pageNumber={1} canvasRef={handlePageRef} renderTextLayer={false} scale={scale} />
+      <Page onClick={handlePageClick} pageNumber={1} renderTextLayer={false} scale={scale} />
     </Document>}
   </div>
 });

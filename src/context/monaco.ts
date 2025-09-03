@@ -18,7 +18,6 @@ const useModelCtx = create<ModelCtx>()(set => ({
   delModel: (path) => {
     set(({ models }) => {
       const model = models[path];
-      console.log("dispose", path)
       model.dispose();
       const { [path]: _, ...newModels } = models;
       return { models: newModels };

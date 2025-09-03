@@ -1,18 +1,20 @@
 import { FunctionComponent, useEffect, useRef } from "react";
 import Codeblock from "./codeblock";
 import StandalonePDF from "./pdf/standalone";
-import AnchorPDF from "./pdf/anchor";
-import useCanvasCtx, { CanvasObj } from "../context/canvas";
-import { sortObjs } from "../utilities";
+import useCanvasCtx, { CanvasObj } from "../../context/canvas";
+import { sortObjs } from "../../utilities";
 import FauxAnchor from "./fauxanchor";
 import { useLocation } from "react-router-dom";
+import Markdown from "./markdown";
+import Anchor from "./anchor";
 
 type CanvasOps = {
   style?: React.CSSProperties;
   objects: CanvasObj[];
+  width: number;
 }
 
-const Canvas: FunctionComponent<CanvasOps> = ({ objects, style = {} }) => {
+const Canvas: FunctionComponent<CanvasOps> = ({ objects, width, style = {} }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const path = useLocation().pathname;
   const canvasCtx = useCanvasCtx();
@@ -41,15 +43,20 @@ const Canvas: FunctionComponent<CanvasOps> = ({ objects, style = {} }) => {
                 key={obj.id}
                 block={obj}
                 parent={path}
+                width={width}
               />
             case "anchor":
-              return <AnchorPDF
+              return <Anchor
                 className="Canvas-item"
                 key={obj.id}
                 path={`${obj.out.path}#${obj.out.title}`}
-                file={obj.pdf}
                 order={obj.order}
-              />
+              >{obj.out.md}</Anchor>
+            case "markdown":
+              return <Markdown
+                className="Canvas-item"
+                key={obj.id}
+              >{obj.out}</Markdown>
             default:
               return undefined;
           }
