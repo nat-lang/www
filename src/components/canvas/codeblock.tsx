@@ -13,7 +13,7 @@ import Check from "../../icons/check";
 import LoadingGear from "../../icons/loadingGear";
 import { StampedCodeblockResp } from "../../types";
 import Exclaim from "../../icons/exclaim";
-import { CANVAS_MARGIN } from "../../config";
+import { CANVAS_MARGIN, CANVAS_MAX_WIDTH } from "../../config";
 
 type CodeblockProps = {
   parent: string;
@@ -76,7 +76,7 @@ const Codeblock = forwardRef<HTMLDivElement, CodeblockProps>(
         <div className="Codeblock-space" />
         <div className="Membrane flex-col" >
           <Monaco
-            style={{ width: vw2px(width) - CANVAS_MARGIN * 2 }}
+            style={{ width: Math.min(vw2px(width), CANVAS_MAX_WIDTH) - CANVAS_MARGIN * 2 }}
             model={model}
             fitHeightToContent
             options={{

@@ -20,7 +20,7 @@ const Base: FunctionComponent<BaseProps> = ({ model }) => {
 
   return <>
     <Header />
-    <div className="Editor">
+    <div className="Page">
       <Grid
         left={
           ({ left }) => <Navigation style={{ flexBasis: vw(left) }} />
