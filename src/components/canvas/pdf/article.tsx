@@ -3,9 +3,9 @@
 import { CSSProperties, FunctionComponent, useState } from "react";
 import { Document, Page } from "react-pdf";
 import "./Article.css";
-import Plus from "../../icons/plus";
-import Minus from "../../icons/minus";
-import useDimsCtx from "../../context/dims";
+import Plus from "../../../icons/plus";
+import Minus from "../../../icons/minus";
+import useDimsCtx from "../../../context/dims";
 
 type ArticleOps = {
   file?: string;

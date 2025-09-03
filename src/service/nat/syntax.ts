@@ -10,9 +10,11 @@ export const installSyntax = async () => {
     themes: ["vitesse-light"],
     langs: [
       "latex",
+      "markdown",
       {
         embeddedLangs: [
           "latex",
+          "markdown"
         ],
         ...natGrammar
       },
@@ -21,6 +23,7 @@ export const installSyntax = async () => {
 
   monaco.languages.register({ id: 'nat' });
   monaco.languages.register({ id: 'latex' });
+  monaco.languages.register({ id: 'markdown' });
 
   shikiToMonaco(highlighter, monaco);
 };

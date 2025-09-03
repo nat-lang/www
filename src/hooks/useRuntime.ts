@@ -7,7 +7,7 @@ import { v4 } from 'uuid';
 import useRuntimeCtx from '../context/runtime';
 import useFileCtx from '../context/file';
 import useCanvasCtx from '../context/canvas';
-import { StampedAnchorResp, StampedNatResp, StampedTexResp } from '../types';
+import { StampedNatResp, StampedTexResp } from '../types';
 
 export const useRuntime = () => {
   const [evaluating, setEvaluating] = useState<boolean>(false);
@@ -47,11 +47,8 @@ export const useRuntime = () => {
         addObj(path, { pdf, ...stampedResp });
         break;
       }
-      case "anchor": {
-        const pdf = await render((resp as StampedAnchorResp).out.tex);
-        addObj(path, { pdf, ...stampedResp });
-        break;
-      }
+      case "anchor":
+      case "markdown":
       case "codeblock":
       case "string":
         addObj(path, stampedResp);

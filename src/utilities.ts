@@ -18,6 +18,8 @@ export const getTextDimensions = (text: string) => {
   }
 };
 
+export const trimPrefix = (path: string, prefix: string) => path.replace(new RegExp(`^${prefix}`), "");
+
 export const pathBits = (path: string) => {
   const bits = path.split("/");
   const file = bits[bits.length - 1];

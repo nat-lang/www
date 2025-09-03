@@ -1,49 +1,48 @@
-import { useState, FunctionComponent } from 'react';
+import { useState, FunctionComponent, useEffect } from 'react';
 import Header from '../components/header';
 import Button from '../components/button';
-import Git, { Repo } from '../service/git';
 import FilePane, { FilePaneFieldValues } from '../components/filepane';
 import { useRuntime } from '../hooks/useRuntime';
 import useCreateCtx from '../context/create';
-import { useModel } from '../context/monaco';
+import useModelCtx, { createModel } from '../context/monaco';
 import Page from '../components/page';
-import { RepoFileTree } from '../types';
+import { useNavigate } from 'react-router-dom';
+import useGitCtx from '../context/git';
 
-type CreateProps = {
-  git: Git | null;
-  repo: Repo;
-  tree: RepoFileTree;
-  onCreate: (path: string) => void;
-  ctx: {
-    content: string;
-    path: string;
-  }
-}
+type CreateProps = {}
 
-const Create: FunctionComponent<CreateProps> = ({ git, repo, onCreate }) => {
+const Create: FunctionComponent<CreateProps> = () => {
+  const { git } = useGitCtx();
+  const navigate = useNavigate();
   const [openFilePane, setOpenFilePane] = useState<boolean>(false);
-  const { doc: content, docPath: path } = useCreateCtx();
-  const model = useModel(path, content);
+  const { content, path, setContent } = useCreateCtx();
+  const { models, setModel, delModel } = useModelCtx();
+  const model = path ? models[path] : null;
   const { evaluate, evaluating, canEvaluate } = useRuntime();
-
   const handleSave = async (form: FilePaneFieldValues) => {
     if (!git) return;
     if (!model) return;
 
-    await git.commitFileChange(form.path, model.getValue(), form.repo, import.meta.env.VITE_GITHUB_BRANCH);
+    await git.commitFileChange(form.path, model.getValue(), import.meta.env.VITE_GITHUB_BRANCH);
     setOpenFilePane(false);
-
-    onCreate(form.path);
+    navigate(form.path);
   };
+
+  useEffect(() => {
+    const model = createModel(path, content, setContent);
+    model.setValue(content);
+    setModel(path, model);
+    return () => delModel(path);
+  }, []);
 
   return <>
     <Header>
       <Button onClick={() => setOpenFilePane(true)}>save</Button>
-      <Button disabled={canEvaluate} onClick={() => path && evaluate(path)}>evaluate</Button>
+      <Button disabled={!canEvaluate} onClick={() => path && evaluate(path)}>evaluate</Button>
     </Header>
-    <Page evaluating={evaluating} fsPath={path} model={model} orientation="EO" />
+    <Page evaluating={evaluating} model={model} orientation="EO" />
 
-    {openFilePane && <FilePane onSubmit={handleSave} repo={repo} />}
+    {openFilePane && <FilePane onSubmit={handleSave} />}
   </>;
 };
 
