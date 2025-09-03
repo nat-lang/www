@@ -2,7 +2,7 @@ import { OctokitOptions } from "@octokit/core";
 import { Endpoints } from "@octokit/types";
 import { Octokit } from "octokit";
 
-export const DEFAULT_ORG = "nat-lang", REPO = "online";
+const ORG = import.meta.env.VITE_GITHUB_ORG, REPO = import.meta.env.VITE_GITHUB_REPO;
 
 class Git {
   octo: Octokit;
@@ -10,7 +10,7 @@ class Git {
   repo: string;
   branch: string;
 
-  constructor(octoOpts: OctokitOptions = {}, org: string = DEFAULT_ORG) {
+  constructor(octoOpts: OctokitOptions = {}, org: string = ORG) {
     this.octo = new Octokit(octoOpts);
     this.org = org;
     this.repo = REPO;
@@ -111,6 +111,7 @@ class Git {
 
   commitFileChange = async (path: string, content: string, branch: string) => {
     const currentCommit = await this.getCurrentCommit(branch);
+
     const blob = await this.createBlob(content);
     const tree = await this.createTree(
       [{
