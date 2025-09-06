@@ -356,7 +356,7 @@ h4 {
   text-decoration: underline;
 }
 
-span.codefont {
+.codefont {
   font-family: Menlo, Monaco, "Courier New", monospace;
   font-weight: normal;
   font-size: 12px;
@@ -366,6 +366,7 @@ span.codefont {
   letter-spacing: 0px;
 }
 
-span.codefont.keyword {
+.codefont.constant,
+.codefont.keyword {
   color: #1e754f;
 }

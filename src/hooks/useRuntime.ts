@@ -2,7 +2,7 @@ import { GEN_START, NatResp } from '@nat-lang/nat';
 import runtime from '../service/nat/client';
 import * as nls from '../service/nls/client';
 import { useState } from 'react';
-
+import slugify from 'slugify';
 import { v4 } from 'uuid';
 import useRuntimeCtx from '../context/runtime';
 import useFileCtx from '../context/file';
@@ -47,7 +47,11 @@ export const useRuntime = () => {
         addObj(path, { pdf, ...stampedResp });
         break;
       }
-      case "anchor":
+      case "anchor": {
+        console.log(stampedResp);
+        addObj(path, { ...stampedResp, slug: slugify(stampedResp.out.title) });
+        break;
+      }
       case "markdown":
       case "codeblock":
       case "string":

@@ -58,7 +58,7 @@ const BaseEdit: FunctionComponent<BaseEditProps> = ({ model }) => {
 
   return <>
     <Header>
-      {githubAuth && <Button disabled={saving} inflight={saving} className="SaveButton" onClick={() => setOpenFilePane(true)}>
+      {githubAuth && <Button disabled={true} inflight={saving} className="SaveButton" onClick={() => setOpenFilePane(true)}>
         <LoadingGear />
         <div className="Button-text">save</div>
       </Button>}

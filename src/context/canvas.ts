@@ -3,7 +3,14 @@ import { StampedAnchorResp, StampedCodeblockResp, StampedMarkdownResp, StampedPd
 import { RefObject } from 'react';
 import { sortObjs } from '../utilities';
 
-export type CanvasObj = StampedPdfResp | StampedMarkdownResp | StampedAnchorResp | StampedCodeblockResp | StampedTextResp;
+export type CanvasAnchor = StampedAnchorResp & { slug: string };
+export type CanvasObj =
+  | StampedPdfResp
+  | StampedMarkdownResp
+  | CanvasAnchor
+  | StampedCodeblockResp
+  | StampedTextResp;
+
 type Ref = RefObject<HTMLDivElement | null | undefined>;
 export type AnchorRef = Ref & {
   path: string;

@@ -49,7 +49,7 @@ const Canvas: FunctionComponent<CanvasOps> = ({ objects, width, style = {} }) =>
               return <Anchor
                 className="Canvas-item"
                 key={obj.id}
-                path={`${obj.out.path}#${obj.out.title}`}
+                path={`${obj.out.path}#${obj.slug}`}
                 order={obj.order}
               >{obj.out.md}</Anchor>
             case "markdown":
