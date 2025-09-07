@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useCanvasCtx from "../context/canvas";
 
 type UseAnchorProps = {
@@ -7,18 +7,22 @@ type UseAnchorProps = {
 }
 const useAnchor = ({ path, order }: UseAnchorProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [anchorInitialized, setAnchorInitialized] = useState(false);
   const { setAnchorRef, delAnchorRef, observer } = useCanvasCtx();
 
   useEffect(() => {
     setAnchorRef(path, { ...ref, path, order, inView: false });
+    setAnchorInitialized(true);
 
     return () => {
+      setAnchorInitialized(false);
       delAnchorRef(path);
     }
   }, [path]);
 
 
   useEffect(() => {
+    if (!anchorInitialized) return;
     if (!ref.current) return;
     if (!observer) return;
 
@@ -29,7 +33,7 @@ const useAnchor = ({ path, order }: UseAnchorProps) => {
         observer.unobserve(ref.current);
       }
     }
-  }, [path, observer, ref.current]);
+  }, [anchorInitialized, path, observer, ref.current]);
 
   return ref;
 };

@@ -7,6 +7,7 @@ import Anchor from './canvas/anchor';
 import { locators } from '@vitest/browser/context'
 import Canvas from './canvas/canvas';
 import { StampedAnchorResp } from '../types';
+import { CanvasAnchor } from '../context/canvas';
 
 // mock the location.
 
@@ -118,9 +119,10 @@ describe("ScrollManager", () => {
                   md: "**anchor**",
                   path: "/foo"
                 },
+                slug: "anchor",
                 id: "1",
                 order: 1,
-              } as StampedAnchorResp,
+              } as CanvasAnchor,
             ]} />
           </ScrollManager>
         </BrowserRouter>
