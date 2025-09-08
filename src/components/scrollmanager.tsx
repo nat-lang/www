@@ -17,6 +17,7 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
   useEffect(() => {
     if (scrollTarget) return;
     if (location.state?.noScroll) return;
+    if (!location.hash) return;
 
     setScrollTarget(location.pathname + location.hash);
   }, [location]);
