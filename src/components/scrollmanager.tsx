@@ -17,7 +17,6 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
   useEffect(() => {
     if (scrollTarget) return;
     if (location.state?.noScroll) return;
-    if (!location.hash) return;
 
     setScrollTarget(location.pathname + location.hash);
   }, [location]);
@@ -27,7 +26,7 @@ const ScrollManager: FunctionComponent<ScrollManagerProps> = ({ children }) => {
     const scrollTargetRef = scrollTarget ? anchorRefs[scrollTarget] : null;
     if (!scrollTargetRef?.current) return;
     if (scrollTargetRef.inView) return;
-    scrollTargetRef.current.scrollIntoView({ behavior: "smooth" });
+    scrollTargetRef.current.scrollIntoView();
   }, [scrollTarget, anchorRefs]);
 
   // track two things:
