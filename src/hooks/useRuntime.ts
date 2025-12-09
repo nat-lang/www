@@ -48,7 +48,6 @@ export const useRuntime = () => {
         break;
       }
       case "anchor": {
-        console.log(stampedResp);
         addObj(path, { ...stampedResp, slug: slugify(stampedResp.out.title) });
         break;
       }
