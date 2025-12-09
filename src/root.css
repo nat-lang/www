@@ -2,6 +2,10 @@
   --header-height: 66.67px;
 }
 
+html {
+      scrollbar-width: none;
+}
+
 @font-face {
   font-family: 'cmu_concreteroman';
   src: url('fonts/computermodern/webfonts/cmuconcrete_roman_macroman/cmunorm-webfont.woff') format('woff');
